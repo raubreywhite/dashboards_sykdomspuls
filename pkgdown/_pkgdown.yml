@@ -2,19 +2,19 @@ navbar:
   title: "sykdomspuls"
   left:
     - text: "Home"
-      href: "index.html"
+      href: index.html
     - text: "Articles"
       menu:
       - text: "Input data"
-      - href: "articles/inputdata.html"
+        href: articles/inputdata.html
       - text: "Signals"
-      - href: "articles/signals.html"
+        href: articles/signals.html
     - text: "Reference"
-      href: "reference/"
+      href: reference/
     - text: "Changelog"
-      href: "news/"
+      href: news/
     - text: "Contributing"
-      href: "CONTRIBUTING.html"
+      href: CONTRIBUTING.html
   right:
     - icon: fa-github
       href: https://github.com/folkehelseinstituttet/dashboards_sykdomspuls/

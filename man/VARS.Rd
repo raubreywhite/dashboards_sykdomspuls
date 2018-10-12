@@ -4,7 +4,7 @@
 \name{VARS}
 \alias{VARS}
 \title{VARS}
-\format{An object of class \code{environment} of length 1.}
+\format{An object of class \code{environment} of length 3.}
 \usage{
 VARS
 }

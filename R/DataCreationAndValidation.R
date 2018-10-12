@@ -26,7 +26,7 @@ GenFakeDataRaw <- function(){
     }
   }
   data <- rbindlist(data)
-  setcolorder(data,VARS$REQ_DATA_RAW)
+  setcolorder(data,VARS$REQ_DATA_RAW_ALL)
 
   return(data)
 }
@@ -35,9 +35,16 @@ GenFakeDataRaw <- function(){
 #' @param d Dataset to validate
 #' @export ValidateDataRaw
 ValidateDataRaw <- function(d){
-  if(sum(!VARS$REQ_DATA_RAW %in% names(d))>0){
+  # names(d) must contain all required variables
+  if(sum(!VARS$REQ_DATA_RAW_ALL %in% names(d))>0){
     return(FALSE)
   }
+
+  # there must not be any extra variables in names(d)
+  if(sum(!names(d) %in% VARS$REQ_DATA_RAW_ALL)>0){
+    return(FALSE)
+  }
+
   return(TRUE)
 }
 
