@@ -8,7 +8,6 @@ navbar:
       menu:
       - text: Signals
       href: articles/signals.html
-  - text: Compatibility
     - text: "Reference"
       href: "reference/"
     - text: "Changelog"
