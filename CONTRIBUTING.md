@@ -1,3 +1,5 @@
+# Contributing
+
 ## Development guidelines
 
 We try to follow the [GitHub flow](https://guides.github.com/introduction/flow/) for development.

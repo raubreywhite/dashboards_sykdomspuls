@@ -22,8 +22,6 @@ variablesPostProcessing <- c("age","type","location","locationName","status")
 #' @export variablesMunicip
 variablesMunicip <- c("county")
 
-
-
 #' CONFIG
 #' @export CONFIG
 CONFIG <- new.env(parent = emptyenv())
@@ -69,6 +67,20 @@ CONFIG$AGES <- c(
   "20-29",
   "30-64",
   "65+"
+)
+
+#' VARS
+#' @export VARS
+VARS <- new.env(parent = emptyenv())
+
+VARS$REQ_DATA_RAW <- c(
+  "age",
+  "date",
+  "Kontakttype",
+  "Praksis",
+  CONFIG$SYNDROMES,
+  "consult",
+  "municip"
 )
 
 #' norwayLocations

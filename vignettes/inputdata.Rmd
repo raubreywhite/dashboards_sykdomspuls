@@ -1,0 +1,28 @@
+---
+title: "Input data"
+author: "Richard White"
+date: "2018-10-12
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+library(sykdomspuls)
+```
+
+`sykdomspuls` requres a specific raw data format. We can use the function `GenFakeDataRaw()` to generate a set of fake data for `municip5054`.
+
+```{r}
+d <- GenFakeDataRaw()
+print(d)
+```
+
