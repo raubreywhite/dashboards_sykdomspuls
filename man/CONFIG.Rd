@@ -3,12 +3,24 @@
 \docType{data}
 \name{CONFIG}
 \alias{CONFIG}
-\title{CONFIG}
+\title{CONFIG
+An environment that contains a number of
+important variables for the configuration of sykdomspuls}
 \format{An object of class \code{environment} of length 9.}
 \usage{
 CONFIG
 }
 \description{
-CONFIG
+\itemize{
+  \item VERSION. The version that we are currently running.
+  \item VERSIONS. All available versions.
+  \item SYNDROMES_DOCTOR. Syndromes for which we will only count consultations where a doctor was seen.
+  \item SYNDROMES_ALL Syndromes for which we will count consultations where a doctor was seen and over the phone.
+  \item SYNDROMES. A combined vector of SYNDROMES_DOCTOR and SYNDROMES_ALL.
+  \item SYNDROMES_ALERT_INTERNAL. Syndromes for the internal FHI dashboard/alerts.
+  \item SYNDROMES_ALERT_EXTERNAL. Syndromes for the external dashboard/alerts.
+  \item SYNDROMES_SHORT. The short names of the syndromes.
+  \item AGES. The age groups that we run analyses on.
+}
 }
 \keyword{datasets}
