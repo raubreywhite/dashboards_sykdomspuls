@@ -1,2 +1,21 @@
-
+navbar:
+  title: "sykdomspuls"
+  type: inverse
+  left:
+    - text: "Home"
+      href: index.html
+    - text: Articles
+      menu:
+      - text: Signals
+      href: articles/signals.html
+  - text: Compatibility
+    - text: "Reference"
+      href: "reference/"
+    - text: "Changelog"
+      href: "news/"
+    - text: "Contributing"
+      href: "CONTRIBUTING.html"
+  right:
+    - icon: fa-github
+      href: https://github.com/folkehelseinstituttet/dashboards_sykdomspuls/
 url: https://folkehelseinstituttet.github.io/dashboards_sykdomspuls/

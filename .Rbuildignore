@@ -22,3 +22,4 @@ tests/testthat/results/.DS_Store
 .git
 CONTRIBUTING.md
 pkgdown/*
+LICENSE
