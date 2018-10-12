@@ -1,0 +1,26 @@
+Package: sykdomspuls
+Title: Norwegian Syndromic Surveillance System - NorSySS
+Version: 0.0.3
+Authors@R: person("Richard", "White", email = "w@rwhite.no", role = c("aut", "cre"))
+Author: Richard White
+Maintainer: Richard White <w@rwhite.no>
+Description: https://www.fhi.no/en/hn/statistics/NorSySS/.
+Depends: R (>= 3.4.0)
+Imports:
+  glm2,
+  stringr,
+  readxl,
+  lubridate,
+  data.table,
+  fhi,
+  httr,
+  jsonlite,
+  zoo,
+  RAWmisc
+Suggests: testthat
+Remotes: raubreywhite/RAWmisc, raubreywhite/fhi
+License: GPL-3
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+Additional_repositories: https://raubreywhite.github.io/drat/
