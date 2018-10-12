@@ -70,6 +70,9 @@
     <loc>https://folkehelseinstituttet.github.io/dashboards_sykdomspuls//reference/FormatData.html</loc>
   </url>
   <url>
+    <loc>https://folkehelseinstituttet.github.io/dashboards_sykdomspuls//reference/GenFakeDataRaw.html</loc>
+  </url>
+  <url>
     <loc>https://folkehelseinstituttet.github.io/dashboards_sykdomspuls//reference/GenNorwayLocations.html</loc>
   </url>
   <url>
@@ -121,7 +124,13 @@
     <loc>https://folkehelseinstituttet.github.io/dashboards_sykdomspuls//reference/UpdateData.html</loc>
   </url>
   <url>
+    <loc>https://folkehelseinstituttet.github.io/dashboards_sykdomspuls//reference/VARS.html</loc>
+  </url>
+  <url>
     <loc>https://folkehelseinstituttet.github.io/dashboards_sykdomspuls//reference/ValidateAnalysisResults.html</loc>
+  </url>
+  <url>
+    <loc>https://folkehelseinstituttet.github.io/dashboards_sykdomspuls//reference/ValidateDataRaw.html</loc>
   </url>
   <url>
     <loc>https://folkehelseinstituttet.github.io/dashboards_sykdomspuls//reference/displayDays.html</loc>
@@ -149,6 +158,9 @@
   </url>
   <url>
     <loc>https://folkehelseinstituttet.github.io/dashboards_sykdomspuls//reference/variablesPostProcessing.html</loc>
+  </url>
+  <url>
+    <loc>https://folkehelseinstituttet.github.io/dashboards_sykdomspuls//articles/inputdata.html</loc>
   </url>
   <url>
     <loc>https://folkehelseinstituttet.github.io/dashboards_sykdomspuls//articles/signals.html</loc>
