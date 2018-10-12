@@ -35,7 +35,7 @@ print(as.character(sykdomspuls::VARS$REQ_DATA_RAW_OTHER))
 In total, we require the following variables: 
 
 ```{r}
-print(as.character(sykdomspuls::VARS$REQ_DATA_RAW))
+print(as.character(sykdomspuls::VARS$REQ_DATA_RAW_ALL))
 ```
 
 We can use the function `GenFakeDataRaw()` to generate a set of fake data for `municip5054`.
@@ -45,3 +45,8 @@ d <- GenFakeDataRaw()
 print(d)
 ```
 
+And we can then use the function `ValidateDataRaw()` to ensure that our fake data is in the correct format:
+
+```{r}
+print(ValidateDataRaw(d))
+```

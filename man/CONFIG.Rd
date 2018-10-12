@@ -3,14 +3,13 @@
 \docType{data}
 \name{CONFIG}
 \alias{CONFIG}
-\title{CONFIG
-An environment that contains a number of
-important variables for the configuration of sykdomspuls}
+\title{Configuration of sykdomspuls}
 \format{An object of class \code{environment} of length 9.}
 \usage{
 CONFIG
 }
 \description{
+This environment holds a number of important variables for the configuration of sykdomspuls
 \itemize{
   \item VERSION. The version that we are currently running.
   \item VERSIONS. All available versions.

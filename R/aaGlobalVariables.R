@@ -22,10 +22,9 @@ variablesPostProcessing <- c("age","type","location","locationName","status")
 #' @export variablesMunicip
 variablesMunicip <- c("county")
 
-#' CONFIG
-#' An environment that contains a number of
-#' important variables for the configuration of sykdomspuls
+#' Configuration of sykdomspuls
 #'
+#' This environment holds a number of important variables for the configuration of sykdomspuls
 #' \itemize{
 #'   \item VERSION. The version that we are currently running.
 #'   \item VERSIONS. All available versions.
@@ -37,6 +36,7 @@ variablesMunicip <- c("county")
 #'   \item SYNDROMES_SHORT. The short names of the syndromes.
 #'   \item AGES. The age groups that we run analyses on.
 #' }
+#' @docType data
 #' @export CONFIG
 CONFIG <- new.env(parent = emptyenv())
 CONFIG$VERSION <- 1
