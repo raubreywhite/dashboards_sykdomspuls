@@ -73,15 +73,24 @@ CONFIG$AGES <- c(
 #' @export VARS
 VARS <- new.env(parent = emptyenv())
 
-VARS$REQ_DATA_RAW <- c(
+VARS$REQ_DATA_RAW_STRUCTURAL <- c(
   "age",
   "date",
   "Kontakttype",
   "Praksis",
-  CONFIG$SYNDROMES,
-  "consult",
   "municip"
 )
+
+VARS$REQ_DATA_RAW_OTHER <- c(
+  "consult"
+)
+
+VARS$REQ_DATA_RAW <- c(
+  VARS$REQ_DATA_RAW_STRUCTURAL,
+  CONFIG$SYNDROMES,
+  VARS$REQ_DATA_RAW_OTHER
+)
+
 
 #' norwayLocations
 #' @export norwayLocations

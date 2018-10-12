@@ -19,7 +19,26 @@ knitr::opts_chunk$set(
 library(sykdomspuls)
 ```
 
-`sykdomspuls` requres a specific raw data format. We can use the function `GenFakeDataRaw()` to generate a set of fake data for `municip5054`.
+`sykdomspuls` requres a specific raw data format. We require one (or less) rows for each structural variable:
+
+```{r}
+print(sykdomspuls::VARS$REQ_DATA_RAW_STRUCTURAL)
+```
+
+For each row, the variables saved in `sykdomspuls::CONFIG$SYNDROMES` and `sykdomspuls::VARS$REQ_DATA_RAW_OTHER` contain the number of consultations that occurred for that combination of structural variables.
+
+```{r}
+print(sykdomspuls::CONFIG$SYNDROMES)
+print(sykdomspuls::VARS$REQ_DATA_RAW_OTHER)
+```
+
+In total, we require the following variables: 
+
+```{r}
+print(sykdomspuls::VARS$REQ_DATA_RAW)
+```
+
+We can use the function `GenFakeDataRaw()` to generate a set of fake data for `municip5054`.
 
 ```{r}
 d <- GenFakeDataRaw()
