@@ -17,10 +17,13 @@ Imports:
   jsonlite,
   zoo,
   RAWmisc
-Suggests: testthat
+Suggests: testthat,
+    knitr,
+    rmarkdown
 Remotes: raubreywhite/RAWmisc, raubreywhite/fhi
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 6.0.1
 Additional_repositories: https://raubreywhite.github.io/drat/
+VignetteBuilder: knitr

@@ -20,3 +20,5 @@ tests/testthat/results/.DS_Store
 ..Rcheck
 .Rproj.user
 .git
+CONTRIBUTING.md
+pkgdown/*
