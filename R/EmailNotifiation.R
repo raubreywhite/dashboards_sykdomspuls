@@ -3,7 +3,7 @@
 #' @param isTest a
 #' @import fhi
 #' @export EmailNotificationOfNewData
-EmailNotificationOfNewData <- function(files, isTest=TRUE) {
+EmailNotificationOfNewData <- function(files, isTest = TRUE) {
   emailText <- paste0(
     "New Sykdomspulsen data has been received and signal processing has begun.
 <br><br>
@@ -55,8 +55,8 @@ EmailTechnicalNewResults <- function() {
 #' @import data.table
 #' @export EmailInternal
 EmailInternal <- function(
-                          resYearLine=readRDS(fhi::DashboardFolder("results", "resYearLine.RDS")),
-                          isTest=TRUE) {
+                          resYearLine = readRDS(fhi::DashboardFolder("results", "resYearLine.RDS")),
+                          isTest = TRUE) {
   # variables used in data.table functions in this function
   status <- NULL
   location <- NULL
@@ -182,7 +182,7 @@ Sykdomspulsen kan i noen tilfeller generere et OBS varsel selv om det bare er en
 #' @import data.table
 #' @importFrom RAWmisc Format RecodeDT
 #' @export EmailExternalGenerateTable
-EmailExternalGenerateTable <- function(results,xtype,xemail){
+EmailExternalGenerateTable <- function(results, xtype, xemail) {
   . <- NULL
   zscore <- NULL
   link <- NULL
@@ -196,18 +196,18 @@ EmailExternalGenerateTable <- function(results,xtype,xemail){
   cumE1 <- NULL
   email <- NULL
 
-  setorder(results,-zscore)
+  setorder(results, -zscore)
   results[, link := sprintf("<a href='http://sykdomspulsen.fhi.no/lege123/#/ukentlig/%s/%s/%s/%s'>Klikk</a>", county, location, type, age)]
   results[is.na(county), link := sprintf("<a href='http://sykdomspulsen.fhi.no/lege123/#/ukentlig/%s/%s/%s/%s'>Klikk</a>", location, location, type, age)]
   # this turns "dirty" type (eg gastro) into "pretty" type (e.g. mage-tarm syndrome)
-  results[,type_pretty:=type]
+  results[, type_pretty := type]
   RAWmisc::RecodeDT(results, switch = CONFIG$SYNDROMES, var = "type_pretty", oldOnLeft = FALSE)
   results[, output := sprintf("<tr> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> </tr>", link, type_pretty, locationName, location, age, n, round(cumE1), RAWmisc::Format(zscore, digits = 2))]
 
-  r <- results[email == xemail & type==xtype]
-  if(nrow(r)==0) return(sprintf("%s utbrudd:<br><br>Ingen utbrudd registrert",names(CONFIG$SYNDROMES)[CONFIG$SYNDROMES==xtype]))
+  r <- results[email == xemail & type == xtype]
+  if (nrow(r) == 0) return(sprintf("%s utbrudd:<br><br>Ingen utbrudd registrert", names(CONFIG$SYNDROMES)[CONFIG$SYNDROMES == xtype]))
 
-  emailText <- sprintf("%s utbrudd:<br><br><table style='width:90%%'><tr><th>Til nettsiden</th> <th>Syndrom</th> <th>Geografisk omr\u00E5de</th> <th>Geografisk omr\u00E5de</th> <th>Alder</th> <th>Meldte tilfeller</th> <th>Eksess</th> <th>Z-verdi</th></tr>",names(CONFIG$SYNDROMES)[CONFIG$SYNDROMES==xtype])
+  emailText <- sprintf("%s utbrudd:<br><br><table style='width:90%%'><tr><th>Til nettsiden</th> <th>Syndrom</th> <th>Geografisk omr\u00E5de</th> <th>Geografisk omr\u00E5de</th> <th>Alder</th> <th>Meldte tilfeller</th> <th>Eksess</th> <th>Z-verdi</th></tr>", names(CONFIG$SYNDROMES)[CONFIG$SYNDROMES == xtype])
   for (i in 1:nrow(r)) {
     emailText <- sprintf("%s%s", emailText, r$output[i])
   }
@@ -226,7 +226,7 @@ EmailExternalGenerateTable <- function(results,xtype,xemail){
 #' @import fhi
 #' @export EmailExternal
 EmailExternal <- function(
-                          results=readRDS(fhi::DashboardFolder("results", "outbreaks_alert_external.RDS")),
+                          results = readRDS(fhi::DashboardFolder("results", "outbreaks_alert_external.RDS")),
                           alerts = readxl::read_excel(file.path("/etc", "gmailr", "emails_sykdomspuls_alert.xlsx")),
                           isTest = TRUE,
                           forceNoOutbreak = FALSE,
@@ -373,8 +373,8 @@ Sykdomspulsen kan i noen tilfeller generere et OBS varsel selv om det bare er en
     emailText <- sprintf("%s</table><br><br>", emailText)
 
     # include outbreaks
-    for(type in CONFIG$SYNDROMES_ALERT_EXTERNAL){
-      emailText <- paste0(emailText,EmailExternalGenerateTable(results=r,xtype=type,xemail=useEmail),"<br><br>")
+    for (type in CONFIG$SYNDROMES_ALERT_EXTERNAL) {
+      emailText <- paste0(emailText, EmailExternalGenerateTable(results = r, xtype = type, xemail = useEmail), "<br><br>")
     }
 
     fhi::DashboardEmailSpecific(
@@ -407,7 +407,7 @@ EmailNotificationOfFailedResults <- function() {
 #' @import fhi
 #' @importFrom lubridate today
 #' @export EmailNotificationOfNewResults
-EmailNotificationOfNewResults <- function(lastEmailedUtbruddFile=fhi::DashboardFolder("results", "lastEmailedUtbrudd.RDS")) {
+EmailNotificationOfNewResults <- function(lastEmailedUtbruddFile = fhi::DashboardFolder("results", "lastEmailedUtbrudd.RDS")) {
   thisWeek <- format.Date(lubridate::today(), "%U")
   sendEmail <- TRUE
 

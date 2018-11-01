@@ -3,39 +3,39 @@
 #' @param yearMax a
 #' @param numPerYear1 a
 #' @export CalculateTrainPredictYearPattern
-CalculateTrainPredictYearPattern <- function(yearMin,yearMax,numPerYear1=1){
-  perYear1 <- seq(yearMax-numPerYear1+1,yearMax,by=1)
-  perYear2 <- c((yearMin+6):(yearMax-numPerYear1))
-  perFixed <- c(yearMin:(yearMin+5))
-  if(length(perYear2)%%2==1){
-    perYear1 <- c(max(perYear2),perYear1)
+CalculateTrainPredictYearPattern <- function(yearMin, yearMax, numPerYear1 = 1) {
+  perYear1 <- seq(yearMax - numPerYear1 + 1, yearMax, by = 1)
+  perYear2 <- c((yearMin + 6):(yearMax - numPerYear1))
+  perFixed <- c(yearMin:(yearMin + 5))
+  if (length(perYear2) %% 2 == 1) {
+    perYear1 <- c(max(perYear2), perYear1)
     perYear2 <- perYear2[-length(perYear2)]
   }
 
   years <- list()
   years[[1]] <- list(
-    yearTrainMin=min(perFixed),
-    yearTrainMax=max(perFixed-1),
-    yearPredictMin=min(perFixed),
-    yearPredictMax=max(perFixed)
+    yearTrainMin = min(perFixed),
+    yearTrainMax = max(perFixed - 1),
+    yearPredictMin = min(perFixed),
+    yearPredictMax = max(perFixed)
   )
   index <- 2
-  for(i in 1:length(perYear2)){
-    if(i%%2==0) next
+  for (i in 1:length(perYear2)) {
+    if (i %% 2 == 0) next
     years[[index]] <- list(
-      yearTrainMin=perYear2[i]-5,
-      yearTrainMax=perYear2[i]-1,
-      yearPredictMin=perYear2[i],
-      yearPredictMax=perYear2[i]+1
+      yearTrainMin = perYear2[i] - 5,
+      yearTrainMax = perYear2[i] - 1,
+      yearPredictMin = perYear2[i],
+      yearPredictMax = perYear2[i] + 1
     )
     index <- index + 1
   }
-  for(i in 1:length(perYear1)){
+  for (i in 1:length(perYear1)) {
     years[[index]] <- list(
-      yearTrainMin=perYear1[i]-5,
-      yearTrainMax=perYear1[i]-1,
-      yearPredictMin=perYear1[i],
-      yearPredictMax=perYear1[i]
+      yearTrainMin = perYear1[i] - 5,
+      yearTrainMax = perYear1[i] - 1,
+      yearPredictMin = perYear1[i],
+      yearPredictMax = perYear1[i]
     )
     index <- index + 1
   }
@@ -46,12 +46,12 @@ CalculateTrainPredictYearPattern <- function(yearMin,yearMax,numPerYear1=1){
 #' @param data d
 #' @import data.table
 #' @export AddXToWeekly
-AddXToWeekly <- function(data){
+AddXToWeekly <- function(data) {
   week <- NULL
   x <- NULL
 
-  data[week>=30,x:=week-29]
-  data[week<30,x:=week+23]
+  data[week >= 30, x := week - 29]
+  data[week < 30, x := week + 23]
 
   return(data)
 }
@@ -60,7 +60,7 @@ AddXToWeekly <- function(data){
 #' @param data d
 #' @import data.table
 #' @export AddWkyrAndDisplayDateToWeekly
-AddWkyrAndDisplayDateToWeekly <- function(data){
+AddWkyrAndDisplayDateToWeekly <- function(data) {
   . <- NULL
   wkyr <- NULL
   year <- NULL
@@ -77,7 +77,7 @@ AddWkyrAndDisplayDateToWeekly <- function(data){
 #' @param data d
 #' @import data.table
 #' @export DetermineStatus
-DetermineStatus <- function(data){
+DetermineStatus <- function(data) {
   status <- NULL
   n <- NULL
   threshold2 <- NULL
@@ -94,11 +94,9 @@ DetermineStatus <- function(data){
 #' @param loc a
 #' @import data.table
 #' @export AddCounty
-AddCounty <- function(data,loc){
-
-
-  county <- GetCountyFromMunicip(loc, norwayLocations=norwayLocations)
-  if(county != loc){
+AddCounty <- function(data, loc) {
+  county <- GetCountyFromMunicip(loc, norwayLocations = norwayLocations)
+  if (county != loc) {
     data[, county := county]
   }
 }
@@ -122,37 +120,40 @@ AnalyseYearLine <- function(data, v) {
   day <- NULL
   # end
 
-  yearMax <- as.numeric(format.Date(max(data$date),"%G"))
-  yearMin <- as.numeric(format.Date(min(data$date),"%G"))
+  yearMax <- as.numeric(format.Date(max(data$date), "%G"))
+  yearMin <- as.numeric(format.Date(min(data$date), "%G"))
 
-  dataset <- data[, .(n = sum(value),
-                      consult = sum(consult),
-                      pop = sum(pop),
-                      HelligdagIndikator=mean(HelligdagIndikator)), by = .(date)]
+  dataset <- data[, .(
+    n = sum(value),
+    consult = sum(consult),
+    pop = sum(pop),
+    HelligdagIndikator = mean(HelligdagIndikator)
+  ), by = .(date)]
 
-  dates <- dataset[,"date"]
-  dates[,year:=RAWmisc::YearN(date)]
-  dates[,week:=RAWmisc::WeekN(date)]
+  dates <- dataset[, "date"]
+  dates[, year := RAWmisc::YearN(date)]
+  dates[, week := RAWmisc::WeekN(date)]
 
-  years <- CalculateTrainPredictYearPattern(yearMin=yearMin, yearMax=yearMax, numPerYear1=1)
-  res <- vector("list",length=length(years))
+  years <- CalculateTrainPredictYearPattern(yearMin = yearMin, yearMax = yearMax, numPerYear1 = 1)
+  res <- vector("list", length = length(years))
 
-  for(i in 1:length(years)){
-    dateTrainMin <- min(dates[year==years[[i]]$yearTrainMin]$date)
-    dateTrainMax <- max(dates[year==years[[i]]$yearTrainMax]$date)
+  for (i in 1:length(years)) {
+    dateTrainMin <- min(dates[year == years[[i]]$yearTrainMin]$date)
+    dateTrainMax <- max(dates[year == years[[i]]$yearTrainMax]$date)
 
-    datePredictMin <- min(dates[year==years[[i]]$yearPredictMin]$date)
-    datePredictMax <- max(dates[year==years[[i]]$yearPredictMax]$date)
+    datePredictMin <- min(dates[year == years[[i]]$yearPredictMin]$date)
+    datePredictMax <- max(dates[year == years[[i]]$yearPredictMax]$date)
 
     res[[i]] <- QuasipoissonTrainPredictData(
-      datasetTrain=dataset[date >= dateTrainMin & date <= dateTrainMax],
-      datasetPredict=dataset[date >= datePredictMin & date <= datePredictMax],
-      isDaily=F, v=v)
+      datasetTrain = dataset[date >= dateTrainMin & date <= dateTrainMax],
+      datasetPredict = dataset[date >= datePredictMin & date <= datePredictMax],
+      isDaily = F, v = v
+    )
   }
   res <- rbindlist(res)
   res <- res[!is.na(threshold2)]
 
-  res <- res[,c(variablesAlgorithmWeekly, variablesAlgorithmBasic, variablesAlgorithmProduced),with=F]
+  res <- res[, c(variablesAlgorithmWeekly, variablesAlgorithmBasic, variablesAlgorithmProduced), with = F]
   return(res)
 }
 
@@ -172,37 +173,40 @@ AnalyseRecentLine <- function(data, v) {
   threshold2 <- NULL
   # end
 
-  yearMax <- as.numeric(format.Date(max(data$date),"%G"))
-  yearMin <- as.numeric(format.Date(min(data$date),"%G"))
+  yearMax <- as.numeric(format.Date(max(data$date), "%G"))
+  yearMin <- as.numeric(format.Date(min(data$date), "%G"))
 
-  dataset <- data[, .(n = sum(value),
-                                      consult = sum(consult),
-                                      pop = sum(pop),
-                                      HelligdagIndikator=mean(HelligdagIndikator)), by = .(date)]
+  dataset <- data[, .(
+    n = sum(value),
+    consult = sum(consult),
+    pop = sum(pop),
+    HelligdagIndikator = mean(HelligdagIndikator)
+  ), by = .(date)]
 
-  dates <- dataset[,"date"]
-  dates[,year:=RAWmisc::YearN(date)]
-  dates[,week:=RAWmisc::WeekN(date)]
+  dates <- dataset[, "date"]
+  dates[, year := RAWmisc::YearN(date)]
+  dates[, week := RAWmisc::WeekN(date)]
 
-  years <- CalculateTrainPredictYearPattern(yearMin=yearMin, yearMax=yearMax, numPerYear1=1)
-  res <- vector("list",length=length(years))
+  years <- CalculateTrainPredictYearPattern(yearMin = yearMin, yearMax = yearMax, numPerYear1 = 1)
+  res <- vector("list", length = length(years))
 
-  for(i in 1:length(years)){
-    dateTrainMin <- min(dates[year==years[[i]]$yearTrainMin]$date)
-    dateTrainMax <- max(dates[year==years[[i]]$yearTrainMax]$date)
+  for (i in 1:length(years)) {
+    dateTrainMin <- min(dates[year == years[[i]]$yearTrainMin]$date)
+    dateTrainMax <- max(dates[year == years[[i]]$yearTrainMax]$date)
 
-    datePredictMin <- min(dates[year==years[[i]]$yearPredictMin]$date)
-    datePredictMax <- max(dates[year==years[[i]]$yearPredictMax]$date)
+    datePredictMin <- min(dates[year == years[[i]]$yearPredictMin]$date)
+    datePredictMax <- max(dates[year == years[[i]]$yearPredictMax]$date)
 
     res[[i]] <- QuasipoissonTrainPredictData(
-      datasetTrain=dataset[date >= dateTrainMin & date <= dateTrainMax],
-      datasetPredict=dataset[date >= datePredictMin & date <= datePredictMax],
-      isDaily=T, v=v)
+      datasetTrain = dataset[date >= dateTrainMin & date <= dateTrainMax],
+      datasetPredict = dataset[date >= datePredictMin & date <= datePredictMax],
+      isDaily = T, v = v
+    )
   }
   res <- rbindlist(res)
   res <- res[!is.na(threshold2)]
 
-  res <- res[,c(variablesAlgorithmDaily, variablesAlgorithmBasic, variablesAlgorithmProduced),with=F]
+  res <- res[, c(variablesAlgorithmDaily, variablesAlgorithmBasic, variablesAlgorithmProduced), with = F]
 
   return(res)
 }
@@ -212,7 +216,7 @@ AnalyseRecentLine <- function(data, v) {
 #' @param analysisData a
 #' @import data.table
 #' @export RunOneAnalysis
-RunOneAnalysis <- function(analysesStack,analysisData){
+RunOneAnalysis <- function(analysesStack, analysisData) {
   # variables used in data.table functions in this function
   age <- NULL
   type <- NULL
@@ -222,42 +226,44 @@ RunOneAnalysis <- function(analysesStack,analysisData){
   n <- NULL
   threshold2 <- NULL
   threshold4 <- NULL
-  #end
+  # end
 
-  if(analysesStack$type=="influensa"){
-    setnames(analysisData,"consultWithInfluensa","consult")
+  if (analysesStack$type == "influensa") {
+    setnames(analysisData, "consultWithInfluensa", "consult")
   } else {
-    setnames(analysisData,"consultWithoutInfluensa","consult")
+    setnames(analysisData, "consultWithoutInfluensa", "consult")
   }
 
   retval <- NULL
-  if(analysesStack$granularity=="Daily"){
+  if (analysesStack$granularity == "Daily") {
     retval <- AnalyseRecentLine(
-          data = analysisData,
-          v = analysesStack$v)
+      data = analysisData,
+      v = analysesStack$v
+    )
   } else {
     retval <- AnalyseYearLine(
       data = analysisData,
-      v = analysesStack$v)
+      v = analysesStack$v
+    )
   }
 
   retval[, age := analysesStack$age]
   retval[, type := analysesStack$type]
   retval[, location := analysesStack$location]
-  retval[, locationName := GetLocationName(analysesStack$location, norwayLocations=norwayLocations)]
+  retval[, locationName := GetLocationName(analysesStack$location, norwayLocations = norwayLocations)]
 
   # make threshold2 minimum of 2 and threshold4 minimum of 3
-  retval[threshold2<2, threshold2:=2]
-  retval[threshold4<3, threshold4:=3]
+  retval[threshold2 < 2, threshold2 := 2]
+  retval[threshold4 < 3, threshold4 := 3]
 
   # create "normal", "medium", "high" categories
   DetermineStatus(retval)
 
   # add county if this is a municipality
-  AddCounty(data=retval,loc=analysesStack$location)
+  AddCounty(data = retval, loc = analysesStack$location)
 
   # validate data
-  if(!ValidateAnalysisResults(retval,granularity=analysesStack$granularity)) stop("Results in a bad format")
+  if (!ValidateAnalysisResults(retval, granularity = analysesStack$granularity)) stop("Results in a bad format")
 
   return(retval)
 }
@@ -293,5 +299,3 @@ GetCountyFromMunicip <- function(location, norwayLocations) {
 
   return(location)
 }
-
-
