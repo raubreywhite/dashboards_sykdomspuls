@@ -21,7 +21,7 @@ a$start_context("sykdomspuls")
 
 # Run process
 
-output <- processx::run("Rscript","/r/sykdomspuls/scripts/src/RunProcess.R", error_on_status=F, echo=T)
+output <- processx::run("Rscript","/r/sykdomspuls/src/RunProcess.R", error_on_status=F, echo=T)
 cat("\n\nstdout\n\n")
 cat(output$stdout)
 cat("\n\nstderr\n\n")
@@ -36,7 +36,7 @@ if(output$status==0){
 }
 
 ## Run API
-process <- processx::process$new("Rscript","/r/sykdomspuls/scripts/src/RunAPI.R")
+process <- processx::process$new("Rscript","/r/sykdomspuls/src/RunAPI.R")
 if(process$is_alive()){
   cat("\n**PASS 2**\n")
   a$add_result("sykdomspuls","API_0min",testthat::expectation("success","Pass"))

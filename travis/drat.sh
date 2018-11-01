@@ -1,10 +1,7 @@
 #!/bin/bash
-set -o errexit -o nounset
-PKG_REPO=$PWD
-cd ..
 
 addToDrat(){
-  mkdir drat; cd drat
+
 
   ## Set up Repo parameters
   git init
@@ -13,7 +10,7 @@ addToDrat(){
   git config --global push.default simple
 
   ## Get drat repo
-  git remote add upstream "https://$GH_TOKEN@github.com/folkehelseinstituttet/drat.git"
+  git remote add upstream "https://$GITHUB_PAT@github.com/folkehelseinstituttet/drat.git"
   git fetch upstream 2>err.txt
   git checkout gh-pages
 
@@ -26,11 +23,13 @@ addToDrat(){
 
 }
 
+
+set -o errexit -o nounset
+PKG_REPO=$PWD
+cd ..
+mkdir drat; cd drat
+
 addToDrat
 
-## Other options:
-## Only add if the commit is tagged: so something like:
-#if [ $TRAVIS_TAG ] ; then
-#   addToDrat
-#fi
-##but will need to edit .travis.yml since $TRAVIS_BRANCH will now equal $TRAVIS_TAG
+rm $PKG_REPO/$PKG_TARBALL
+cd $PKG_REPO
