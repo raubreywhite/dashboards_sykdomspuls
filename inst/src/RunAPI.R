@@ -1,7 +1,13 @@
 if(.Platform$OS.type == "unix"){
-  HOME <- "/r/sykdomspuls/src"
-  PLUMB <- "plumb"
-  DATA <- "/data_app/sykdomspuls"
+  if(Sys.getenv("RSTUDIO") == "1"){
+    HOME <- "/git/dashboards/dashboards_sykdomspuls/inst/src"
+    PLUMB <- "plumb"
+    DATA <- "/data_app/sykdomspuls"
+  } else {
+    HOME <- "/r/sykdomspuls/src"
+    PLUMB <- "plumb"
+    DATA <- "/data_app/sykdomspuls"
+  }
 } else {
   HOME <- "C:/Sykdomspulsen"
   PLUMB <- file.path("src","R","plumb")
