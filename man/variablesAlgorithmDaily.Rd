@@ -3,12 +3,16 @@
 \docType{data}
 \name{variablesAlgorithmDaily}
 \alias{variablesAlgorithmDaily}
-\title{variablesAlgorithmDaily}
-\format{An object of class \code{character} of length 1.}
+\title{Variables produced by the daily algorithm}
+\format{A vector with one variable:
+\describe{
+  \item{date}{Date of the observation}
+}}
 \usage{
 variablesAlgorithmDaily
 }
 \description{
-variablesAlgorithmDaily
+A variable containing the variables produced by the daily algorithm.
+The variabels are as follows:
 }
 \keyword{datasets}

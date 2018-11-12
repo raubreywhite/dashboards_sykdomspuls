@@ -1,4 +1,12 @@
-#' variablesAlgorithmDaily
+#' Variables produced by the daily algorithm
+#'
+#' A variable containing the variables produced by the daily algorithm.
+#' The variabels are as follows:
+#'
+#' @format A vector with one variable:
+#' \describe{
+#'   \item{date}{Date of the observation}
+#' }
 #' @export variablesAlgorithmDaily
 variablesAlgorithmDaily <- c("date")
 
