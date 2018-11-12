@@ -1,16 +1,17 @@
 ---
-title: "Overview"
+title: "Signals"
 author: "Richard White"
-date: "2018-11-12"
+date: "2018-10-12"
 output:
   rmarkdown::html_vignette:
     self_contained: TRUE
-    includes:
-      in_header: !expr system.file("ext", "style_vignettes.css", package = "fhi")
+    css:
+      - !expr system.file("rmarkdown/templates/html_vignette/resources/vignette.css", package = "rmarkdown")
+      - !expr system.file("ext", "style_vignettes.css", package = "fhi")
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
-  %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
+  %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
   chunk_output_type: console
 ---
