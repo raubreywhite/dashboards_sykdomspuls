@@ -5,9 +5,6 @@ date: "2018-10-12"
 output:
   rmarkdown::html_vignette:
     self_contained: TRUE
-    css:
-      - !expr system.file("rmarkdown/templates/html_vignette/resources/vignette.css", package = "rmarkdown")
-      - !expr system.file("ext", "style_vignettes.css", package = "fhi")
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEncoding{UTF-8}
@@ -23,6 +20,8 @@ knitr::opts_chunk$set(
 )
 ```
 
+We create some fake data:
+
 ```{r}
 library(data.table)
 library(ggplot2)
@@ -31,6 +30,8 @@ library(ggplot2)
 d <- sykdomspuls::GenFakeDataRaw()
 print(d)
 ```
+
+We format the data into panel data:
 
 ```{r}
 # Format the data into panel data
@@ -42,14 +43,18 @@ d <- sykdomspuls::FormatData(d,
 print(d)
 ```
 
+We take out the total age, and change some names:
+
 ```{r}
 d <- d[age=="Totalt"]
+setnames(d, "value", "n")
+setnames(d, "consultWithInfluensa", "consult")
 print(d)
 ```
 
+We run our analysis:
+
 ```{r}
-setnames(d, "value", "n")
-setnames(d, "consultWithInfluensa", "consult")
 res <- sykdomspuls::QuasipoissonTrainPredictData(
   datasetTrain = d,
   datasetPredict = d,
