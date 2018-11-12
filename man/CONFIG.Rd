@@ -3,23 +3,24 @@
 \docType{data}
 \name{CONFIG}
 \alias{CONFIG}
-\title{Configuration of sykdomspuls}
-\format{An object of class \code{environment} of length 9.}
+\title{Configuration of analyses}
+\format{An environment containing 9 variables:
+\describe{
+  \item{VERSION}{The version that we are currently running.}
+  \item{VERSIONS}{All available versions.}
+  \item{SYNDROMES_DOCTOR}{Syndromes for which we will only count consultations where a doctor was seen.}
+  \item{SYNDROMES_ALL}{Syndromes for which we will count consultations where a doctor was seen and over the phone.}
+  \item{SYNDROMES}{A combined vector of SYNDROMES_DOCTOR and SYNDROMES_ALL.}
+  \item{SYNDROMES_ALERT_INTERNAL}{Syndromes for the internal FHI dashboard/alerts.}
+  \item{SYNDROMES_ALERT_EXTERNAL}{Syndromes for the external dashboard/alerts.}
+  \item{SYNDROMES_SHORT}{The short names of the syndromes.}
+  \item{AGES}{The age groups that we run analyses on.}
+}}
 \usage{
 CONFIG
 }
 \description{
-This environment holds a number of important variables for the configuration of sykdomspuls
-\itemize{
-  \item VERSION. The version that we are currently running.
-  \item VERSIONS. All available versions.
-  \item SYNDROMES_DOCTOR. Syndromes for which we will only count consultations where a doctor was seen.
-  \item SYNDROMES_ALL Syndromes for which we will count consultations where a doctor was seen and over the phone.
-  \item SYNDROMES. A combined vector of SYNDROMES_DOCTOR and SYNDROMES_ALL.
-  \item SYNDROMES_ALERT_INTERNAL. Syndromes for the internal FHI dashboard/alerts.
-  \item SYNDROMES_ALERT_EXTERNAL. Syndromes for the external dashboard/alerts.
-  \item SYNDROMES_SHORT. The short names of the syndromes.
-  \item AGES. The age groups that we run analyses on.
-}
+This environment holds a number of important variables for
+configuring the analyses that will be run.
 }
 \keyword{datasets}
