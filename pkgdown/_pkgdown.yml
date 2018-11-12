@@ -6,6 +6,8 @@ navbar:
       href: index.html
     - text: "Articles"
       menu:
+      - text: "Overview"
+        href: articles/overview.html
       - text: "Input data"
         href: articles/inputdata.html
       - text: "Signals"

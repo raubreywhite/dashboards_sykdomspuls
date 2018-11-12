@@ -1,0 +1,56 @@
+---
+title: "Overview"
+author: "Richard White"
+date: "2018-11-12"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+# External Website
+
+The external website is comprised of two parts:
+
+- A reactjs/D3js website hosted on Apache
+- An API that supplies the website with the json data it needs
+
+## Reactjs/D3js Website
+
+The source code for the website is currently available here: https://github.com/raubreywhite/sykdomspuls_reactjs
+
+This will be updated soon to:
+
+1. Transfer ownership to https://github.com/folkehelseinstituttet
+2. Use http://parceljs.org as a bundling tool instead of webpack
+3. Improve D3js code
+
+## API On External Webserver {#api}
+
+The external website's API is powered by [plumber](https://www.rplumber.io). Briefly, this is an R package that can convert R data into json and serve it through http requests.
+
+This is done through the [RunAPI.R](https://github.com/folkehelseinstituttet/dashboards_sykdomspuls/blob/master/inst/src/RunAPI.R) which is run by an R instance on the external webserver.
+
+# Signal Processing On SMHB
+
+This R package is triggered via [cron](https://folkehelseinstituttet.github.io/dashboards/umbrella.html#cron). The [cronjob](https://folkehelseinstituttet.github.io/dashboards/umbrella.html#cron) calls [0_run.sh](https://github.com/folkehelseinstituttet/dashboards_sykdomspuls/blob/master/inst/bin/0_run.sh) which is the enterance point for this package.
+
+When [0_run.sh](https://github.com/folkehelseinstituttet/dashboards_sykdomspuls/blob/master/inst/bin/0_run.sh) is called, it firstly uses `flock` to determine if another instance of sykdomspuls is already running - if so, [0_run.sh](https://github.com/folkehelseinstituttet/dashboards_sykdomspuls/blob/master/inst/bin/0_run.sh) exits. Otherwise, [RunProcess.R](https://github.com/folkehelseinstituttet/dashboards_sykdomspuls/blob/master/inst/src/RunProcess.R) is run, which:
+
+- Checks for unprocessed data
+- If there is no unprocessed data, then quits with `status=21`
+- Processes all unprocessed data
+- If successful, quits with `status=0`
+
+[0_run.sh](https://github.com/folkehelseinstituttet/dashboards_sykdomspuls/blob/master/inst/bin/0_run.sh) then checks the exit code of [RunProcess.R](https://github.com/folkehelseinstituttet/dashboards_sykdomspuls/blob/master/inst/src/RunProcess.R). If it is 0 and the computer name is [smhb](https://folkehelseinstituttet.github.io/dashboards/umbrella.html#requirements---smhb) (i.e. production computer) then all data in `/data_app/sykdomspuls/*.RDS` is uploaded to the folder `/data/` on `sykdomspulsen.fhi.no` (i.e. uploading results to the external webserver). The file [1_delete_website_token.sh](https://github.com/folkehelseinstituttet/dashboards_sykdomspuls/blob/master/inst/bin/1_delete_website_token.sh) is then run, which deletes the file `/data/.deleteThisToRestartR` on `sykdomspulsen.fhi.no`, which triggers a script on the external webserver to restart R on the external webserver. After R is restarted, [RunAPI.R](https://github.com/folkehelseinstituttet/dashboards_sykdomspuls/blob/master/inst/src/RunAPI.R) is automatically run, loading in the new data for the [API](#api).
+
