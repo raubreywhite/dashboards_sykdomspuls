@@ -27,6 +27,12 @@ template:
       api_key: f6722ec7c9eec7d8d2b5ad767e6e5c45
       index_name: sykdomspuls
 reference:
+- title: Environments
+  desc: >
+    Environments
+  contents:
+  - CONFIG
+  - VARS
 - title: Variables
   desc: >
     Themes control the display of all non-data elements of the plot. You
@@ -41,4 +47,57 @@ reference:
   - variablesAlgorithmProduced
   - variablesPostProcessing
   - variablesMunicip
-
+  - displayDays
+  - norwayLocations
+  - norwayMunicipMerging
+- title: Data Functions
+  desc: >
+    hello
+  contents:
+  - AddCounty
+  - AddWkyrAndDisplayDateToWeekly
+  - AddXToWeekly
+  - CreateLatestDoneFile
+  - DeleteLatestDoneFile
+  - DeleteOldDatasets
+  - DetermineStatus
+  - FormatData
+  - GenFakeDataRaw
+  - GenNorwayLocations
+  - GenNorwayMunicipMerging
+  - GenerateAnalysisResults
+  - GenerateOutbreakListExternal
+  - GenerateOutbreakListInternal
+  - GetAgesLU
+  - GetCountyFromMunicip
+  - GetLocationName
+  - GetPopulation
+  - IdentifyAllDatasets
+  - IdentifyDatasets
+  - LatestDatasets
+  - LatestRawID
+  - SaveData
+  - UpdateData
+  - ValidateAnalysisResults
+  - ValidateDataRaw
+- title: Analysis Functions
+  desc: >
+    hello
+  contents:
+  - AnalyseRecentLine
+  - AnalyseYearLine
+  - CalculateTrainPredictYearPattern
+  - QuasipoissonTrainPredictData
+  - RunOneAnalysis
+  - FarringtonSEinGammaSpace
+  - FarringtonThreshold
+  - FarringtonZscore
+- title: Email Functions
+  desc: >
+    hello
+  contents:
+  - EmailExternal
+  - EmailExternalGenerateTable
+  - EmailInternal
+  - EmailNotificationOfFailedResults
+  - EmailNotificationOfNewData
