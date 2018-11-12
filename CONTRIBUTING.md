@@ -1,4 +1,4 @@
-## Development guidelines
+# Contributing/Quickstart
 
-Please refer to the [umbrella Dashboards project for guidelines](https://folkehelseinstituttet.github.io/dashboards/contributing.html).
+Please refer to the umbrella Dashboards project's [Contributing/Quickstart](https://folkehelseinstituttet.github.io/dashboards/contributingquickstart.html) section.
 
