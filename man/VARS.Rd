@@ -3,12 +3,18 @@
 \docType{data}
 \name{VARS}
 \alias{VARS}
-\title{VARS}
-\format{An object of class \code{environment} of length 3.}
+\title{Global variables used for defining formats of data structures}
+\format{An environment containing 3 variables:
+\describe{
+  \item{REQ_DATA_RAW_STRUCTURAL}{Required columns for raw data that are structural in nature (i.e. these form the skeleton).}
+  \item{REQ_DATA_RAW_OTHER}{Required columns for raw data that are not structural in nature and are not listed in `CONFIG$SYNDROMES`.}
+  \item{REQ_DATA_RAW_ALL}{The combination of `REQ_DATA_RAW_STRUCTURAL` and `REQ_DATA_RAW_OTHER`}
+}}
 \usage{
 VARS
 }
 \description{
-VARS
+This environment holds a number of variables that are used for
+defining the formats of data structures.
 }
 \keyword{datasets}

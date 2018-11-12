@@ -30,21 +30,23 @@ variablesPostProcessing <- c("age", "type", "location", "locationName", "status"
 #' @export variablesMunicip
 variablesMunicip <- c("county")
 
-#' Configuration of sykdomspuls
+#' Configuration of analyses
 #'
-#' This environment holds a number of important variables for the configuration of sykdomspuls
-#' \itemize{
-#'   \item VERSION. The version that we are currently running.
-#'   \item VERSIONS. All available versions.
-#'   \item SYNDROMES_DOCTOR. Syndromes for which we will only count consultations where a doctor was seen.
-#'   \item SYNDROMES_ALL Syndromes for which we will count consultations where a doctor was seen and over the phone.
-#'   \item SYNDROMES. A combined vector of SYNDROMES_DOCTOR and SYNDROMES_ALL.
-#'   \item SYNDROMES_ALERT_INTERNAL. Syndromes for the internal FHI dashboard/alerts.
-#'   \item SYNDROMES_ALERT_EXTERNAL. Syndromes for the external dashboard/alerts.
-#'   \item SYNDROMES_SHORT. The short names of the syndromes.
-#'   \item AGES. The age groups that we run analyses on.
+#' This environment holds a number of important variables for
+#' configuring the analyses that will be run.
+#'
+#' @format An environment containing 9 variables:
+#' \describe{
+#'   \item{VERSION}{The version that we are currently running.}
+#'   \item{VERSIONS}{All available versions.}
+#'   \item{SYNDROMES_DOCTOR}{Syndromes for which we will only count consultations where a doctor was seen.}
+#'   \item{SYNDROMES_ALL}{Syndromes for which we will count consultations where a doctor was seen and over the phone.}
+#'   \item{SYNDROMES}{A combined vector of SYNDROMES_DOCTOR and SYNDROMES_ALL.}
+#'   \item{SYNDROMES_ALERT_INTERNAL}{Syndromes for the internal FHI dashboard/alerts.}
+#'   \item{SYNDROMES_ALERT_EXTERNAL}{Syndromes for the external dashboard/alerts.}
+#'   \item{SYNDROMES_SHORT}{The short names of the syndromes.}
+#'   \item{AGES}{The age groups that we run analyses on.}
 #' }
-#' @docType data
 #' @export CONFIG
 CONFIG <- new.env(parent = emptyenv())
 CONFIG$VERSION <- 1
@@ -95,7 +97,17 @@ CONFIG$AGES <- c(
   "65+"
 )
 
-#' VARS
+#' Global variables used for defining formats of data structures
+#'
+#' This environment holds a number of variables that are used for
+#' defining the formats of data structures.
+#'
+#' @format An environment containing 3 variables:
+#' \describe{
+#'   \item{REQ_DATA_RAW_STRUCTURAL}{Required columns for raw data that are structural in nature (i.e. these form the skeleton).}
+#'   \item{REQ_DATA_RAW_OTHER}{Required columns for raw data that are not structural in nature and are not listed in `CONFIG$SYNDROMES`.}
+#'   \item{REQ_DATA_RAW_ALL}{The combination of `REQ_DATA_RAW_STRUCTURAL` and `REQ_DATA_RAW_OTHER`}
+#' }
 #' @export VARS
 VARS <- new.env(parent = emptyenv())
 

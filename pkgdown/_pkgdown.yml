@@ -29,17 +29,14 @@ template:
 reference:
 - title: Environments
   desc: >
-    Environments
+    These are environments that contain variables used in sykdomspuls.
   contents:
   - CONFIG
   - VARS
 - title: Variables
   desc: >
-    Themes control the display of all non-data elements of the plot. You
-    can override all settings with a complete theme like `theme_bw()`, or
-    choose to tweak individual settings by using `theme()` and the `element_`
-    functions. Use `theme_set()` to modify the active theme, affecting all
-    future plots.
+    These are global variables that are used in sykdomspuls.
+    They should be moved inside the environment `VARS`
   contents:
   - variablesAlgorithmDaily
   - variablesAlgorithmWeekly
@@ -52,7 +49,8 @@ reference:
   - norwayMunicipMerging
 - title: Data Functions
   desc: >
-    hello
+    These functions relate to the detection, creation, validation,
+    and saving of data files.
   contents:
   - AddCounty
   - AddWkyrAndDisplayDateToWeekly
@@ -82,7 +80,7 @@ reference:
   - ValidateDataRaw
 - title: Analysis Functions
   desc: >
-    hello
+    These functions are related to the analysis portion of sykdomspuls.
   contents:
   - AnalyseRecentLine
   - AnalyseYearLine
@@ -94,9 +92,12 @@ reference:
   - FarringtonZscore
 - title: Email Functions
   desc: >
-    hello
+    These functions are related to the emails that are produced by sykdomspuls.
   contents:
   - EmailExternal
   - EmailExternalGenerateTable
   - EmailInternal
   - EmailNotificationOfFailedResults
+  - EmailNotificationOfNewData
+  - EmailNotificationOfNewResults
+  - EmailTechnicalNewResults
