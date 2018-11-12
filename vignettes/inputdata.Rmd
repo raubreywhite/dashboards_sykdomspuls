@@ -2,7 +2,11 @@
 title: "Input data"
 author: "Richard White"
 date: "2018-10-12"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    self_contained: TRUE
+    includes:
+      in_header: !expr system.file("ext", "style_vignettes.css", package = "fhi")
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEncoding{UTF-8}
@@ -16,6 +20,9 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
 )
+```
+
+```{r}
 library(sykdomspuls)
 ```
 
