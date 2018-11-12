@@ -26,3 +26,19 @@ template:
     docsearch:
       api_key: f6722ec7c9eec7d8d2b5ad767e6e5c45
       index_name: sykdomspuls
+reference:
+- title: Variables
+  desc: >
+    Themes control the display of all non-data elements of the plot. You
+    can override all settings with a complete theme like `theme_bw()`, or
+    choose to tweak individual settings by using `theme()` and the `element_`
+    functions. Use `theme_set()` to modify the active theme, affecting all
+    future plots.
+  contents:
+  - variablesAlgorithmDaily
+  - variablesAlgorithmWeekly
+  - variablesAlgorithmBasic
+  - variablesAlgorithmProduced
+  - variablesPostProcessing
+  - variablesMunicip
+
