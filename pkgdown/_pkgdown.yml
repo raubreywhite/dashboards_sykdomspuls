@@ -99,3 +99,4 @@ reference:
   - EmailExternal
   - EmailExternalGenerateTable
   - EmailInternal
+  - EmailNotificationOfFailedResults
