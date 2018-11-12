@@ -2,15 +2,15 @@
 % Please edit documentation in R/EmailNotifiation.R
 \name{EmailNotificationOfNewResults}
 \alias{EmailNotificationOfNewResults}
-\title{test}
+\title{Email notification of new results}
 \usage{
 
   EmailNotificationOfNewResults(lastEmailedUtbruddFile = fhi::DashboardFolder("results",
   "lastEmailedUtbrudd.RDS"))
 }
 \arguments{
-\item{lastEmailedUtbruddFile}{a}
+\item{lastEmailedUtbruddFile}{File containing the last week that emails were sent out}
 }
 \description{
-test
+Email notification of new results
 }

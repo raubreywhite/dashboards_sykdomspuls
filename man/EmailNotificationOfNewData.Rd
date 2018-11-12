@@ -2,15 +2,15 @@
 % Please edit documentation in R/EmailNotifiation.R
 \name{EmailNotificationOfNewData}
 \alias{EmailNotificationOfNewData}
-\title{test}
+\title{Email notification of new data}
 \usage{
 EmailNotificationOfNewData(files, isTest = TRUE)
 }
 \arguments{
-\item{files}{a}
+\item{files}{The raw data file that is being analysed}
 
-\item{isTest}{a}
+\item{isTest}{Is this a test?}
 }
 \description{
-test
+Email notification of new data
 }

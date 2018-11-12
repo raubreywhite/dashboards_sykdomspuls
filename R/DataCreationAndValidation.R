@@ -1,4 +1,4 @@
-#' GenFakeDataRaw
+#' Generate fake raw data
 #' @import data.table
 #' @export GenFakeDataRaw
 GenFakeDataRaw <- function() {
@@ -32,7 +32,7 @@ GenFakeDataRaw <- function() {
   return(data)
 }
 
-#' ValidateDataRaw
+#' Validate raw data
 #' @param d Dataset to validate
 #' @export ValidateDataRaw
 ValidateDataRaw <- function(d) {
@@ -49,6 +49,7 @@ ValidateDataRaw <- function(d) {
   return(TRUE)
 }
 
+#' Validate analysis results
 ValidateAnalysisResults <- function(d, granularity = "weekly") {
   if (tolower(granularity) == "weekly") {
     reqVars <- c(

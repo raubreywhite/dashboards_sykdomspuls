@@ -2,22 +2,22 @@
 % Please edit documentation in R/farrington.R
 \name{FarringtonThreshold}
 \alias{FarringtonThreshold}
-\title{test}
+\title{Calculate Farrington threshold}
 \usage{
 FarringtonThreshold(pred, phi, alpha = NULL, z = NULL,
   skewness.transform = "none")
 }
 \arguments{
-\item{pred}{a}
+\item{pred}{Point estimate}
 
-\item{phi}{a}
+\item{phi}{Dispersion}
 
-\item{alpha}{a}
+\item{alpha}{Alpha (e.g 0.05)}
 
-\item{z}{a}
+\item{z}{Similar to \code{alpha} (e.g. 1.96)}
 
-\item{skewness.transform}{a}
+\item{skewness.transform}{"none"/"1/2","2/3"}
 }
 \description{
-test
+Calculate Farrington threshold
 }

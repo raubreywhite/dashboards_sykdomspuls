@@ -53,15 +53,23 @@ FormatDatasetWeekly <- function(data) {
 }
 
 
-#' test
-#' @param datasetTrain a
-#' @param datasetPredict a
-#' @param reweights a
-#' @param remove.pandemic.year a
-#' @param remove.highcounts a
-#' @param sign.level a
-#' @param isDaily a
-#' @param v a
+#' Quasipoisson Core Algorithm
+#'
+#' This is the core algorithm of sykdomspulsen.
+#'
+#' Description: Applys a surveillance algorithm based on a quasi-poisson regression
+#' model to the selected data. The difference from the Farrington algorithm is in how
+#' seasonality is accounted for (here it is adjusted for, in Farrington it is removed
+#' by design.
+#'
+#' @param datasetTrain Training data.table
+#' @param datasetPredict Prediction data.table
+#' @param reweights Number (greater or equal to 0) of residual reweights adjusting for previous outbreaks (default: 1; 1 reweight)
+#' @param remove.pandemic.year true/false (default: false; keep 2009 data)
+#' @param remove.highcounts Number between 0 and 1 of fraction of high counts to be removed from prediction, to remove impact of earlier outbreaks (default: 0)
+#' @param sign.level Significance level for the prediction intervals (default: 0.05)
+#' @param isDaily Is it daily data or weekly data?
+#' @param v Version (Not in use)
 #' @importFrom glm2 glm2
 #' @import data.table
 #' @import stringr

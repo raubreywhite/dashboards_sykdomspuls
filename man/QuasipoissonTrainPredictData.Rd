@@ -2,29 +2,35 @@
 % Please edit documentation in R/QuasipoissonTestPredictData.r
 \name{QuasipoissonTrainPredictData}
 \alias{QuasipoissonTrainPredictData}
-\title{test}
+\title{Quasipoisson Core Algorithm}
 \usage{
 QuasipoissonTrainPredictData(datasetTrain, datasetPredict, reweights = 1,
   remove.pandemic.year = F, remove.highcounts = 0, sign.level = 0.05,
   isDaily = TRUE, v = 1)
 }
 \arguments{
-\item{datasetTrain}{a}
+\item{datasetTrain}{Training data.table}
 
-\item{datasetPredict}{a}
+\item{datasetPredict}{Prediction data.table}
 
-\item{reweights}{a}
+\item{reweights}{Number (greater or equal to 0) of residual reweights adjusting for previous outbreaks (default: 1; 1 reweight)}
 
-\item{remove.pandemic.year}{a}
+\item{remove.pandemic.year}{true/false (default: false; keep 2009 data)}
 
-\item{remove.highcounts}{a}
+\item{remove.highcounts}{Number between 0 and 1 of fraction of high counts to be removed from prediction, to remove impact of earlier outbreaks (default: 0)}
 
-\item{sign.level}{a}
+\item{sign.level}{Significance level for the prediction intervals (default: 0.05)}
 
-\item{isDaily}{a}
+\item{isDaily}{Is it daily data or weekly data?}
 
-\item{v}{a}
+\item{v}{Version (Not in use)}
 }
 \description{
-test
+This is the core algorithm of sykdomspulsen.
+}
+\details{
+Description: Applys a surveillance algorithm based on a quasi-poisson regression
+model to the selected data. The difference from the Farrington algorithm is in how
+seasonality is accounted for (here it is adjusted for, in Farrington it is removed
+by design.
 }

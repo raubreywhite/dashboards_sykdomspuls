@@ -2,10 +2,10 @@
 % Please edit documentation in R/EmailNotifiation.R
 \name{EmailNotificationOfFailedResults}
 \alias{EmailNotificationOfFailedResults}
-\title{test}
+\title{Email notification of failed results}
 \usage{
 EmailNotificationOfFailedResults()
 }
 \description{
-test
+Email notification of failed results
 }

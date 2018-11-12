@@ -2,12 +2,10 @@
 % Please edit documentation in R/NorwayLocations.R
 \name{GenNorwayMunicipMerging}
 \alias{GenNorwayMunicipMerging}
-\title{GenNorwayMunicipMerging
-Last updated 2017-07-29}
+\title{Creates the Norway Municip Merging (kommunesammenslaping) data.table}
 \usage{
 GenNorwayMunicipMerging()
 }
 \description{
-GenNorwayMunicipMerging
 Last updated 2017-07-29
 }

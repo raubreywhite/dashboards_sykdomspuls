@@ -2,7 +2,7 @@
 % Please edit documentation in R/CleanData.R
 \name{FormatData}
 \alias{FormatData}
-\title{test}
+\title{Format the raw data}
 \usage{
 FormatData(d, SYNDROME, population = readRDS(system.file("extdata", "pop.RDS",
   package = "sykdomspuls")), hellidager = fread(system.file("extdata",
@@ -12,18 +12,18 @@ FormatData(d, SYNDROME, population = readRDS(system.file("extdata", "pop.RDS",
   removeMunicipsWithoutConsults = FALSE)
 }
 \arguments{
-\item{d}{a}
+\item{d}{Raw data}
 
-\item{SYNDROME}{a}
+\item{SYNDROME}{Syndrome of interest}
 
-\item{population}{a}
+\item{population}{Population file}
 
-\item{hellidager}{a}
+\item{hellidager}{Hellidager file}
 
-\item{testIfHelligdagIndikatorFileIsOutdated}{a}
+\item{testIfHelligdagIndikatorFileIsOutdated}{Boolean. Test if the current date is older than the last hellidag recorded in the fiel?}
 
-\item{removeMunicipsWithoutConsults}{a}
+\item{removeMunicipsWithoutConsults}{Boolean. Remove municipalities that do not have any consultations?}
 }
 \description{
-test
+Format the raw data
 }

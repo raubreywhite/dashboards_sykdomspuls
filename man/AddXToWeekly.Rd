@@ -2,13 +2,22 @@
 % Please edit documentation in R/Analyses.R
 \name{AddXToWeekly}
 \alias{AddXToWeekly}
-\title{AddXToWeekly}
+\title{Adds seasonal week to dataset}
 \usage{
 AddXToWeekly(data)
 }
 \arguments{
-\item{data}{d}
+\item{data}{A data.table containing the variable \code{week}}
+}
+\value{
+A data.table with the extra variable \code{x}
 }
 \description{
-AddXToWeekly
+We often want to graph seasons. This function adds the seasonal week
+to the dataset \code{data} as the variable \code{x}.
+}
+\examples{
+library(data.table)
+d <- data.table(week=1:52)
+AddXToWeekly(d)
 }

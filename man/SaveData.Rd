@@ -2,7 +2,7 @@
 % Please edit documentation in R/SaveData.R
 \name{SaveData}
 \alias{SaveData}
-\title{test}
+\title{Don't think this is being used}
 \usage{
 SaveData(data, files)
 }
@@ -12,5 +12,5 @@ SaveData(data, files)
 \item{files}{a}
 }
 \description{
-test
+Don't think this is being used
 }

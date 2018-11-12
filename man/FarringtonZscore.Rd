@@ -2,24 +2,24 @@
 % Please edit documentation in R/farrington.R
 \name{FarringtonZscore}
 \alias{FarringtonZscore}
-\title{test}
+\title{Farrington Z score}
 \usage{
 FarringtonZscore(pred, phi, alpha = NULL, z = NULL,
   skewness.transform = "none", y)
 }
 \arguments{
-\item{pred}{a}
+\item{pred}{Point estimate}
 
-\item{phi}{a}
+\item{phi}{Dispersion}
 
-\item{alpha}{a}
+\item{alpha}{Alpha (e.g 0.05)}
 
-\item{z}{a}
+\item{z}{Similar to \code{alpha} (e.g. 1.96)}
 
-\item{skewness.transform}{a}
+\item{skewness.transform}{"none"/"1/2","2/3"}
 
-\item{y}{a}
+\item{y}{Observation}
 }
 \description{
-test
+Farrington Z score
 }

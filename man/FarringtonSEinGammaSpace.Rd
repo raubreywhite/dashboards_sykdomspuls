@@ -2,22 +2,22 @@
 % Please edit documentation in R/farrington.R
 \name{FarringtonSEinGammaSpace}
 \alias{FarringtonSEinGammaSpace}
-\title{test}
+\title{Calculate Farrington SE in gamma space}
 \usage{
 FarringtonSEinGammaSpace(pred, phi, alpha = NULL, z = NULL,
   skewness.transform = "none")
 }
 \arguments{
-\item{pred}{a}
+\item{pred}{Point estimate}
 
-\item{phi}{a}
+\item{phi}{Dispersion}
 
-\item{alpha}{a}
+\item{alpha}{Not used}
 
-\item{z}{a}
+\item{z}{Not used}
 
-\item{skewness.transform}{a}
+\item{skewness.transform}{"none"/"1/2","2/3"}
 }
 \description{
-test
+Calculate Farrington SE in gamma space
 }

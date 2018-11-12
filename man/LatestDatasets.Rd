@@ -2,15 +2,16 @@
 % Please edit documentation in R/CleanData.R
 \name{LatestDatasets}
 \alias{LatestDatasets}
-\title{test}
+\title{Latest datasets}
 \usage{
 LatestDatasets(clean = LatestRawID(), SYNDROME = "influensa")
 }
 \arguments{
-\item{clean}{a}
+\item{clean}{A date/ID}
 
-\item{SYNDROME}{a}
+\item{SYNDROME}{Syndrome that you are interested in}
 }
 \description{
-test
+Returns the names of the four datasets corresponding to a
+date/syndrome.
 }

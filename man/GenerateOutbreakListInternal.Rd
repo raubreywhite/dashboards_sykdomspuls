@@ -2,7 +2,7 @@
 % Please edit documentation in R/ListOutbreaks.R
 \name{GenerateOutbreakListInternal}
 \alias{GenerateOutbreakListInternal}
-\title{test}
+\title{Generates the internal outbreak list}
 \usage{
 GenerateOutbreakListInternal(df = readRDS(fhi::DashboardFolder("results",
   "resYearLine.RDS")), dk = readRDS(fhi::DashboardFolder("results",
@@ -10,12 +10,12 @@ GenerateOutbreakListInternal(df = readRDS(fhi::DashboardFolder("results",
   "outbreaks.RDS"), fhi::DashboardFolder("data_app", "outbreaks.RDS")))
 }
 \arguments{
-\item{df}{a}
+\item{df}{Data inside resYearLine.RDS}
 
-\item{dk}{a}
+\item{dk}{Data inside resYearLineMunicip.RDS}
 
-\item{saveFiles}{a}
+\item{saveFiles}{Where are you saving the outbreak lists?}
 }
 \description{
-test
+Generates the internal outbreak list
 }

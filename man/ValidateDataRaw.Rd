@@ -2,7 +2,7 @@
 % Please edit documentation in R/DataCreationAndValidation.R
 \name{ValidateDataRaw}
 \alias{ValidateDataRaw}
-\title{ValidateDataRaw}
+\title{Validate raw data}
 \usage{
 ValidateDataRaw(d)
 }
@@ -10,5 +10,5 @@ ValidateDataRaw(d)
 \item{d}{Dataset to validate}
 }
 \description{
-ValidateDataRaw
+Validate raw data
 }

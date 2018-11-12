@@ -2,13 +2,20 @@
 % Please edit documentation in R/Analyses.R
 \name{DetermineStatus}
 \alias{DetermineStatus}
-\title{DetermineStatus}
+\title{Convert n and thresholds to Normal/Medium/High}
 \usage{
 DetermineStatus(data)
 }
 \arguments{
-\item{data}{d}
+\item{data}{A data.table containing the variables \code{n}, \code{threshold2}, and \code{threshold4}}
 }
 \description{
-DetermineStatus
+Takes a data.table with the variables \code{n}, \code{threshold2}, and \code{threshold4}
+and then creates a new variable called \code{status} with the values
+Normal/Medium/High.
+}
+\details{
+Normal <= threshold2
+threshold2 < Medium <= threshold4
+threshold4 < High
 }

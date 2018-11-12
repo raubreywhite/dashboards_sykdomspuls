@@ -1,9 +1,9 @@
-#' test
-#' @param pred a
-#' @param phi a
-#' @param alpha a
-#' @param z a
-#' @param skewness.transform a
+#' Calculate Farrington SE in gamma space
+#' @param pred Point estimate
+#' @param phi Dispersion
+#' @param alpha Not used
+#' @param z Not used
+#' @param skewness.transform "none"/"1/2","2/3"
 #' @export FarringtonSEinGammaSpace
 FarringtonSEinGammaSpace <- function(pred, phi, alpha = NULL, z = NULL, skewness.transform = "none") {
   mu0 <- pred$fit
@@ -24,12 +24,12 @@ FarringtonSEinGammaSpace <- function(pred, phi, alpha = NULL, z = NULL, skewness
   return(se)
 }
 
-#' test
-#' @param pred a
-#' @param phi a
-#' @param alpha a
-#' @param z a
-#' @param skewness.transform a
+#' Calculate Farrington threshold
+#' @param pred Point estimate
+#' @param phi Dispersion
+#' @param alpha Alpha (e.g 0.05)
+#' @param z Similar to \code{alpha} (e.g. 1.96)
+#' @param skewness.transform "none"/"1/2","2/3"
 #' @export FarringtonThreshold
 FarringtonThreshold <- function(pred, phi, alpha = NULL, z = NULL, skewness.transform = "none") {
   mu0 <- pred$fit
@@ -53,13 +53,13 @@ FarringtonThreshold <- function(pred, phi, alpha = NULL, z = NULL, skewness.tran
   return(lu)
 }
 
-#' test
-#' @param pred a
-#' @param phi a
-#' @param alpha a
-#' @param z a
-#' @param skewness.transform a
-#' @param y a
+#' Farrington Z score
+#' @param pred Point estimate
+#' @param phi Dispersion
+#' @param alpha Alpha (e.g 0.05)
+#' @param z Similar to \code{alpha} (e.g. 1.96)
+#' @param skewness.transform "none"/"1/2","2/3"
+#' @param y Observation
 #' @export FarringtonZscore
 FarringtonZscore <- function(pred, phi, alpha = NULL, z = NULL, skewness.transform = "none", y) {
   mu0 <- pred$fit

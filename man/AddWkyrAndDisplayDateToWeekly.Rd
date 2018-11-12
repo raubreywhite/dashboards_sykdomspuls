@@ -2,13 +2,23 @@
 % Please edit documentation in R/Analyses.R
 \name{AddWkyrAndDisplayDateToWeekly}
 \alias{AddWkyrAndDisplayDateToWeekly}
-\title{AddWkyrAndDisplayDateToWeekly}
+\title{Adds year-week and displayDate to dataset}
 \usage{
 AddWkyrAndDisplayDateToWeekly(data)
 }
 \arguments{
-\item{data}{d}
+\item{data}{A data.table containing the variables \code{year} and \code{week}}
+}
+\value{
+A data.table with the extra variables \code{wkyr} and \code{displayDay}.
 }
 \description{
-AddWkyrAndDisplayDateToWeekly
+This function adds the year-week (i.e. YYYY-WW)
+and the displayDate (the last day of the week, i.e. Sunday)
+to the dataset \code{data} as the variables \code{wkyr} and \code{displayDay}.
+}
+\examples{
+library(data.table)
+d <- data.table(year=2015,week=1:10)
+AddWkyrAndDisplayDateToWeekly(d)
 }

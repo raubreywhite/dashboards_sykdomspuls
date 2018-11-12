@@ -2,15 +2,17 @@
 % Please edit documentation in R/Analyses.R
 \name{RunOneAnalysis}
 \alias{RunOneAnalysis}
-\title{RunOneAnalysis}
+\title{Run one analysis according to the analysis stack}
 \usage{
 RunOneAnalysis(analysesStack, analysisData)
 }
 \arguments{
-\item{analysesStack}{a}
+\item{analysesStack}{The desired analysis. TODO: Validate}
 
-\item{analysisData}{a}
+\item{analysisData}{The generic dataset. TODO: Validate}
 }
 \description{
-RunOneAnalysis
+This function receives a generic dataset and a selection from the analysis stack.
+The data is then reformatted according to the analysis stack and sent to the
+appropriate analysis function.
 }
