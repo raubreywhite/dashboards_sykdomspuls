@@ -2,10 +2,10 @@
 % Please edit documentation in R/NorwayLocations.R
 \name{GenNorwayLocations}
 \alias{GenNorwayLocations}
-\title{GenNorwayLocations}
+\title{Creates norwayLocations}
 \usage{
 GenNorwayLocations()
 }
 \description{
-GenNorwayLocations
+Creates norwayLocations
 }

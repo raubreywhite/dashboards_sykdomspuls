@@ -1,7 +1,7 @@
-#' test
-#' @param df a
-#' @param dk a
-#' @param saveFiles a
+#' Generates the internal outbreak list
+#' @param df Data inside resYearLine.RDS
+#' @param dk Data inside resYearLineMunicip.RDS
+#' @param saveFiles Where are you saving the outbreak lists?
 #' @import data.table
 #' @import fhi
 #' @import stringr
@@ -147,11 +147,11 @@ GenerateOutbreakListInternal <- function(df = readRDS(fhi::DashboardFolder("resu
 }
 
 
-#' test
-#' @param df a
-#' @param dk a
-#' @param saveFiles a
-#' @param alerts a
+#' Generates the external outbreak list
+#' @param df Data inside resYearLine.RDS
+#' @param dk Data inside resYearLineMunicip.RDS
+#' @param saveFiles Where are you saving the outbreak lists?
+#' @param alerts Excel sheet containing registration information
 #' @import data.table
 #' @import stringr
 #' @export GenerateOutbreakListExternal

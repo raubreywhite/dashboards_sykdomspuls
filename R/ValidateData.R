@@ -1,6 +1,6 @@
-#' ValidateDataClean
-#' @param d a
-#' @param granularity a
+#' Validate the analysis results
+#' @param d Results data.table
+#' @param granularity "daily"/"weekly"
 #' @import data.table
 #' @export ValidateAnalysisResults
 ValidateAnalysisResults <- function(d, granularity = "weekly") {
@@ -33,10 +33,10 @@ ValidateAnalysisResults <- function(d, granularity = "weekly") {
 }
 
 
-#' GenerateAnalysisResults
-#' @param granularity a
-#' @param loc a
-#' @param type a
+#' Generate fake analysis results
+#' @param granularity "daily"/"weekly"
+#' @param loc Location code
+#' @param type Syndrome
 #' @import data.table
 #' @importFrom RAWmisc Year WeekN
 #' @export GenerateAnalysisResults

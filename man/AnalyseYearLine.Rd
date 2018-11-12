@@ -2,15 +2,16 @@
 % Please edit documentation in R/Analyses.R
 \name{AnalyseYearLine}
 \alias{AnalyseYearLine}
-\title{AnalyseYearLine}
+\title{Run a weekly analysis with correctly specified data}
 \usage{
 AnalyseYearLine(data, v)
 }
 \arguments{
-\item{data}{a}
+\item{data}{A data.table. TODO: Validate the input.}
 
-\item{v}{a}
+\item{v}{The version of sykdomspuls to use. Does not work.}
 }
 \description{
-AnalyseYearLine
+This function runs a weekly analysis where the data
+has been correctly formatted for the desired analysis.
 }

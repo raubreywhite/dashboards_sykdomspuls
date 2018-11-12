@@ -2,15 +2,18 @@
 % Please edit documentation in R/Analyses.R
 \name{AddCounty}
 \alias{AddCounty}
-\title{AddCounty}
+\title{Adds county to dataset}
 \usage{
 AddCounty(data, loc)
 }
 \arguments{
-\item{data}{d}
+\item{data}{A data.table}
 
-\item{loc}{a}
+\item{loc}{A location (either a municipality or county)}
 }
 \description{
-AddCounty
+Takes a location (either a municipality or county).
+If the location is a county, nothing happens.
+If the location is a municipality, it searches for the encompassing county
+and adds this to the data.table \code{data} as a new variable \code{county}.
 }

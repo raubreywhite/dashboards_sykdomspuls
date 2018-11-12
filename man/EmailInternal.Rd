@@ -2,16 +2,16 @@
 % Please edit documentation in R/EmailNotifiation.R
 \name{EmailInternal}
 \alias{EmailInternal}
-\title{test}
+\title{Internal email for possible outbreaks}
 \usage{
 EmailInternal(resYearLine = readRDS(fhi::DashboardFolder("results",
   "resYearLine.RDS")), isTest = TRUE)
 }
 \arguments{
-\item{resYearLine}{a}
+\item{resYearLine}{Data from an resYearLine.RDS file}
 
-\item{isTest}{a}
+\item{isTest}{Is it a test?}
 }
 \description{
-test
+Internal email for possible outbreaks
 }

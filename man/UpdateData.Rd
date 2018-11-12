@@ -2,10 +2,10 @@
 % Please edit documentation in R/CleanData.R
 \name{UpdateData}
 \alias{UpdateData}
-\title{test}
+\title{Top level function call for cleaning of data}
 \usage{
 UpdateData()
 }
 \description{
-test
+This function checks if there is new stable data and then cleans it.
 }

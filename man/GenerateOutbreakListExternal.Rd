@@ -2,7 +2,7 @@
 % Please edit documentation in R/ListOutbreaks.R
 \name{GenerateOutbreakListExternal}
 \alias{GenerateOutbreakListExternal}
-\title{test}
+\title{Generates the external outbreak list}
 \usage{
 GenerateOutbreakListExternal(df = readRDS(fhi::DashboardFolder("results",
   "resYearLine.RDS")), dk = readRDS(fhi::DashboardFolder("results",
@@ -12,14 +12,14 @@ GenerateOutbreakListExternal(df = readRDS(fhi::DashboardFolder("results",
   "emails_sykdomspuls_alert.xlsx")))
 }
 \arguments{
-\item{df}{a}
+\item{df}{Data inside resYearLine.RDS}
 
-\item{dk}{a}
+\item{dk}{Data inside resYearLineMunicip.RDS}
 
-\item{saveFiles}{a}
+\item{saveFiles}{Where are you saving the outbreak lists?}
 
-\item{alerts}{a}
+\item{alerts}{Excel sheet containing registration information}
 }
 \description{
-test
+Generates the external outbreak list
 }

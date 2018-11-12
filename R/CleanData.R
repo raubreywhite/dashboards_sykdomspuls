@@ -1,6 +1,6 @@
-#' test
-#' @param raw a
-#' @param clean a
+#' Identify all raw/clean datasets that are available
+#' @param raw Folder containing raw data
+#' @param clean Folder containing clean data
 #' @import data.table
 #' @import fhi
 #' @export IdentifyAllDatasets
@@ -23,9 +23,12 @@ IdentifyAllDatasets <- function(raw = list.files(fhi::DashboardFolder("data_raw"
   return(res)
 }
 
-#' test
-#' @param raw a
-#' @param clean a
+#' Delete old datasets
+#'
+#' Delete all old raw/clean datasets except the latest
+#'
+#' @param raw Folder containing raw data
+#' @param clean Folder containing clean data
 #' @import data.table
 #' @import fhi
 #' @export DeleteOldDatasets
@@ -41,9 +44,9 @@ DeleteOldDatasets <- function(raw = list.files(fhi::DashboardFolder("data_raw"),
   }
 }
 
-#' test
-#' @param raw a
-#' @param clean a
+#' Identify the latest raw/clean datasets
+#' @param raw Folder containing raw data
+#' @param clean Folder containing clean data
 #' @import data.table
 #' @import fhi
 #' @export IdentifyDatasets
@@ -62,8 +65,8 @@ LatestRawID <- function() {
   return(max(f$id))
 }
 
-#' test
-#' @param file a
+#' Delete the latest done file
+#' @param file Location of the latest done file (according to latest raw data file)
 #' @import fhi
 #' @export DeleteLatestDoneFile
 DeleteLatestDoneFile <- function(file = fhi::DashboardFolder("data_clean", paste0("done_", LatestRawID(), ".txt"))) {
@@ -71,8 +74,8 @@ DeleteLatestDoneFile <- function(file = fhi::DashboardFolder("data_clean", paste
   # try(unlink(paste0("data_clean/done_",LatestRawID(),".txt")),TRUE)
 }
 
-#' test
-#' @param file a
+#' Create the latest done file
+#' @param file Location of the latest done file (according to latest raw data file)
 #' @import fhi
 #' @export CreateLatestDoneFile
 CreateLatestDoneFile <- function(file = fhi::DashboardFolder("data_clean", paste0("done_", LatestRawID(), ".txt"))) {
@@ -80,9 +83,13 @@ CreateLatestDoneFile <- function(file = fhi::DashboardFolder("data_clean", paste
   # try(file.create(paste0("data_clean/done_",LatestRawID(),".txt")),TRUE)
 }
 
-#' test
-#' @param clean a
-#' @param SYNDROME a
+#' Latest datasets
+#'
+#' Returns the names of the four datasets corresponding to a
+#' date/syndrome.
+#'
+#' @param clean A date/ID
+#' @param SYNDROME Syndrome that you are interested in
 #' @import fhi
 #' @export LatestDatasets
 LatestDatasets <- function(clean = LatestRawID(), SYNDROME = "influensa") {
@@ -234,13 +241,13 @@ GetPopulation <- function(
   saveRDS(retval, saveFiles)
 }
 
-#' test
-#' @param d a
-#' @param SYNDROME a
-#' @param population a
-#' @param hellidager a
-#' @param testIfHelligdagIndikatorFileIsOutdated a
-#' @param removeMunicipsWithoutConsults a
+#' Format the raw data
+#' @param d Raw data
+#' @param SYNDROME Syndrome of interest
+#' @param population Population file
+#' @param hellidager Hellidager file
+#' @param testIfHelligdagIndikatorFileIsOutdated Boolean. Test if the current date is older than the last hellidag recorded in the fiel?
+#' @param removeMunicipsWithoutConsults Boolean. Remove municipalities that do not have any consultations?
 #' @import data.table
 #' @importFrom lubridate today
 #' @export FormatData
@@ -399,7 +406,7 @@ FormatData <- function(d, SYNDROME,
   return(data)
 }
 
-#' test
+#' Not used.
 #' @param ageStrings a
 #' @import stringr
 #' @export GetAgesLU
@@ -419,7 +426,10 @@ GetAgesLU <- function(ageStrings) {
   ))
 }
 
-#' test
+#' Top level function call for cleaning of data
+#'
+#' This function checks if there is new stable data and then cleans it.
+#'
 #' @import data.table
 #' @import fhi
 #' @importFrom RAWmisc IsFileStable

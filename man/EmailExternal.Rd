@@ -2,7 +2,7 @@
 % Please edit documentation in R/EmailNotifiation.R
 \name{EmailExternal}
 \alias{EmailExternal}
-\title{test}
+\title{Sends an external email warning about alters}
 \usage{
 EmailExternal(results = readRDS(fhi::DashboardFolder("results",
   "outbreaks_alert_external.RDS")),
@@ -11,16 +11,16 @@ EmailExternal(results = readRDS(fhi::DashboardFolder("results",
   forceYesOutbreak = FALSE)
 }
 \arguments{
-\item{results}{a}
+\item{results}{Results file.}
 
-\item{alerts}{a}
+\item{alerts}{Excel file containing the emails.}
 
-\item{isTest}{a}
+\item{isTest}{Is this a test?}
 
-\item{forceNoOutbreak}{a}
+\item{forceNoOutbreak}{For testing. Do you want to force a "No outbreak" email?}
 
-\item{forceYesOutbreak}{a}
+\item{forceYesOutbreak}{For testing. Do you want to force a "Yes outbreak" email?}
 }
 \description{
-test
+Sends an external email warning about alters
 }

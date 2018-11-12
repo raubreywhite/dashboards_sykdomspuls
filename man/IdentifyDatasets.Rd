@@ -2,17 +2,17 @@
 % Please edit documentation in R/CleanData.R
 \name{IdentifyDatasets}
 \alias{IdentifyDatasets}
-\title{test}
+\title{Identify the latest raw/clean datasets}
 \usage{
 IdentifyDatasets(raw = list.files(fhi::DashboardFolder("data_raw"),
   "^partially_formatted_"),
   clean = list.files(fhi::DashboardFolder("data_clean"), "done_"))
 }
 \arguments{
-\item{raw}{a}
+\item{raw}{Folder containing raw data}
 
-\item{clean}{a}
+\item{clean}{Folder containing clean data}
 }
 \description{
-test
+Identify the latest raw/clean datasets
 }

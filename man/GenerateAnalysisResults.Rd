@@ -2,18 +2,18 @@
 % Please edit documentation in R/ValidateData.R
 \name{GenerateAnalysisResults}
 \alias{GenerateAnalysisResults}
-\title{GenerateAnalysisResults}
+\title{Generate fake analysis results}
 \usage{
 GenerateAnalysisResults(granularity = "weekly", loc = "Norge",
   type = CONFIG$SYNDROMES_ALERT_EXTERNAL[1])
 }
 \arguments{
-\item{granularity}{a}
+\item{granularity}{"daily"/"weekly"}
 
-\item{loc}{a}
+\item{loc}{Location code}
 
-\item{type}{a}
+\item{type}{Syndrome}
 }
 \description{
-GenerateAnalysisResults
+Generate fake analysis results
 }

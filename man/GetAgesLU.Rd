@@ -2,7 +2,7 @@
 % Please edit documentation in R/CleanData.R
 \name{GetAgesLU}
 \alias{GetAgesLU}
-\title{test}
+\title{Not used.}
 \usage{
 GetAgesLU(ageStrings)
 }
@@ -10,5 +10,5 @@ GetAgesLU(ageStrings)
 \item{ageStrings}{a}
 }
 \description{
-test
+Not used.
 }

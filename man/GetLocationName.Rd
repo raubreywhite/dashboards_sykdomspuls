@@ -2,15 +2,15 @@
 % Please edit documentation in R/Analyses.R
 \name{GetLocationName}
 \alias{GetLocationName}
-\title{PROB}
+\title{Get location name from location code}
 \usage{
 GetLocationName(location, norwayLocations)
 }
 \arguments{
-\item{location}{a}
+\item{location}{Location code}
 
-\item{norwayLocations}{a}
+\item{norwayLocations}{Dataset containing a map between locatino code and pretty location name}
 }
 \description{
-PROB
+When given a location code, the pretty location name is returned
 }

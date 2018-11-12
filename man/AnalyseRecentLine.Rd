@@ -2,15 +2,16 @@
 % Please edit documentation in R/Analyses.R
 \name{AnalyseRecentLine}
 \alias{AnalyseRecentLine}
-\title{PROJ}
+\title{Run a daily analysis with correctly specified data}
 \usage{
 AnalyseRecentLine(data, v)
 }
 \arguments{
-\item{data}{a}
+\item{data}{A data.table. TODO: Validate the input.}
 
-\item{v}{a}
+\item{v}{The version of sykdomspuls to use. Does not work.}
 }
 \description{
-PROJ
+This function runs a daily analysis where the data
+has been correctly formatted for the desired analysis.
 }

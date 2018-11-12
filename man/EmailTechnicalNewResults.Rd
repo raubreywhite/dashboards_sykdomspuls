@@ -2,10 +2,10 @@
 % Please edit documentation in R/EmailNotifiation.R
 \name{EmailTechnicalNewResults}
 \alias{EmailTechnicalNewResults}
-\title{test}
+\title{Internal email notifying about new results}
 \usage{
 EmailTechnicalNewResults()
 }
 \description{
-test
+Internal email notifying about new results
 }

@@ -1,4 +1,4 @@
-#' GenNorwayLocations
+#' Creates norwayLocations
 #' @importFrom readxl read_excel
 #' @export GenNorwayLocations
 GenNorwayLocations <- function() {
@@ -7,8 +7,10 @@ GenNorwayLocations <- function() {
   return(norwayLocations)
 }
 
-#' GenNorwayMunicipMerging
+#' Creates the Norway Municip Merging (kommunesammenslaping) data.table
+#'
 #' Last updated 2017-07-29
+#'
 #' @importFrom lubridate today
 #' @importFrom readxl read_excel
 #' @import data.table

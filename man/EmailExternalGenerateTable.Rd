@@ -2,7 +2,7 @@
 % Please edit documentation in R/EmailNotifiation.R
 \name{EmailExternalGenerateTable}
 \alias{EmailExternalGenerateTable}
-\title{EmailExternalGenerateTable}
+\title{Generates the outbreak table for the external email}
 \usage{
 EmailExternalGenerateTable(results, xtype, xemail)
 }
@@ -14,5 +14,5 @@ EmailExternalGenerateTable(results, xtype, xemail)
 \item{xemail}{a}
 }
 \description{
-EmailExternalGenerateTable
+Generates the outbreak table for the external email
 }

@@ -2,14 +2,14 @@
 % Please edit documentation in R/CleanData.R
 \name{DeleteLatestDoneFile}
 \alias{DeleteLatestDoneFile}
-\title{test}
+\title{Delete the latest done file}
 \usage{
 DeleteLatestDoneFile(file = fhi::DashboardFolder("data_clean", paste0("done_",
   LatestRawID(), ".txt")))
 }
 \arguments{
-\item{file}{a}
+\item{file}{Location of the latest done file (according to latest raw data file)}
 }
 \description{
-test
+Delete the latest done file
 }

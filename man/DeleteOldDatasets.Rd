@@ -2,17 +2,17 @@
 % Please edit documentation in R/CleanData.R
 \name{DeleteOldDatasets}
 \alias{DeleteOldDatasets}
-\title{test}
+\title{Delete old datasets}
 \usage{
 DeleteOldDatasets(raw = list.files(fhi::DashboardFolder("data_raw"),
   "^partially_formatted_"),
   clean = list.files(fhi::DashboardFolder("data_clean"), "done_"))
 }
 \arguments{
-\item{raw}{a}
+\item{raw}{Folder containing raw data}
 
-\item{clean}{a}
+\item{clean}{Folder containing clean data}
 }
 \description{
-test
+Delete all old raw/clean datasets except the latest
 }

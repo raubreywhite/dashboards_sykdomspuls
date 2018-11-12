@@ -1,6 +1,6 @@
-#' test
-#' @param files a
-#' @param isTest a
+#' Email notification of new data
+#' @param files The raw data file that is being analysed
+#' @param isTest Is this a test?
 #' @import fhi
 #' @export EmailNotificationOfNewData
 EmailNotificationOfNewData <- function(files, isTest = TRUE) {
@@ -32,7 +32,7 @@ Files being processed are: ", paste0(files, collapse = ", "), "
   return(0)
 }
 
-#' test
+#' Internal email notifying about new results
 #' @import fhi
 #' @export EmailTechnicalNewResults
 EmailTechnicalNewResults <- function() {
@@ -48,9 +48,9 @@ EmailTechnicalNewResults <- function() {
   }
 }
 
-#' test
-#' @param resYearLine a
-#' @param isTest a
+#' Internal email for possible outbreaks
+#' @param resYearLine Data from an resYearLine.RDS file
+#' @param isTest Is it a test?
 #' @import fhi
 #' @import data.table
 #' @export EmailInternal
@@ -175,7 +175,7 @@ Sykdomspulsen kan i noen tilfeller generere et OBS varsel selv om det bare er en
   return(0)
 }
 
-#' EmailExternalGenerateTable
+#' Generates the outbreak table for the external email
 #' @param results a
 #' @param xtype a
 #' @param xemail a
@@ -216,12 +216,12 @@ EmailExternalGenerateTable <- function(results, xtype, xemail) {
   return(emailText)
 }
 
-#' test
-#' @param results a
-#' @param alerts a
-#' @param isTest a
-#' @param forceNoOutbreak a
-#' @param forceYesOutbreak a
+#' Sends an external email warning about alters
+#' @param results Results file.
+#' @param alerts Excel file containing the emails.
+#' @param isTest Is this a test?
+#' @param forceNoOutbreak For testing. Do you want to force a "No outbreak" email?
+#' @param forceYesOutbreak For testing. Do you want to force a "Yes outbreak" email?
 #' @importFrom RAWmisc Format RecodeDT
 #' @import fhi
 #' @export EmailExternal
@@ -387,7 +387,7 @@ Sykdomspulsen kan i noen tilfeller generere et OBS varsel selv om det bare er en
   return(0)
 }
 
-#' test
+#' Email notification of failed results
 #' @import fhi
 #' @export EmailNotificationOfFailedResults
 EmailNotificationOfFailedResults <- function() {
@@ -402,8 +402,8 @@ EmailNotificationOfFailedResults <- function() {
 }
 
 
-#' test
-#' @param lastEmailedUtbruddFile a
+#' Email notification of new results
+#' @param lastEmailedUtbruddFile File containing the last week that emails were sent out
 #' @import fhi
 #' @importFrom lubridate today
 #' @export EmailNotificationOfNewResults

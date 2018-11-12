@@ -2,10 +2,10 @@
 % Please edit documentation in R/DataCreationAndValidation.R
 \name{GenFakeDataRaw}
 \alias{GenFakeDataRaw}
-\title{GenFakeDataRaw}
+\title{Generate fake raw data}
 \usage{
 GenFakeDataRaw()
 }
 \description{
-GenFakeDataRaw
+Generate fake raw data
 }

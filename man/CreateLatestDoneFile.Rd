@@ -2,14 +2,14 @@
 % Please edit documentation in R/CleanData.R
 \name{CreateLatestDoneFile}
 \alias{CreateLatestDoneFile}
-\title{test}
+\title{Create the latest done file}
 \usage{
 CreateLatestDoneFile(file = fhi::DashboardFolder("data_clean", paste0("done_",
   LatestRawID(), ".txt")))
 }
 \arguments{
-\item{file}{a}
+\item{file}{Location of the latest done file (according to latest raw data file)}
 }
 \description{
-test
+Create the latest done file
 }

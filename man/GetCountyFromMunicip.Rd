@@ -2,15 +2,18 @@
 % Please edit documentation in R/Analyses.R
 \name{GetCountyFromMunicip}
 \alias{GetCountyFromMunicip}
-\title{PROB}
+\title{Finds county from municipality}
 \usage{
 GetCountyFromMunicip(location, norwayLocations)
 }
 \arguments{
-\item{location}{a}
+\item{location}{A location (either a municipality or county)}
 
-\item{norwayLocations}{a}
+\item{norwayLocations}{Dataset containing a map between locatino code and pretty location name}
 }
 \description{
-PROB
+Takes a location (either a municipality or county).
+If the location is a county, the county is returned.
+If the location is a municipality, it searches for the encompassing county
+and this is returned.
 }
