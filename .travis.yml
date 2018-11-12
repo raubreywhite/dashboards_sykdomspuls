@@ -1,5 +1,6 @@
 language: r
 
+warnings_are_errors: true
 cache: packages
 
 repos:
@@ -26,7 +27,7 @@ after_success:
   travis/drat.sh
 - test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && bash
   travis/styler.sh
-- test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && Rscript -e 'Sys.sleep(10);install.packages("sykdomspuls",repos="https://folkehelseinstituttet.github.io/drat/");pkgdown::build_site()'
+- test $TRAVIS_PULL_REQUEST == "false" && test $TRAVIS_BRANCH == "master" && Rscript -e 'Sys.sleep(30);install.packages("sykdomspuls",repos="https://folkehelseinstituttet.github.io/drat/");pkgdown::build_site()'
 
 deploy:
   provider: pages
