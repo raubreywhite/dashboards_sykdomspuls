@@ -2,7 +2,11 @@
 title: "Overview"
 author: "Richard White"
 date: "2018-11-12"
-output: rmarkdown::html_vignette
+output:
+  rmarkdown::html_vignette:
+    self_contained: TRUE
+    includes:
+      in_header: !expr system.file("ext", "style_vignettes.css", package = "fhi")
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
@@ -18,14 +22,14 @@ knitr::opts_chunk$set(
 )
 ```
 
-# External Website
+## External Website
 
 The external website is comprised of two parts:
 
 - A reactjs/D3js website hosted on Apache
 - An API that supplies the website with the json data it needs
 
-## Reactjs/D3js Website
+### Reactjs/D3js Website
 
 The source code for the website is currently available here: https://github.com/raubreywhite/sykdomspuls_reactjs
 
@@ -35,13 +39,13 @@ This will be updated soon to:
 2. Use http://parceljs.org as a bundling tool instead of webpack
 3. Improve D3js code
 
-## API On External Webserver {#api}
+### API On External Webserver {#api}
 
 The external website's API is powered by [plumber](https://www.rplumber.io). Briefly, this is an R package that can convert R data into json and serve it through http requests.
 
 This is done through the [RunAPI.R](https://github.com/folkehelseinstituttet/dashboards_sykdomspuls/blob/master/inst/src/RunAPI.R) which is run by an R instance on the external webserver.
 
-# Signal Processing On SMHB
+## Signal Processing On SMHB
 
 This R package is triggered via [cron](https://folkehelseinstituttet.github.io/dashboards/umbrella.html#cron). The [cronjob](https://folkehelseinstituttet.github.io/dashboards/umbrella.html#cron) calls [0_run.sh](https://github.com/folkehelseinstituttet/dashboards_sykdomspuls/blob/master/inst/bin/0_run.sh) which is the enterance point for this package.
 
