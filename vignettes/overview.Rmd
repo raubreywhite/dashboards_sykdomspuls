@@ -5,9 +5,6 @@ date: "2018-10-12"
 output:
   rmarkdown::html_vignette:
     self_contained: TRUE
-    css:
-      - !expr system.file("rmarkdown/templates/html_vignette/resources/vignette.css", package = "rmarkdown")
-      - !expr system.file("ext", "style_vignettes.css", package = "fhi")
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEncoding{UTF-8}
