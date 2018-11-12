@@ -1,1 +1,1 @@
-Rscript -e "RAWmisc::PkgdownUndocumented('$PWD')"
+Rscript -e "install.packages('RAWmisc'); RAWmisc::PkgdownUndocumented('$PWD')"
