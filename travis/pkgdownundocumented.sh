@@ -1,0 +1,1 @@
+Rscript -e "RAWmisc::PkgdownUndocumented('$PKG_REPO')"
