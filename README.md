@@ -13,3 +13,4 @@ Please refer to the umbrella Dashboards project's [Contributing/Quickstart](http
 ## This package
 
 The Norwegian Syndromic Surveillance System (NorSySS) monitors how many infectious diseases are reported during consultations with general practitioners (GPs) and out-of-hours primary care facilities. NorSySS shows trends and possible disease outbreaks that are causing more people to consult their GP.
+
