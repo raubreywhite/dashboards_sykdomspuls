@@ -106,23 +106,13 @@ LatestDatasets <- function(clean = LatestRawID(), SYNDROME = "influensa") {
 #' GetPopulation
 #' Mostly a function used by the package maintainer
 #' to generate new population files as necessary
-#' @param L a
-#' @param U a
-#' @param municip a
-#' @param saveFiles a
-#' @param yearsCopiedAtTail a
 #' @import fhi
 #' @import data.table
 #' @importFrom lubridate today
 #' @import httr
 #' @import jsonlite
 #' @export GetPopulation
-GetPopulation <- function(
-                          L = c(0, 5, 15, 20, 30, 65),
-                          U = c(4, 14, 19, 29, 64, 9999),
-                          municip = stringr::str_extract(readxl::read_excel(system.file("extdata", "norwayLocations.xlsx", package = "sykdomspuls"))$municip, "[0-9][0-9][0-9][0-9]$"),
-                          saveFiles = file.path("/git", "dashboards_sykdomspuls", "inst", "extdata", "pop.RDS"),
-                          yearsCopiedAtTail = 5) {
+GetPopulation <- function() {
   # variables used in data.table functions in this function
   . <- NULL
   value <- NULL
@@ -131,114 +121,105 @@ GetPopulation <- function(
   agecont <- NULL
   pop <- NULL
   # end
-
-  municip <- municip[nchar(municip) == 4 & municip != "9999"]
-  ages <- c(formatC(0:104, width = 3, flag = "0"), "105+")
-
-  lastYear <- data.table::year(lubridate::today())
-  if (data.table::month(lubridate::today()) < 3) {
-    lastYear <- lastYear - 1
+  popFiles <- c("Personer2005-2009.csv","Personer2010-2014.csv","Personer2015-2018.csv")
+  pop <- vector("list",length=length(popFiles))
+  for(i in seq_along(pop)){
+    pop[[i]] <- fread(system.file("extdata",popFiles[i],package="sykdomspuls"))
+    pop[[i]] <- melt.data.table(pop[[i]], id.vars=c("region","age"))
   }
-  years <- as.character(c((data.table::year(lubridate::today()) - 15):lastYear))
+  pop <- rbindlist(pop)
+  pop[,municip:=sprintf("municip%s",stringr::str_extract(region,"^[0-9][0-9][0-9][0-9]"))]
+  pop[,year:=as.numeric(stringr::str_extract(variable,"[0-9][0-9][0-9][0-9]$"))]
+  pop[,agenum:=as.numeric(stringr::str_extract(age,"^[0-9]*"))]
 
-  retval <- vector("list", length(years) + yearsCopiedAtTail)
-  for (i in 1:length(years)) {
-    useYear <- years[i]
-    print(useYear)
-
-    b <- paste0('
-  {
-    "query": [
-      {
-        "code": "Region",
-        "selection": {
-          "filter": "item",
-          "values": [
-  ', paste0('"', municip, '"', collapse = ","), '
-          ]
-        }
-      },
-      {
-        "code": "Kjonn",
-        "selection": {
-          "filter": "item",
-          "values": [
-            "1",
-            "2"
-          ]
-        }
-      },
-      {
-        "code": "Alder",
-        "selection": {
-          "filter": "item",
-          "values": [
-  ', paste0('"', ages, '"', collapse = ","), '
-          ]
-        }
-      },
-      {
-        "code": "ContentsCode",
-        "selection": {
-          "filter": "item",
-          "values": [
-            "Personer1"
-          ]
-        }
-      },
-      {
-        "code": "Tid",
-        "selection": {
-          "filter": "item",
-          "values": [
-  ', paste0('"', useYear, '"', collapse = ","), '
-          ]
-        }
-      }
-    ],
-    "response": {
-      "format": "json-stat"
-    }
+  for(i in which(names(CONFIG$AGES)!="Totalt")){
+    pop[agenum %in% CONFIG$AGES[[i]], age:=names(CONFIG$AGES)[i]]
   }
 
-    ')
+  pop <- pop[,.(
+    pop=sum(value)
+  ),keyby=.(
+    municip,age,year
+  )]
 
-    x <- httr::POST("http://data.ssb.no/api/v0/no/table/07459",
-      body = b, encode = "json"
-    )
+  total <- pop[,.(
+    pop=sum(pop)
+  ),keyby=.(
+    municip,year
+  )]
+  total[,age:="Totalt"]
 
-    y <- jsonlite::fromJSON(httr::content(x, "text"))
-    d1 <- municip # unlist(y$dataset$dimension$Region$category$label)
-    d2 <- unlist(y$dataset$dimension$Kjonn$category$label)
-    d3 <- unlist(y$dataset$dimension$Alder$category$label)
-    d4 <- unlist(y$dataset$dimension$Tid$category$label)
-    res <- expand.grid(d4, d3, d2, d1)
-    res$value <- as.character(y$dataset$value)
-    res <- data.table(res)
-    res[, value := as.numeric(value)]
-    res[, age := as.numeric(stringr::str_extract(Var2, "^[0-9]*"))]
-    res <- res[, c("Var1", "Var4", "value", "age"), with = F]
-    setnames(res, c("year", "municip", "pop", "agecont"))
-    res[, age := paste0(L[1], "-", U[1])]
-    for (j in 2:(length(L) - 1)) {
-      res[agecont >= L[j] & agecont <= U[j], age := paste0(L[j], "-", U[j])]
-    }
-    res[agecont >= L[length(L)], age := paste0(L[length(L)], "+")]
+  pop <- rbind(pop,total)
 
-    res[, municip := paste0("municip", municip)]
-    res <- res[, .(pop = sum(pop)), by = .(year, municip, age)]
-    x <- res[, .(pop = sum(pop)), by = .(year, municip)]
-    x[, age := "Totalt"]
-    res <- rbind(res, x)
-    res[, year := as.character(year)]
+  # Fixing broken parts in the population data
+  # part 1
+  pop2 <- pop[municip=="municip0710" & year <= 2017]
+  pop2[,pop:=max(pop),by=age]
+  pop2 <- pop2[year!=max(year)]
+  pop2[,municip:="municip0706"]
+  pop2[,pop:=round(pop/3)]
+  pop <- rbind(pop,pop2)
 
-    retval[[i]] <- copy(res)
-  }
-  for (j in 1:yearsCopiedAtTail) {
-    res[, year := as.character(as.numeric(year) + 1)]
-    retval[[i + j]] <- copy(res)
-  }
-  saveRDS(retval, saveFiles)
+  pop2 <- pop[municip=="municip0710" & year <= 2017]
+  pop2[,pop:=max(pop),by=age]
+  pop2 <- pop2[year!=max(year)]
+  pop2[,municip:="municip0719"]
+  pop2[,pop:=round(pop/3)]
+  pop <- rbind(pop,pop2)
+
+  pop2 <- pop[municip=="municip0710" & year <= 2017]
+  pop2[,pop:=max(pop),by=age]
+  pop2 <- pop2[year!=max(year)]
+  pop2[,municip:="municip0720"]
+  pop2[,pop:=round(pop/3)]
+  pop <- rbind(pop,pop2)
+
+  # part 2
+  pop2 <- pop[municip=="municip1756" & year <= 2012]
+  pop2[,pop:=max(pop),by=age]
+  pop2 <- pop2[year!=max(year)]
+  pop2[,municip:="municip1723"]
+  pop2[,pop:=round(pop/2)]
+  pop <- rbind(pop,pop2)
+
+  pop2 <- pop[municip=="municip1756" & year <= 2012]
+  pop2[,pop:=max(pop),by=age]
+  pop2 <- pop2[year!=max(year)]
+  pop2[,municip:="municip1729"]
+  pop2[,pop:=round(pop/2)]
+  pop <- rbind(pop,pop2)
+
+  # part 3
+  pop2 <- pop[municip=="municip5046" & year <= 2018]
+  pop2[,pop:=max(pop),by=age]
+  pop2 <- pop2[year!=max(year)]
+  pop2[,municip:="municip1901"]
+  pop2[,pop:=round(pop/2)]
+  pop <- rbind(pop,pop2)
+
+  pop2 <- pop[municip=="municip1756" & year <= 2018]
+  pop2[,pop:=max(pop),by=age]
+  pop2 <- pop2[year!=max(year)]
+  pop2[,municip:="municip1915"]
+  pop2[,pop:=round(pop/2)]
+  pop <- rbind(pop,pop2)
+
+  # part 4
+  pop2 <- pop[municip=="municip1505" & year <= 2008]
+  pop2[,pop:=max(pop),by=age]
+  pop2 <- pop2[year!=max(year)]
+  pop2[,municip:="municip1503"]
+  pop2[,pop:=round(pop/2)]
+  pop <- rbind(pop,pop2)
+
+  pop2 <- pop[municip=="municip1505" & year <= 2008]
+  pop2[,pop:=max(pop),by=age]
+  pop2 <- pop2[year!=max(year)]
+  pop2[,municip:="municip1556"]
+  pop2[,pop:=round(pop/2)]
+  pop <- rbind(pop,pop2)
+
+  return(pop)
 }
 
 #' Format the raw data
@@ -252,7 +233,7 @@ GetPopulation <- function(
 #' @importFrom lubridate today
 #' @export FormatData
 FormatData <- function(d, SYNDROME,
-                       population = readRDS(system.file("extdata", "pop.RDS", package = "sykdomspuls")),
+                       population = GetPopulation(),
                        hellidager = fread(system.file("extdata", "DatoerMedHelligdager.txt", package = "sykdomspuls"))[, c("Dato", "HelligdagIndikator"), with = FALSE],
                        testIfHelligdagIndikatorFileIsOutdated = TRUE,
                        removeMunicipsWithoutConsults = FALSE) {
@@ -275,12 +256,16 @@ FormatData <- function(d, SYNDROME,
     d[, date := data.table::as.IDate(date)]
   }
 
-  SYNDROME_AND_INFLUENSA <- unique(c(SYNDROME, "influensa"))
+  if(SYNDROME %in% c("consultWithInfluensa","consultWithoutInfluensa")){
+    SYNDROME_AND_INFLUENSA_AND_CONSULT <- unique(c("influensa", "consult"))
+  } else {
+    SYNDROME_AND_INFLUENSA_AND_CONSULT <- unique(c(SYNDROME, "influensa", "consult"))
+  }
 
   d <- d[municip != "municip9999",
     lapply(.SD, sum),
     by = .(age, date, municip),
-    .SDcols = c(SYNDROME_AND_INFLUENSA, "consult")
+    .SDcols = SYNDROME_AND_INFLUENSA_AND_CONSULT
   ]
 
   dateMin <- min(d$date)
@@ -298,15 +283,14 @@ FormatData <- function(d, SYNDROME,
   skeleton[, date := data.table::as.IDate(date)]
   data <- merge(skeleton, d, by = c("municip", "age", "date"), all.x = TRUE)
 
-  for (i in c(SYNDROME_AND_INFLUENSA, "consult")) {
+  for (i in SYNDROME_AND_INFLUENSA_AND_CONSULT) {
     data[is.na(get(i)), (i) := 0]
   }
-
 
   total <- data[municip != "municip9999",
     lapply(.SD, sum),
     by = .(date, municip),
-    .SDcols = c(SYNDROME_AND_INFLUENSA, "consult")
+    .SDcols = SYNDROME_AND_INFLUENSA_AND_CONSULT
   ]
   total[, age := "Totalt"]
   data <- rbind(total, data[age != "Ukjent"])
@@ -325,49 +309,35 @@ FormatData <- function(d, SYNDROME,
   dates[, yrwk := NULL]
   data <- merge(data, dates, by = "date")
 
-  # POPULATION
-
-  if (FALSE) {
-    lastYr <- as.numeric(population[[length(population) - 2]]$year[1])
-
-    population[[length(population) - 1]] <- copy(population[[length(population) - 2]])
-    population[[length(population)]] <- copy(population[[length(population) - 2]])
-
-    population[[length(population) - 1]][, year := as.character(lastYr + 1)]
-    population[[length(population)]][, year := as.character(lastYr + 2)]
-
-    population <- rbindlist(population)
-    population[, year := as.numeric(year)]
-
-    dim(data)
-    data <- merge(data, population, by = c("municip", "year", "age"), all.x = T)
-    dim(data)
-  } else {
-    data[, pop := 1]
-  }
-
   # KOMMUNE MERGING
 
   dim(data)
   data <- merge(data, norwayMunicipMerging[, c("municip", "year", "municipEnd")], by = c("municip", "year"), all.x = T)
   dim(data)
+  data <- data[!is.na(municipEnd)]
+
+  n1 <- nrow(data)
+  data <- merge(data, population, by=c("municip","age","year"))
+  n2 <- nrow(data)
+
+  if(n1!=n2) fhi::DashboardMsg("Population file not merging correctly", type="err")
+
   data <- data[!is.na(municipEnd),
     lapply(.SD, sum),
-    by = .(municipEnd, year, age, date),
-    .SDcols = c(SYNDROME_AND_INFLUENSA, "consult", "pop")
+    keyby = .(municipEnd, year, age, date),
+    .SDcols = c(SYNDROME_AND_INFLUENSA_AND_CONSULT, "pop")
   ]
   dim(data)
   setnames(data, "municipEnd", "municip")
 
   # merging in municipalitiy-fylke names
   data <- merge(data, norwayLocations[, c("municip", "county")], by = "municip")
-  for (i in c(SYNDROME, "consult")) {
+  for (i in SYNDROME_AND_INFLUENSA_AND_CONSULT) {
     data[is.na(get(i)), (i) := 0]
   }
   data[, consultWithInfluensa := as.numeric(consult)]
   data[, consultWithoutInfluensa := consultWithInfluensa - influensa]
   data[, consult := NULL]
-  data[, pop := as.numeric(pop)]
 
   data <- data[date >= data.table::as.IDate("2006-01-01")]
   data[, municip := as.character(municip)]
@@ -387,7 +357,7 @@ FormatData <- function(d, SYNDROME,
     data[, influensa := NULL]
   }
 
-  setcolorder(data, c(
+  setcolorder(data, unique(c(
     "date",
     "HelligdagIndikator",
     "county",
@@ -397,8 +367,13 @@ FormatData <- function(d, SYNDROME,
     "consultWithInfluensa",
     "consultWithoutInfluensa",
     "pop"
-  ))
-  setnames(data, SYNDROME, "value")
+  )))
+
+  if(SYNDROME %in% c("consultWithInfluensa","consultWithoutInfluensa")){
+    data[,value:=get(SYNDROME)]
+  } else {
+    setnames(data, SYNDROME, "value")
+  }
 
   setorder(data, municip, age, date)
   setkey(data, municip, age, date)
@@ -441,24 +416,24 @@ UpdateData <- function() {
   # end
 
   files <- IdentifyDatasets()
-  files <- files[is.na(isClean)]
+  if(!fhi::DashboardIsDev()) files <- files[is.na(isClean)]
   if (nrow(files) == 0) {
-    cat(sprintf("%s/%s/R/SYKDOMSPULS No new data", Sys.time(), Sys.getenv("COMPUTER")), "\n")
+    fhi::DashboardMsg("No new data")
     return(FALSE)
   } else {
-    cat(sprintf("%s/%s/R/SYKDOMSPULS Updating data", Sys.time(), Sys.getenv("COMPUTER")), "\n")
+    fhi::DashboardMsg("Updating data")
     if (Sys.getenv("COMPUTER") == "smhb") EmailNotificationOfNewData(files$id, isTest = FALSE)
     for (i in 1:nrow(files)) {
       if (!RAWmisc::IsFileStable(fhi::DashboardFolder("data_raw", files[i]$raw))) {
-        cat(sprintf("%s/%s/R/SYKDOMSPULS Unstable file %s", Sys.time(), Sys.getenv("COMPUTER"), files[i]$raw), "\n")
+        fhi::DashboardMsg(sprintf("Unstable file %s",files[i]$raw))
         return(FALSE)
       }
-      cat(sprintf("%s/%s/R/SYKDOMSPULS Cleaning file %s", Sys.time(), Sys.getenv("COMPUTER"), files[i]$raw), "\n")
+      fhi::DashboardMsg(sprintf("Cleaning file %s",files[i]$raw))
       d <- fread(fhi::DashboardFolder("data_raw", files[i]$raw))
       d[, date := data.table::as.IDate(date)]
 
       for (SYNDROME in CONFIG$SYNDROMES) {
-        cat(sprintf("%s/%s/R/SYKDOMSPULS Processing %s", Sys.time(), Sys.getenv("COMPUTER"), SYNDROME), "\n")
+        fhi::DashboardMsg(sprintf("Processing %s",SYNDROME))
         res <- FormatData(d[Kontaktype == "Legekontakt"], SYNDROME = SYNDROME)
         saveRDS(res, file = fhi::DashboardFolder(
           "data_clean",
@@ -479,7 +454,7 @@ UpdateData <- function() {
       }
     }
 
-    cat(sprintf("%s/%s/R/SYKDOMSPULS New data is now formatted and ready", Sys.time(), Sys.getenv("COMPUTER")), "\n")
+    fhi::DashboardMsg("New data is now formatted and ready")
     return(TRUE)
   }
 }

@@ -11,7 +11,7 @@ GenFakeDataRaw <- function() {
     maxDate <- as.Date(sprintf("%s-12-31", skeleton$year[i]))
     data[[i]] <- expand.grid(
       date = seq.Date(minDate, maxDate, 1),
-      "age" = CONFIG$AGES,
+      "age" = names(CONFIG$AGES),
       "Kontakttype" = c("Telefonkontakt", "Legekontakt"),
       "Praksis" = c("Fastlege", "Legevakt"),
       stringsAsFactors = F

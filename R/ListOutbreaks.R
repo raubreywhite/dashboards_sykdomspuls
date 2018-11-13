@@ -184,10 +184,10 @@ GenerateOutbreakListExternal <- function(df = readRDS(fhi::DashboardFolder("resu
   resultsf <- rbindlist(resultsf)
   resultsk <- rbindlist(resultsk)
 
-  resultsf[, age := factor(age, levels = CONFIG$AGES)]
+  resultsf[, age := factor(age, levels = names(CONFIG$AGES))]
   setorder(resultsf, type, location, age)
 
-  resultsk[, age := factor(age, levels = CONFIG$AGES)]
+  resultsk[, age := factor(age, levels = names(CONFIG$AGES))]
   setorder(resultsk, type, location, age)
 
   results <- rbind(resultsf, resultsk, fill = T)

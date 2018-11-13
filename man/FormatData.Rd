@@ -4,10 +4,9 @@
 \alias{FormatData}
 \title{Format the raw data}
 \usage{
-FormatData(d, SYNDROME, population = readRDS(system.file("extdata", "pop.RDS",
-  package = "sykdomspuls")), hellidager = fread(system.file("extdata",
-  "DatoerMedHelligdager.txt", package = "sykdomspuls"))[, c("Dato",
-  "HelligdagIndikator"), with = FALSE],
+FormatData(d, SYNDROME, population = GetPopulation(),
+  hellidager = fread(system.file("extdata", "DatoerMedHelligdager.txt",
+  package = "sykdomspuls"))[, c("Dato", "HelligdagIndikator"), with = FALSE],
   testIfHelligdagIndikatorFileIsOutdated = TRUE,
   removeMunicipsWithoutConsults = FALSE)
 }

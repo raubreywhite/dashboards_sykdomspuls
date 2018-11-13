@@ -5,10 +5,8 @@ suppressMessages(library(foreach))
 suppressMessages(library(doSNOW))
 suppressMessages(library(iterators))
 
-DashboardFolder <- fhi::DashboardFolder
-
-SaveData(sykdomspuls::CONFIG, DashboardFolder("results", "config.RDS"))
-SaveData(sykdomspuls::CONFIG, DashboardFolder("data_app", "config.RDS"))
+SaveData(ConvertConfigForAPI(), fhi::DashboardFolder("results", "config.RDS"))
+SaveData(ConvertConfigForAPI(), fhi::DashboardFolder("data_app", "config.RDS"))
 
 dataFiles <- c("resComparisons", "resRecentLine", "resYearLine", "resYearLineMunicip")
 
@@ -35,26 +33,21 @@ StackIterator <- function(stack, data, progressFunction) {
   obj
 }
 
-# it <- StackIterator(data,stack)
-# nextElem(it)
-
-flush.console()
 
 if (!UpdateData()) {
-  cat(sprintf("%s/%s/R/SYKDOMSPULS Have not run analyses and exiting", Sys.time(), Sys.getenv("COMPUTER")), "\n")
+  fhi::DashboardMsg("Have not run analyses and exiting")
   q(save = "no", status = 21)
 } else {
   DeleteOldDatasets()
 
   for (SYNDROME in sykdomspuls::CONFIG$SYNDROMES) {
-    cat(sprintf("\n\n%s/%s/R/SYKDOMSPULS ***%s***\n", Sys.time(), Sys.getenv("COMPUTER"), SYNDROME))
-    flush.console()
+    fhi::DashboardMsg(SYNDROME)
 
     data <- list()
-    if (SYNDROME %in% sykdomspuls::CONFIG$SYNDROMES_DOCTOR) {
-      data[["municip"]] <- readRDS(file = DashboardFolder("data_clean", LatestDatasets(SYNDROME = SYNDROME)$legekontakt_everyone))
+    if (SYNDROME %in% c(sykdomspuls::CONFIG$SYNDROMES_DOCTOR,sykdomspuls::CONFIG$CONSULTS_DOCTOR)) {
+      data[["municip"]] <- readRDS(file = fhi::DashboardFolder("data_clean", LatestDatasets(SYNDROME = SYNDROME)$legekontakt_everyone))
     } else {
-      data[["municip"]] <- readRDS(file = DashboardFolder("data_clean", LatestDatasets(SYNDROME = SYNDROME)$everyone_everyone))
+      data[["municip"]] <- readRDS(file = fhi::DashboardFolder("data_clean", LatestDatasets(SYNDROME = SYNDROME)$everyone_everyone))
     }
 
     counties <- unique(data[["municip"]]$county)
@@ -137,10 +130,10 @@ if (!UpdateData()) {
       assign("opts", opts, envir = .GlobalEnv)
     }
 
-    cat(sprintf("%s/%s/R/SYKDOMSPULS Setting keys for binary search\n", Sys.time(), Sys.getenv("COMPUTER")), "\n")
+    fhi::DashboardMsg("Setting keys for binary search")
     setkeyv(data, c("location", "age"))
 
-    cat(sprintf("%s/%s/R/SYKDOMSPULS Registering cluster\n", Sys.time(), Sys.getenv("COMPUTER")), "\n")
+    fhi::DashboardMsg("Registering cluster")
     cl <- makeCluster(parallel::detectCores())
     registerDoSNOW(cl)
 
@@ -193,7 +186,7 @@ if (!UpdateData()) {
         res[location %in% smallMunicips & age != "Totalt", threshold2 := 5 ]
         res[location %in% smallMunicips & age != "Totalt", threshold4 := 10 ]
       }
-      SaveData(res, DashboardFolder("results", sprintf("%s_%s.RDS", dataFiles[i], SYNDROME)))
+      SaveData(res, fhi::DashboardFolder("results", sprintf("%s_%s.RDS", dataFiles[i], SYNDROME)))
       rm("res")
     }
     stopCluster(cl)
@@ -207,14 +200,14 @@ if (!UpdateData()) {
       res[[s]] <- readRDS(DashboardFolder("results", sprintf("%s_%s.RDS", dataFiles[i], sykdomspuls::CONFIG$SYNDROMES[s])))
     }
     res <- rbindlist(res)
-    SaveData(res, DashboardFolder("results", sprintf("%s.RDS", dataFiles[i])))
-    SaveData(res, DashboardFolder("data_app", sprintf("%s.RDS", dataFiles[i])))
+    SaveData(res, fhi::DashboardFolder("results", sprintf("%s.RDS", dataFiles[i])))
+    SaveData(res, fhi::DashboardFolder("data_app", sprintf("%s.RDS", dataFiles[i])))
 
     # Save last 8 weeks of results
     if (i %in% c(3, 4)) {
       saveWkYrs <- rev(sort(unique(res$wkyr)))[1:8]
       res <- res[wkyr %in% saveWkYrs]
-      SaveData(res, DashboardFolder(
+      SaveData(res, fhi::DashboardFolder(
         "results",
         sprintf("archive_%s_%s.RDS", LatestDatasets()$date, dataFiles[i])
       ))
@@ -222,12 +215,12 @@ if (!UpdateData()) {
   }
 
   ## GENERATE LIST OF OUTBREAKS
-  cat(sprintf("%s/%s/R/SYKDOMSPULS Generate list of outbreaks", Sys.time(), Sys.getenv("COMPUTER")), "\n")
+  fhi::DashboardMsg("Generate list of outbreaks")
   GenerateOutbreakListInternal()
   GenerateOutbreakListExternal()
 
   # Done with analyses
-  cat(sprintf("%s/%s/R/SYKDOMSPULS Done with all analyses", Sys.time(), Sys.getenv("COMPUTER")), "\n")
+  fhi::DashboardMsg("Done with all analyses")
 
   CreateLatestDoneFile()
   cat("done", file = "/data_app/sykdomspuls/done.txt")
@@ -235,6 +228,6 @@ if (!UpdateData()) {
   ## SENDING OUT EMAILS
   EmailNotificationOfNewResults()
 
-  cat(sprintf("%s/%s/R/SYKDOMSPULS Finished analyses and exiting", Sys.time(), Sys.getenv("COMPUTER")), "\n")
+  fhi::DashboardMsg("Finished analyses and exiting")
   quit(save = "no", status = 0)
 }

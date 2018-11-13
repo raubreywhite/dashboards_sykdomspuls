@@ -59,8 +59,17 @@ CONFIG$SYNDROMES_ALL <- c(
   "Lungebetennelse diagnose" = "lungebetennelse",
   "Bronkitt diagnose" = "bronkitt"
 )
+CONFIG$CONSULTS_DOCTOR <- c(
+  "consultWithInfluensa" = "consultWithInfluensa",
+  "consultWithoutInfluensa" = "consultWithoutInfluensa"
+)
+CONFIG$CONSULTS_ALL <- c(
+)
 
-CONFIG$SYNDROMES <- c(CONFIG$SYNDROMES_DOCTOR, CONFIG$SYNDROMES_ALL)
+CONFIG$SYNDROMES <- c(CONFIG$SYNDROMES_DOCTOR,
+                      CONFIG$SYNDROMES_ALL,
+                      CONFIG$CONSULTS_DOCTOR,
+                      CONFIG$CONSULTS_ALL)
 
 CONFIG$SYNDROMES_ALERT_INTERNAL <- c(
   "influensa",
@@ -81,20 +90,22 @@ CONFIG$SYNDROMES_SHORT <- c(
   "Luftvei" = "respiratoryinternal",
   "Luftvei" = "respiratoryexternal",
   "Lungebet" = "lungebetennelse",
-  "Bronkitt" = "bronkitt"
+  "Bronkitt" = "bronkitt",
+  "ConsWithInf" = "consultWithInfluensa",
+  "ConfWOInf" = "consultWithoutInfluensa"
 )
 
 # remove any excess short syndromes
 CONFIG$SYNDROMES_SHORT <- CONFIG$SYNDROMES_SHORT[CONFIG$SYNDROMES_SHORT %in% CONFIG$SYNDROMES]
 
-CONFIG$AGES <- c(
-  "Totalt",
-  "0-4",
-  "5-14",
-  "15-19",
-  "20-29",
-  "30-64",
-  "65+"
+CONFIG$AGES <- list(
+  "Totalt"=c(0:105),
+  "0-4"=c(0:4),
+  "5-14"=c(5:14),
+  "15-19"=c(15:19),
+  "20-29"=c(20:29),
+  "30-64"=c(30:64),
+  "65+"=c(65:105)
 )
 
 #' Global variables used for defining formats of data structures

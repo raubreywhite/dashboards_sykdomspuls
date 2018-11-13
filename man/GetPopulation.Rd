@@ -6,23 +6,7 @@
 Mostly a function used by the package maintainer
 to generate new population files as necessary}
 \usage{
-GetPopulation(L = c(0, 5, 15, 20, 30, 65), U = c(4, 14, 19, 29, 64, 9999),
-  municip = stringr::str_extract(readxl::read_excel(system.file("extdata",
-  "norwayLocations.xlsx", package = "sykdomspuls"))$municip,
-  "[0-9][0-9][0-9][0-9]$"), saveFiles = file.path("/git",
-  "dashboards_sykdomspuls", "inst", "extdata", "pop.RDS"),
-  yearsCopiedAtTail = 5)
-}
-\arguments{
-\item{L}{a}
-
-\item{U}{a}
-
-\item{municip}{a}
-
-\item{saveFiles}{a}
-
-\item{yearsCopiedAtTail}{a}
+GetPopulation()
 }
 \description{
 GetPopulation

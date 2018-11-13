@@ -300,7 +300,9 @@ RunOneAnalysis <- function(analysesStack, analysisData) {
   threshold4 <- NULL
   # end
 
-  if (analysesStack$type == "influensa") {
+  if( analysesStack$type  %in% c("consultWithInfluensa","consultWithoutInfluensa")) {
+    setnames(analysisData, "pop", "consult")
+  } else if (analysesStack$type == "influensa") {
     setnames(analysisData, "consultWithInfluensa", "consult")
   } else {
     setnames(analysisData, "consultWithoutInfluensa", "consult")
