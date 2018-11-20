@@ -4,22 +4,22 @@ FormatDatasetDaily <- function(data) {
   trend <- NULL
   dayOfYear <- NULL
   dayOfWeek <- NULL
-  consult <- NULL
+  denominator <- NULL
   # end
 
   data[, trend := as.numeric(date) - 13000]
   data[, dayOfYear := data.table::yday(date)]
   data[, dayOfWeek := data.table::wday(date)]
-  data[consult == 0, consult := 1]
+  data[denominator == 0, denominator := 1]
 
   return(data)
 }
 
-FormatDatasetWeekly <- function(data) {
+FormatDatasetWeekly <- function(data, weeklyDenominatorFunction=sum) {
   # variables used in data.table functions in this function
   . <- NULL
   n <- NULL
-  consult <- NULL
+  denominator <- NULL
   trend <- NULL
   pop <- NULL
   HelligdagIndikator <- NULL
@@ -29,8 +29,7 @@ FormatDatasetWeekly <- function(data) {
   data[, trend := as.numeric(date) - 13000]
   data <- data[, .(
     n = sum(n),
-    consult = sum(consult),
-    pop = sum(pop),
+    denominator = weeklyDenominatorFunction(denominator),
     HelligdagIndikator = mean(HelligdagIndikator),
     trend = mean(trend)
   ),
@@ -39,15 +38,14 @@ FormatDatasetWeekly <- function(data) {
 
   data <- data[, .(
     n = sum(n),
-    consult = sum(consult),
-    pop = mean(pop),
+    denominator = weeklyDenominatorFunction(denominator),
     HelligdagIndikator = mean(HelligdagIndikator),
     trend = mean(trend)
   ),
   by = .(year, week)
   ]
 
-  data[consult == 0, consult := 1]
+  data[denominator == 0, denominator := 1]
 
   return(data)
 }
@@ -70,6 +68,7 @@ FormatDatasetWeekly <- function(data) {
 #' @param sign.level Significance level for the prediction intervals (default: 0.05)
 #' @param isDaily Is it daily data or weekly data?
 #' @param v Version (Not in use)
+#' @param weeklyDenominatorFunction sum or mean - should the denominator be summed or meaned over time
 #' @importFrom glm2 glm2
 #' @import data.table
 #' @import stringr
@@ -83,7 +82,8 @@ QuasipoissonTrainPredictData <- function(
                                          remove.highcounts = 0,
                                          sign.level = 0.05,
                                          isDaily = TRUE,
-                                         v = 1) {
+                                         v = 1,
+                                         weeklyDenominatorFunction=sum) {
   # variables used in data.table functions in this function
   consult <- NULL
   n <- NULL
@@ -99,6 +99,8 @@ QuasipoissonTrainPredictData <- function(
   revcumE1 <- NULL
   revcumL1 <- NULL
   revcumU1 <- NULL
+  denominator <- NULL
+  displayDay <- NULL
   # end
 
   # FUNCTION quasipoisson.algorithm
@@ -119,27 +121,27 @@ QuasipoissonTrainPredictData <- function(
   # remove.highcounts: number between 0 and 1 of fraction of high counts to be removed from prediction, to remove impact of earlier outbreaks (default: 0)
   # sign.level: significance level for the prediction intervals (default: 5%)
 
-  datasetTrain[consult == 0, consult := 1]
+  datasetTrain[denominator == 0, denominator := 1]
   datasetTrain[, year := as.numeric(format.Date(date, "%G"))] # Week-based year, instead of normal year (%Y)
   datasetTrain[, week := as.numeric(format.Date(date, "%V"))] # Week-based year, instead of normal year (%Y)
   # datasetTrain[,week := data.table::isoweek(date)] #ISO-week, instead of others (%W and %U)
 
-  datasetPredict[consult == 0, consult := 1]
+  datasetPredict[denominator == 0, denominator := 1]
   datasetPredict[, year := as.numeric(format.Date(date, "%G"))] # Week-based year, instead of normal year (%Y)
   datasetPredict[, week := as.numeric(format.Date(date, "%V"))] # Week-based year, instead of normal year (%Y)
   # datasetPredict[,week := data.table::isoweek(date)] #ISO-week, instead of others (%W and %U)
 
   # SET REGRESSION FORMULA:
   if (isDaily) {
-    regformula <- n ~ offset(log(consult)) + trend + factor(dayOfWeek) + sin(2 * pi * dayOfYear / 366) + cos(2 * pi * dayOfYear / 366) + HelligdagIndikator
+    regformula <- n ~ offset(log(denominator)) + trend + factor(dayOfWeek) + sin(2 * pi * dayOfYear / 366) + cos(2 * pi * dayOfYear / 366) + HelligdagIndikator
 
     datasetTrain <- FormatDatasetDaily(datasetTrain)
     datasetPredict <- FormatDatasetDaily(datasetPredict)
   } else {
-    regformula <- n ~ offset(log(consult)) + trend + sin(2 * pi * (week - 1) / 52) + cos(2 * pi * (week - 1) / 52) + HelligdagIndikator
+    regformula <- n ~ offset(log(denominator)) + trend + sin(2 * pi * (week - 1) / 52) + cos(2 * pi * (week - 1) / 52) + HelligdagIndikator
 
-    datasetTrain <- FormatDatasetWeekly(datasetTrain)
-    datasetPredict <- FormatDatasetWeekly(datasetPredict)
+    datasetTrain <- FormatDatasetWeekly(datasetTrain, weeklyDenominatorFunction=weeklyDenominatorFunction)
+    datasetPredict <- FormatDatasetWeekly(datasetPredict, weeklyDenominatorFunction=weeklyDenominatorFunction)
   }
 
   if (remove.pandemic.year == T) {
@@ -223,12 +225,17 @@ QuasipoissonTrainPredictData <- function(
     datasetPredict[, failed := FALSE]
   }
 
+  datasetPredict <- AddXToWeekly(datasetPredict)
+  datasetPredict <- AddWkyrAndDisplayDateToWeekly(datasetPredict)
+
   if (isDaily) {
-    return(datasetPredict[, c(variablesAlgorithmDaily, variablesAlgorithmBasic, variablesAlgorithmProduced), with = F])
+    datasetPredict[,displayDay:=date]
   } else {
-    # adding in some necessary variables
-    datasetPredict <- AddXToWeekly(datasetPredict)
-    datasetPredict <- AddWkyrAndDisplayDateToWeekly(datasetPredict)
-    return(datasetPredict[, c(variablesAlgorithmWeekly, variablesAlgorithmBasic, variablesAlgorithmProduced), with = F])
+    datasetPredict[,date:=displayDay]
   }
+  datasetPredict[, displayDay:=as.Date(displayDay)]
+  datasetPredict[, date:=as.Date(date)]
+
+  return(datasetPredict[,VARS$REQ_RESULTS_BASIC,with=F])
+
 }

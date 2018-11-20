@@ -33,20 +33,28 @@ reference:
   contents:
   - CONFIG
   - VARS
+  - PB
 - title: Variables
   desc: >
     These are global variables that are used in sykdomspuls.
     They should be moved inside the environment `VARS`
   contents:
-  - variablesAlgorithmDaily
-  - variablesAlgorithmWeekly
-  - variablesAlgorithmBasic
-  - variablesAlgorithmProduced
-  - variablesPostProcessing
-  - variablesMunicip
   - displayDays
   - norwayLocations
   - norwayMunicipMerging
+- title:
+  desc: >
+    These functions relate to fake data creation and data validation
+  contents:
+  - GenFakeDataRaw
+  - GenFakeDataClean
+  - GenerateFakeDataAnalysis
+  - GenerateFakeResultsFull
+  - GenerateAnalysisResults
+  - ValidateDataClean
+  - ValidateResultsFull
+  - ValidateAnalysisResults
+  - ValidateDataRaw
 - title: Data Functions
   desc: >
     These functions relate to the detection, creation, validation,
@@ -60,10 +68,8 @@ reference:
   - DeleteOldDatasets
   - DetermineStatus
   - FormatData
-  - GenFakeDataRaw
   - GenNorwayLocations
   - GenNorwayMunicipMerging
-  - GenerateAnalysisResults
   - GenerateOutbreakListExternal
   - GenerateOutbreakListInternal
   - GetAgesLU
@@ -74,16 +80,15 @@ reference:
   - IdentifyDatasets
   - LatestDatasets
   - LatestRawID
-  - SaveData
+  - ResultsAggregateApply
+  - ResultsAggregateStack
+  - SaveRDS
   - UpdateData
-  - ValidateAnalysisResults
-  - ValidateDataRaw
 - title: Analysis Functions
   desc: >
     These functions are related to the analysis portion of sykdomspuls.
   contents:
-  - AnalyseRecentLine
-  - AnalyseYearLine
+  - StackAndEfficientDataForAnalysis
   - CalculateTrainPredictYearPattern
   - QuasipoissonTrainPredictData
   - RunOneAnalysis
@@ -94,6 +99,7 @@ reference:
   desc: >
     These functions are related to the emails that are produced by sykdomspuls.
   contents:
+  - GetAlertsEmails
   - EmailExternal
   - EmailExternalGenerateTable
   - EmailInternal
@@ -101,3 +107,11 @@ reference:
   - EmailNotificationOfNewData
   - EmailNotificationOfNewResults
   - EmailTechnicalNewResults
+- title: Helper Functions
+  desc: >
+    These functions are helper functions
+  contents:
+  - ConvertConfigForAPI
+  - StackIterator
+  - PBIncrement
+  - PBInitialize

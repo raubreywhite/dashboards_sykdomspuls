@@ -4,12 +4,12 @@
 \alias{EmailExternalGenerateTable}
 \title{Generates the outbreak table for the external email}
 \usage{
-EmailExternalGenerateTable(results, xtype, xemail)
+EmailExternalGenerateTable(results, xtag, xemail)
 }
 \arguments{
 \item{results}{a}
 
-\item{xtype}{a}
+\item{xtag}{a}
 
 \item{xemail}{a}
 }

@@ -4,12 +4,10 @@
 \alias{EmailNotificationOfNewData}
 \title{Email notification of new data}
 \usage{
-EmailNotificationOfNewData(files, isTest = TRUE)
+EmailNotificationOfNewData(files)
 }
 \arguments{
 \item{files}{The raw data file that is being analysed}
-
-\item{isTest}{Is this a test?}
 }
 \description{
 Email notification of new data

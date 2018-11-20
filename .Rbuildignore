@@ -23,3 +23,5 @@ tests/testthat/results/.DS_Store
 CONTRIBUTING.md
 pkgdown/*
 LICENSE
+docs/*
+travis/*

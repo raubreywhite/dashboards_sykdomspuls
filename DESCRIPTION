@@ -1,6 +1,6 @@
 Package: sykdomspuls
 Title: Norwegian Syndromic Surveillance System - NorSySS
-Version: 2018.11.13
+Version: 2018.11.20
 Authors@R: person("Richard", "White", email = "w@rwhite.no", role = c("aut", "cre"))
 Author: Richard White
 Maintainer: Richard White <w@rwhite.no>
@@ -18,6 +18,8 @@ Imports:
   httr,
   jsonlite,
   zoo,
+  iterators,
+  ggplot2,
   RAWmisc
 Suggests: testthat,
     knitr,
@@ -29,3 +31,4 @@ LazyData: true
 RoxygenNote: 6.0.1
 Additional_repositories: https://folkehelseinstituttet.github.io/drat/, https://raubreywhite.github.io/drat/
 VignetteBuilder: knitr
+ByteCompile: true

@@ -1,9 +1,8 @@
 #' Email notification of new data
 #' @param files The raw data file that is being analysed
-#' @param isTest Is this a test?
 #' @import fhi
 #' @export EmailNotificationOfNewData
-EmailNotificationOfNewData <- function(files, isTest = TRUE) {
+EmailNotificationOfNewData <- function(files) {
   emailText <- paste0(
     "New Sykdomspulsen data has been received and signal processing has begun.
 <br><br>
@@ -15,19 +14,11 @@ Files being processed are: ", paste0(files, collapse = ", "), "
 "
   )
 
-  if (isTest) {
-    fhi::DashboardEmail(
-      "test",
-      emailSubject = "TESTING EmailNotificationOfNewData",
-      emailText
-    )
-  } else {
-    fhi::DashboardEmail(
-      "sykdomspuls_data",
-      "New Sykdomspuls data",
-      emailText
-    )
-  }
+  fhi::DashboardEmail(
+    "sykdomspuls_data",
+    "New Sykdomspuls data",
+    emailText
+  )
 
   return(0)
 }
@@ -39,24 +30,20 @@ EmailTechnicalNewResults <- function() {
   emailText <- "
   New Sykdomspulsen results available at <a href='http://smhb.fhi.no/'>http://smhb.fhi.no/</a>
   "
-  if (Sys.getenv("COMPUTER") == "smhb") {
-    fhi::DashboardEmail(
-      "sykdomspuls_results",
-      "New Sykdomspuls results available",
-      emailText
-    )
-  }
+  fhi::DashboardEmail(
+    emailsFromExcel="sykdomspuls_results",
+    emailSubject="New Sykdomspuls results available",
+    emailText=emailText
+  )
 }
 
 #' Internal email for possible outbreaks
 #' @param resYearLine Data from an resYearLine.RDS file
-#' @param isTest Is it a test?
 #' @import fhi
 #' @import data.table
 #' @export EmailInternal
 EmailInternal <- function(
-                          resYearLine = readRDS(fhi::DashboardFolder("results", "resYearLine.RDS")),
-                          isTest = TRUE) {
+                          resYearLine = readRDS(fhi::DashboardFolder("results", "resYearLine.RDS"))) {
   # variables used in data.table functions in this function
   status <- NULL
   location <- NULL
@@ -69,7 +56,7 @@ EmailInternal <- function(
   statusRed <- NULL
   age <- NULL
   wkyr <- NULL
-  type <- NULL
+  tag <- NULL
   # end
 
   currentWeek <- max(resYearLine$wkyr)
@@ -89,125 +76,112 @@ EmailInternal <- function(
   resYearLine[statusSum2weeks >= 1, statusRed := 1]
 
   resYearLine <- resYearLine[age == "Totalt"]
-  outbreaks <- resYearLine[statusYellow == 1 | statusRed == 1, c("wkyr", "type", "location", "locationName", "status", "statusYellow", "statusRed"), with = F]
+  outbreaks <- resYearLine[statusYellow == 1 | statusRed == 1, c("wkyr", "tag", "location", "locationName", "status", "statusYellow", "statusRed"), with = F]
   setorder(outbreaks, -wkyr, location)
 
-  outbreaksGastro <- unique(outbreaks[wkyr == currentWeek & type == "gastro"]$locationName)
-  outbreaksRespiratory <- unique(outbreaks[wkyr == currentWeek & type == "respiratoryinternal"]$locationName)
-  outbreaksInfluensa <- unique(outbreaks[wkyr == currentWeek & type == "influensa"]$locationName)
-  outbreaksLungebetennelse <- unique(outbreaks[wkyr == currentWeek & type == "lungebetennelse"]$locationName)
-  outbreaksBronkitt <- unique(outbreaks[wkyr == currentWeek & type == "bronkitt"]$locationName)
+  outbreaksGastro <- unique(outbreaks[wkyr == currentWeek & tag == "gastro"]$locationName)
+  outbreaksRespiratory <- unique(outbreaks[wkyr == currentWeek & tag == "respiratoryinternal"]$locationName)
+  outbreaksInfluensa <- unique(outbreaks[wkyr == currentWeek & tag == "influensa"]$locationName)
+  outbreaksLungebetennelse <- unique(outbreaks[wkyr == currentWeek & tag == "lungebetennelse"]$locationName)
+  outbreaksBronkitt <- unique(outbreaks[wkyr == currentWeek & tag == "bronkitt"]$locationName)
 
-  if (length(outbreaksGastro) > 0 |
-    length(outbreaksRespiratory) > 0 |
-    length(outbreaksInfluensa) > 0 |
-    length(outbreaksLungebetennelse) > 0 |
-    length(outbreaksBronkitt) > 0 |
-    isTest) {
-    outbreaksGastro <- paste0(outbreaksGastro, collapse = ", ")
-    outbreaksRespiratory <- paste0(outbreaksRespiratory, collapse = ", ")
-    outbreaksInfluensa <- paste0(outbreaksInfluensa, collapse = ", ")
-    outbreaksLungebetennelse <- paste0(outbreaksLungebetennelse, collapse = ", ")
-    outbreaksBronkitt <- paste0(outbreaksBronkitt, collapse = ", ")
+  outbreaksGastro <- paste0(outbreaksGastro, collapse = ", ")
+  outbreaksRespiratory <- paste0(outbreaksRespiratory, collapse = ", ")
+  outbreaksInfluensa <- paste0(outbreaksInfluensa, collapse = ", ")
+  outbreaksLungebetennelse <- paste0(outbreaksLungebetennelse, collapse = ", ")
+  outbreaksBronkitt <- paste0(outbreaksBronkitt, collapse = ", ")
 
-    if (outbreaksGastro == "") outbreaksGastro <- "Ingen"
-    if (outbreaksRespiratory == "") outbreaksRespiratory <- "Ingen"
-    if (outbreaksInfluensa == "") outbreaksInfluensa <- "Ingen"
-    if (outbreaksLungebetennelse == "") outbreaksLungebetennelse <- "Ingen"
-    if (outbreaksBronkitt == "") outbreaksBronkitt <- "Ingen"
+  if (outbreaksGastro == "") outbreaksGastro <- "Ingen"
+  if (outbreaksRespiratory == "") outbreaksRespiratory <- "Ingen"
+  if (outbreaksInfluensa == "") outbreaksInfluensa <- "Ingen"
+  if (outbreaksLungebetennelse == "") outbreaksLungebetennelse <- "Ingen"
+  if (outbreaksBronkitt == "") outbreaksBronkitt <- "Ingen"
 
-    emailText <- sprintf(
-      "
-                         OBS-Varsel fra Sykdomspulsen uke %s:
-                         <br><br>
-                         OBS varslet er basert p\u00E5 oversiktsbildet for de siste ukene for mage-tarminfeksjoner, luftveisinfeksjoner, og influensa.<br>
-                         Det blir generert et varsel dersom:<br>
-                         - Et eller flere av fylkene har r\u00F8d farge en av de to siste ukene<br>
-                         - Et eller flere av fylkene har gul farge to av de tre siste ukene
-                         <br><br>
-                         Ved OBS varsel b\u00F8r mottaksansvarlig melde ifra til fagansvarlig i riktig avdeling.
-                         <br><br>
+  emailText <- sprintf(
+    "
+                       OBS-Varsel fra Sykdomspulsen uke %s:
+                       <br><br>
+                       OBS varslet er basert p\u00E5 oversiktsbildet for de siste ukene for mage-tarminfeksjoner, luftveisinfeksjoner, og influensa.<br>
+                       Det blir generert et varsel dersom:<br>
+                       - Et eller flere av fylkene har r\u00F8d farge en av de to siste ukene<br>
+                       - Et eller flere av fylkene har gul farge to av de tre siste ukene
+                       <br><br>
+                       Ved OBS varsel b\u00F8r mottaksansvarlig melde ifra til fagansvarlig i riktig avdeling.
+                       <br><br>
 Sykdomspulsen kan i noen tilfeller generere et OBS varsel selv om det bare er en eller to konsultasjoner for et symptom/sykdom. Dette sees som oftest i sm\u00E5 kommuner der det vanligvis ikke er mange konsultasjoner. For ikke \u00E5 bli forstyrret av slike signaler har vi n\u00E5 lagt inn en nedre grense for gult signal p\u00E5 to konsultasjoner og en nedre grense for r\u00F8dt signal p\u00E5 tre konsultasjoner.<br><br>
-                         <br><br>
-                         Mage-tarminfeksjoner:
-                         <br>
-                         %s
-                         <br><br>
-                         Luftveisinfeksjoner:
-                         <br>
-                         %s
-                         <br><br>
-                         Influensa:
-                         <br>
-                         %s
-                         <br><br>
-                         Lungebetennelse:
-                         <br>
-                         %s
-                         <br><br>
-                         Akutt bronkitt/bronkiolitt:
-                         <br>
-                         %s
-                         <br><br>
-                         Se ogs\u00E5 p\u00E5 Signaler (ukentlig) b\u00E5de for fylker og kommuner og meld ifra til fagansvarlig dersom det st\u00E5r noe p\u00E5 disse sidene.
-                         ", currentWeek,
-      outbreaksGastro,
-      outbreaksRespiratory,
-      outbreaksInfluensa,
-      outbreaksLungebetennelse,
-      outbreaksBronkitt
-    )
+                       <br><br>
+                       Mage-tarminfeksjoner:
+                       <br>
+                       %s
+                       <br><br>
+                       Luftveisinfeksjoner:
+                       <br>
+                       %s
+                       <br><br>
+                       Influensa:
+                       <br>
+                       %s
+                       <br><br>
+                       Lungebetennelse:
+                       <br>
+                       %s
+                       <br><br>
+                       Akutt bronkitt/bronkiolitt:
+                       <br>
+                       %s
+                       <br><br>
+                       Se ogs\u00E5 p\u00E5 Signaler (ukentlig) b\u00E5de for fylker og kommuner og meld ifra til fagansvarlig dersom det st\u00E5r noe p\u00E5 disse sidene.
+                       ", currentWeek,
+    outbreaksGastro,
+    outbreaksRespiratory,
+    outbreaksInfluensa,
+    outbreaksLungebetennelse,
+    outbreaksBronkitt
+  )
 
-    if (isTest) {
-      fhi::DashboardEmail(
-        "test",
-        emailSubject = "TESTING EmailInternal",
-        emailText
-      )
-    } else {
-      fhi::DashboardEmail(
-        "sykdomspuls_utbrudd",
-        sprintf("OBS-Varsel fra Sykdomspulsen uke %s", currentWeek),
-        emailText
-      )
-    }
-  }
+  fhi::DashboardEmail(
+    "sykdomspuls_utbrudd",
+    sprintf("OBS-Varsel fra Sykdomspulsen uke %s", currentWeek),
+    emailText
+  )
+
   return(0)
 }
 
 #' Generates the outbreak table for the external email
 #' @param results a
-#' @param xtype a
+#' @param xtag a
 #' @param xemail a
 #' @import data.table
 #' @importFrom RAWmisc Format RecodeDT
 #' @export EmailExternalGenerateTable
-EmailExternalGenerateTable <- function(results, xtype, xemail) {
+EmailExternalGenerateTable <- function(results, xtag, xemail) {
   . <- NULL
   zscore <- NULL
   link <- NULL
   county <- NULL
   location <- NULL
-  type <- NULL
+  tag <- NULL
   age <- NULL
-  type_pretty <- NULL
+  tag_pretty <- NULL
   output <- NULL
   locationName <- NULL
   cumE1 <- NULL
   email <- NULL
+  n <- NULL
 
   setorder(results, -zscore)
-  results[, link := sprintf("<a href='http://sykdomspulsen.fhi.no/lege123/#/ukentlig/%s/%s/%s/%s'>Klikk</a>", county, location, type, age)]
-  results[is.na(county), link := sprintf("<a href='http://sykdomspulsen.fhi.no/lege123/#/ukentlig/%s/%s/%s/%s'>Klikk</a>", location, location, type, age)]
-  # this turns "dirty" type (eg gastro) into "pretty" type (e.g. mage-tarm syndrome)
-  results[, type_pretty := type]
-  RAWmisc::RecodeDT(results, switch = CONFIG$SYNDROMES, var = "type_pretty", oldOnLeft = FALSE)
-  results[, output := sprintf("<tr> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> </tr>", link, type_pretty, locationName, location, age, n, round(cumE1), RAWmisc::Format(zscore, digits = 2))]
+  results[, link := sprintf("<a href='http://sykdomspulsen.fhi.no/lege123/#/ukentlig/%s/%s/%s/%s'>Klikk</a>", county, location, tag, age)]
+  results[is.na(county), link := sprintf("<a href='http://sykdomspulsen.fhi.no/lege123/#/ukentlig/%s/%s/%s/%s'>Klikk</a>", location, location, tag, age)]
+  # this turns "dirty" tag (eg gastro) into "pretty" tag (e.g. mage-tarm syndrome)
+  results[, tag_pretty := tag]
+  RAWmisc::RecodeDT(results, switch = CONFIG$tagsWithLong, var = "tag_pretty", oldOnLeft = FALSE)
+  results[, output := sprintf("<tr> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> </tr>", link, tag_pretty, locationName, location, age, n, round(cumE1), RAWmisc::Format(zscore, digits = 2))]
 
-  r <- results[email == xemail & type == xtype]
-  if (nrow(r) == 0) return(sprintf("%s utbrudd:<br><br>Ingen utbrudd registrert", names(CONFIG$SYNDROMES)[CONFIG$SYNDROMES == xtype]))
+  r <- results[email == xemail & tag == xtag]
+  if (nrow(r) == 0) return(sprintf("%s utbrudd:<br><br>Ingen utbrudd registrert", CONFIG$SYNDROMES[tag==xtag]$namesLong))
 
-  emailText <- sprintf("%s utbrudd:<br><br><table style='width:90%%'><tr><th>Til nettsiden</th> <th>Syndrom</th> <th>Geografisk omr\u00E5de</th> <th>Geografisk omr\u00E5de</th> <th>Alder</th> <th>Meldte tilfeller</th> <th>Eksess</th> <th>Z-verdi</th></tr>", names(CONFIG$SYNDROMES)[CONFIG$SYNDROMES == xtype])
+  emailText <- sprintf("%s utbrudd:<br><br><table style='width:90%%'><tr><th>Til nettsiden</th> <th>Syndrom</th> <th>Geografisk omr\u00E5de</th> <th>Geografisk omr\u00E5de</th> <th>Alder</th> <th>Meldte tilfeller</th> <th>Eksess</th> <th>Z-verdi</th></tr>", names(CONFIG$SYNDROMES)[CONFIG$SYNDROMES == xtag])
   for (i in 1:nrow(r)) {
     emailText <- sprintf("%s%s", emailText, r$output[i])
   }
@@ -219,7 +193,6 @@ EmailExternalGenerateTable <- function(results, xtype, xemail) {
 #' Sends an external email warning about alters
 #' @param results Results file.
 #' @param alerts Excel file containing the emails.
-#' @param isTest Is this a test?
 #' @param forceNoOutbreak For testing. Do you want to force a "No outbreak" email?
 #' @param forceYesOutbreak For testing. Do you want to force a "Yes outbreak" email?
 #' @importFrom RAWmisc Format RecodeDT
@@ -227,13 +200,12 @@ EmailExternalGenerateTable <- function(results, xtype, xemail) {
 #' @export EmailExternal
 EmailExternal <- function(
                           results = readRDS(fhi::DashboardFolder("results", "outbreaks_alert_external.RDS")),
-                          alerts = readxl::read_excel(file.path("/etc", "gmailr", "emails_sykdomspuls_alert.xlsx")),
-                          isTest = TRUE,
+                          alerts = GetAlertsEmails(),
                           forceNoOutbreak = FALSE,
                           forceYesOutbreak = FALSE) {
   # variables used in data.table functions in this function
   output <- NULL
-  type <- NULL
+  tag <- NULL
   locationName <- NULL
   location <- NULL
   age <- NULL
@@ -242,6 +214,7 @@ EmailExternal <- function(
   email <- NULL
   link <- NULL
   county <- NULL
+  alertExternal <- NULL
   # end
 
   setDT(alerts)
@@ -288,15 +261,14 @@ EmailExternal <- function(
     </style>
 "
 
-  if (isTest) {
-    emailSubjectNoOutbreak <- "TESTING EmailAlertExternal"
-    emailSubjectYesOutbreak <- "TESTING EmailAlertExternal"
+  emailSubjectNoOutbreak <- "Pilotprosjektet Sykdomspulsen til kommunehelsetjenesten er oppdatert med nye tall"
+  emailSubjectYesOutbreak <- "OBS varsel fra Sykdomspulsen"
+
+  if (fhi::DashboardIsProduction()) {
+    if (forceNoOutbreak | forceYesOutbreak) stop("forceNoOutbreak/forceYesOutbreak set when not testing")
+  } else {
     if (length(unique(alerts$email)) != 3) stop("THIS IS NOT A TEST EMAIL DATASET")
     if (forceNoOutbreak & forceYesOutbreak) stop("both forceNoOutbreak/forceYesOutbreak set")
-  } else {
-    if (forceNoOutbreak | forceYesOutbreak) stop("forceNoOutbreak/forceYesOutbreak set when not testing")
-    emailSubjectNoOutbreak <- "Pilotprosjektet Sykdomspulsen til kommunehelsetjenesten er oppdatert med nye tall"
-    emailSubjectYesOutbreak <- "OBS varsel fra Sykdomspulsen"
   }
 
 
@@ -373,17 +345,18 @@ Sykdomspulsen kan i noen tilfeller generere et OBS varsel selv om det bare er en
     emailText <- sprintf("%s</table><br><br>", emailText)
 
     # include outbreaks
-    for (type in CONFIG$SYNDROMES_ALERT_EXTERNAL) {
-      emailText <- paste0(emailText, EmailExternalGenerateTable(results = r, xtype = type, xemail = useEmail), "<br><br>")
+    for (tag in CONFIG$SYNDROMES[alertExternal==T]$tag) {
+      emailText <- paste0(emailText, EmailExternalGenerateTable(results = r, xtag = tag, xemail = useEmail), "<br><br>")
     }
 
-    fhi::DashboardEmailSpecific(
-      emailBCC = em,
+    fhi::DashboardEmail(
+      emailsDirect = em,
       emailSubject = emailSubject,
       emailText = emailText
     )
     Sys.sleep(5)
   }
+
   return(0)
 }
 
@@ -419,9 +392,9 @@ EmailNotificationOfNewResults <- function(lastEmailedUtbruddFile = fhi::Dashboar
   }
 
   try(EmailTechnicalNewResults(), TRUE)
-  if (Sys.getenv("COMPUTER") == "smhb" & sendEmail) {
-    try(EmailInternal(isTest = FALSE), TRUE)
-    try(EmailExternal(isTest = FALSE), TRUE)
+  if (sendEmail) {
+    try(EmailInternal(), TRUE)
+    try(EmailExternal(), TRUE)
   }
   saveRDS(thisWeek, file = lastEmailedUtbruddFile)
 }
