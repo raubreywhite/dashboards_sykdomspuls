@@ -14,17 +14,14 @@
 #' This environment holds a number of important variables for
 #' configuring the analyses that will be run.
 #'
-#' @format An environment containing 9 variables:
+#' @format An environment containing 6 variables:
 #' \describe{
 #'   \item{VERSION}{The version that we are currently running.}
 #'   \item{VERSIONS}{All available versions.}
-#'   \item{SYNDROMES_DOCTOR}{Syndromes for which we will only count consultations where a doctor was seen.}
-#'   \item{SYNDROMES_ALL}{Syndromes for which we will count consultations where a doctor was seen and over the phone.}
-#'   \item{SYNDROMES}{A combined vector of SYNDROMES_DOCTOR and SYNDROMES_ALL.}
-#'   \item{SYNDROMES_ALERT_INTERNAL}{Syndromes for the internal FHI dashboard/alerts.}
-#'   \item{SYNDROMES_ALERT_EXTERNAL}{Syndromes for the external dashboard/alerts.}
-#'   \item{SYNDROMES_SHORT}{The short names of the syndromes.}
+#'   \item{SYNDROMES}{A data.table of all the syndromes/analyses that will be run}
+#'   \item{tagsWithLong}{A convenience vector used to switch between tags and pretty names}
 #'   \item{AGES}{The age groups that we run analyses on.}
+#'   \item{smallMunicips}{Small municipalities that need to be censored.}
 #' }
 #' @export CONFIG
 CONFIG <- new.env(parent = emptyenv())
@@ -159,11 +156,13 @@ CONFIG$smallMunicips <- c(
 #' This environment holds a number of variables that are used for
 #' defining the formats of data structures.
 #'
-#' @format An environment containing 3 variables:
+#' @format An environment containing 5 variables:
 #' \describe{
-#'   \item{REQ_DATA_RAW_STRUCTURAL}{Required columns for raw data that are structural in nature (i.e. these form the skeleton).}
-#'   \item{REQ_DATA_RAW_OTHER}{Required columns for raw data that are not structural in nature and are not listed in `CONFIG$SYNDROMES`.}
-#'   \item{REQ_DATA_RAW_ALL}{The combination of `REQ_DATA_RAW_STRUCTURAL` and `REQ_DATA_RAW_OTHER`}
+#'   \item{REQ_DATA_RAW}{Required columns for raw data.}
+#'   \item{REQ_DATA_CLEAN}{Required columns for clean data.}
+#'   \item{REQ_DATA_ANALYSIS}{Required columns for data analysis.}
+#'   \item{REQ_RESULTS_BASIC}{Required columns for the results (basic, right after the analysis is run)}
+#'   \item{REQ_RESULTS_FULL}{Required columns for the full results (i.e. those that will be saved and used further)}
 #' }
 #' @export VARS
 VARS <- new.env(parent = emptyenv())
@@ -234,22 +233,22 @@ VARS$REQ_RESULTS_FULL <- c(
   "file"
 )
 
-#' norwayLocations
+#' List of municipalities and counties
 #' @export norwayLocations
 norwayLocations <- readRDS(system.file("createddata","norwayLocations.RDS",package="sykdomspuls"))
 
-#' norwayMunicipMerging
+#' List of municipality merging over time
 #' @export norwayMunicipMerging
 norwayMunicipMerging <- readRDS(system.file("createddata","norwayMunicipMerging.RDS",package="sykdomspuls"))
 
-#' displayDays
+#' The last date for each isoweek
 #' @export displayDays
 displayDays <- data.table(day = seq.Date(as.IDate("2000-01-01"), as.IDate("2030-01-01"), by = "days"))
 displayDays[, wkyr := format.Date(day, format = "%G-%V")]
 displayDays <- displayDays[, .(displayDay = as.IDate(max(day))), by = .(wkyr)]
 setkey(displayDays, wkyr)
 
-#' PB
+#' Environment for progress bars
 #' @export PB
 PB <- new.env(parent = emptyenv())
 PB$i <- 0

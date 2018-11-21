@@ -8,7 +8,7 @@ EmailNotificationOfNewData <- function(files) {
 <br><br>
 New results should be available in around two hours.
 <br><br>
-Syndromes being processed are: ", paste0(CONFIG$SYNDROMES, collapse = ", "), "
+Tags being processed are: ", paste0(CONFIG$SYNDROMES$tag, collapse = ", "), "
 <br><br>
 Files being processed are: ", paste0(files, collapse = ", "), "
 "

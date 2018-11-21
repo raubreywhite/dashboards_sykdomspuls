@@ -65,7 +65,7 @@ ValidateDataRaw <- function(d) {
   return(TRUE)
 }
 
-#' Generate data clean
+#' Generate fake clean data
 #' @param syndrome Syndrome to validate
 #' @param xmunicipEnd municipality
 #' @export GenFakeDataClean
@@ -79,7 +79,7 @@ GenFakeDataClean <- function(syndrome="influensa",xmunicipEnd="municip5054") {
   return(d)
 }
 
-#' Validate raw data
+#' Validate clean data
 #' @param d Dataset to validate
 #' @export ValidateDataClean
 ValidateDataClean <- function(d) {
@@ -97,13 +97,13 @@ ValidateDataClean <- function(d) {
 }
 
 
-#' Generate fake analysis results
+#' Generate fake data for analysis
 #' @param syndrome Syndrome
 #' @param xage Age
 #' @param xmunicipEnd municipality
 #' @import data.table
-#' @export GenerateFakeDataAnalysis
-GenerateFakeDataAnalysis <- function(syndrome = "influensa", xage="Totalt", xmunicipEnd="municip5054") {
+#' @export GenFakeDataAnalysis
+GenFakeDataAnalysis <- function(syndrome = "influensa", xage="Totalt", xmunicipEnd="municip5054") {
   age <- NULL
 
   d <- GenFakeDataClean(syndrome=syndrome, xmunicipEnd=xmunicipEnd)[age==xage]
@@ -118,8 +118,8 @@ GenerateFakeDataAnalysis <- function(syndrome = "influensa", xage="Totalt", xmun
 #' @param xage Age
 #' @param xmunicipEnd municipality
 #' @import data.table
-#' @export GenerateFakeResultsFull
-GenerateFakeResultsFull <- function(granularity = "weekly", syndrome = "influensa", xage="Totalt", xmunicipEnd="municip5054") {
+#' @export GenFakeResultsFull
+GenFakeResultsFull <- function(granularity = "weekly", syndrome = "influensa", xage="Totalt", xmunicipEnd="municip5054") {
   age <- NULL
 
   d <- GenFakeDataClean(syndrome=syndrome, xmunicipEnd=xmunicipEnd)[age==xage]

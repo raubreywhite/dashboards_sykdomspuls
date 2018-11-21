@@ -2,7 +2,7 @@ context("QuasipoissonAlgorithm")
 test_that("Sandefjord significantByThreshold vs significantByConfidenceIntervals", {
   library(data.table)
 
-  d <- GenerateFakeDataAnalysis()
+  d <- GenFakeDataAnalysis()
   res <- sykdomspuls::QuasipoissonTrainPredictData(
     datasetTrain = d,
     datasetPredict = d,
@@ -16,7 +16,7 @@ test_that("Sandefjord significantByThreshold vs significantByConfidenceIntervals
 test_that("Sandefjord significantByThreshold vs significantByZScore", {
   library(data.table)
 
-  d <- GenerateFakeDataAnalysis()
+  d <- GenFakeDataAnalysis()
   res <- sykdomspuls::QuasipoissonTrainPredictData(
     datasetTrain = d,
     datasetPredict = d,
@@ -32,7 +32,7 @@ test_that("Sandefjord significantByThreshold vs significantByZScore", {
 test_that("Sandefjord weekly - restrict datasetTrain vs not", {
   library(data.table)
 
-  d <- GenerateFakeDataAnalysis()
+  d <- GenFakeDataAnalysis()
   resAll <- QuasipoissonTrainPredictData(
     datasetTrain = d,
     datasetPredict = d[date >= "2017-01-01"],
@@ -51,7 +51,7 @@ test_that("Sandefjord weekly - restrict datasetTrain vs not", {
 test_that("Sandefjord daily - restrict datasetTrain vs not", {
   library(data.table)
 
-  d <- GenerateFakeDataAnalysis()
+  d <- GenFakeDataAnalysis()
   resAll <- QuasipoissonTrainPredictData(
     datasetTrain = d,
     datasetPredict = d[date >= "2017-01-01"],
@@ -70,7 +70,7 @@ test_that("Sandefjord daily - restrict datasetTrain vs not", {
 test_that("Sandefjord daily - restrict datasetPredict vs not", {
   library(data.table)
 
-  d <- GenerateFakeDataAnalysis()
+  d <- GenFakeDataAnalysis()
   resAll <- QuasipoissonTrainPredictData(
     datasetTrain = d,
     datasetPredict = d,

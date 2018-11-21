@@ -1,8 +1,8 @@
 #' Format the raw data
 #' @param d Raw data
 #' @param syndrome syndrome of interest
-#' @param population Population file
-#' @param hellidager Hellidager file
+#' @param population Population dataset
+#' @param hellidager Hellidager dataset
 #' @param testIfHelligdagIndikatorFileIsOutdated Boolean. Test if the current date is older than the last hellidag recorded in the fiel?
 #' @param removeMunicipsWithoutConsults Boolean. Remove municipalities that do not have any consultations?
 #' @import data.table
@@ -223,7 +223,12 @@ CleanData <- function(d,
 }
 
 
-#' StackAndEfficientDataForAnalysis
+#' Create analysis stack and datasets for a tag
+#'
+#' Given one row from \code{CONFIG$SYNDROMES} we need
+#' to generate an analysis stack and all relevant datasets
+#' that can be directly sent to \code{QuasipoissonTrainPredictData}
+#' without additional formatting.
 #' @param conf A row from \code{CONFIG$SYNDROMES}
 #' @export StackAndEfficientDataForAnalysis
 StackAndEfficientDataForAnalysis <- function(conf) {

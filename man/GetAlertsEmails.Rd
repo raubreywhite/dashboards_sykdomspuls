@@ -2,10 +2,12 @@
 % Please edit documentation in R/GetAlertsEmails.R
 \name{GetAlertsEmails}
 \alias{GetAlertsEmails}
-\title{GetAlertsEmails}
+\title{Get the correct alerts email excel sheet}
 \usage{
 GetAlertsEmails()
 }
 \description{
-GetAlertsEmails
+If this function is run on a production machine,
+then the production email file will be returned.
+Otherwise it will return the test file.
 }

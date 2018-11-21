@@ -1,12 +1,7 @@
-
-#' GetPopulation
-#' Mostly a function used by the package maintainer
-#' to generate new population files as necessary
+#' Creates the population dataset
 #' @import fhi
 #' @import data.table
 #' @importFrom lubridate today
-#' @import httr
-#' @import jsonlite
 #' @export GetPopulation
 GetPopulation <- function() {
   # variables used in data.table functions in this function

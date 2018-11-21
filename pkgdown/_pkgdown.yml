@@ -42,7 +42,7 @@ reference:
   - displayDays
   - norwayLocations
   - norwayMunicipMerging
-- title:
+- title: Fake Data and Validation
   desc: >
     These functions relate to fake data creation and data validation
   contents:
@@ -50,10 +50,8 @@ reference:
   - GenFakeDataClean
   - GenerateFakeDataAnalysis
   - GenerateFakeResultsFull
-  - GenerateAnalysisResults
   - ValidateDataClean
   - ValidateResultsFull
-  - ValidateAnalysisResults
   - ValidateDataRaw
 - title: Data Functions
   desc: >
@@ -63,16 +61,15 @@ reference:
   - AddCounty
   - AddWkyrAndDisplayDateToWeekly
   - AddXToWeekly
+  - CleanData
   - CreateLatestDoneFile
   - DeleteLatestDoneFile
   - DeleteOldDatasets
   - DetermineStatus
-  - FormatData
   - GenNorwayLocations
   - GenNorwayMunicipMerging
   - GenerateOutbreakListExternal
   - GenerateOutbreakListInternal
-  - GetAgesLU
   - GetCountyFromMunicip
   - GetLocationName
   - GetPopulation
@@ -107,6 +104,11 @@ reference:
   - EmailNotificationOfNewData
   - EmailNotificationOfNewResults
   - EmailTechnicalNewResults
+- title: Shiny Functions
+  desc: >
+    These functions are related to the shiny dashboard
+  contents:
+  - RunShiny
 - title: Helper Functions
   desc: >
     These functions are helper functions

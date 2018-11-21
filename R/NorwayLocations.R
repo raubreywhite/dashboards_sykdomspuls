@@ -7,6 +7,7 @@ GenNorwayLocations <- function() {
   if(dir.exists(file.path("inst","createddata"))){
     saveRDS(norwayLocations,file.path("inst","createddata","norwayLocations.RDS"))
   }
+  return(invisible(norwayLocations))
 }
 
 #' Creates the Norway Municip Merging (kommunesammenslaping) data.table

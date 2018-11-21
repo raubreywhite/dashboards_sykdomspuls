@@ -3,12 +3,12 @@
 \docType{data}
 \name{PB}
 \alias{PB}
-\title{PB}
+\title{Environment for progress bars}
 \format{An object of class \code{environment} of length 2.}
 \usage{
 PB
 }
 \description{
-PB
+Environment for progress bars
 }
 \keyword{datasets}

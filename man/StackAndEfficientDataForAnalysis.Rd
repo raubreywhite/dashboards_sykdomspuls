@@ -2,7 +2,7 @@
 % Please edit documentation in R/CleanData.R
 \name{StackAndEfficientDataForAnalysis}
 \alias{StackAndEfficientDataForAnalysis}
-\title{StackAndEfficientDataForAnalysis}
+\title{Create analysis stack and datasets for a tag}
 \usage{
 StackAndEfficientDataForAnalysis(conf)
 }
@@ -10,5 +10,8 @@ StackAndEfficientDataForAnalysis(conf)
 \item{conf}{A row from \code{CONFIG$SYNDROMES}}
 }
 \description{
-StackAndEfficientDataForAnalysis
+Given one row from \code{CONFIG$SYNDROMES} we need
+to generate an analysis stack and all relevant datasets
+that can be directly sent to \code{QuasipoissonTrainPredictData}
+without additional formatting.
 }

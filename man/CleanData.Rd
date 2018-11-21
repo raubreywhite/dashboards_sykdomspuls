@@ -15,9 +15,9 @@ CleanData(d, syndrome, population = GetPopulation(),
 
 \item{syndrome}{syndrome of interest}
 
-\item{population}{Population file}
+\item{population}{Population dataset}
 
-\item{hellidager}{Hellidager file}
+\item{hellidager}{Hellidager dataset}
 
 \item{testIfHelligdagIndikatorFileIsOutdated}{Boolean. Test if the current date is older than the last hellidag recorded in the fiel?}
 

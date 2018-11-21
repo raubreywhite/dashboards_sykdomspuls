@@ -5,8 +5,8 @@ suppressMessages(library(foreach))
 suppressMessages(library(doSNOW))
 suppressMessages(library(iterators))
 
-SaveData(ConvertConfigForAPI(), fhi::DashboardFolder("results", "config.RDS"))
-SaveData(ConvertConfigForAPI(), fhi::DashboardFolder("data_app", "config.RDS"))
+SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("results", "config.RDS"))
+SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("data_app", "config.RDS"))
 
 if (!UpdateData()) {
   fhi::DashboardMsg("Have not run analyses and exiting")
@@ -96,6 +96,6 @@ cat("done", file = "/data_app/sykdomspuls/done.txt")
 EmailNotificationOfNewResults()
 
 fhi::DashboardMsg("Finished analyses and exiting")
-quit(save = "no", status = 0)
+if(!fhi::DashboardIsDev()) quit(save = "no", status = 0)
 
-dk = readRDS(fhi::DashboardFolder("results", "resYearLineMunicip.RDS"))
+#dk = readRDS(fhi::DashboardFolder("results", "resYearLineMunicip.RDS"))

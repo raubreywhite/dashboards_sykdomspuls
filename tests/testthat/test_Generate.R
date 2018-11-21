@@ -19,5 +19,5 @@ context("GenerateFakeResultsFull")
 test_that("Basic Results", {
   library(data.table)
 
-  testthat::expect_equal(TRUE, ValidateResultsFull(GenerateFakeResultsFull()))
+  testthat::expect_equal(TRUE, ValidateResultsFull(GenFakeResultsFull()))
 })

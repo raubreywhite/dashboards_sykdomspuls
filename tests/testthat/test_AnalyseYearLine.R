@@ -3,7 +3,7 @@ context("AnalyseYearLine")
 test_that("significantByThreshold vs significantByConfidenceIntervals", {
   library(data.table)
 
-  d <- GenerateFakeDataAnalysis()
+  d <- GenFakeDataAnalysis()
   res <- sykdomspuls::QuasipoissonTrainPredictData(
     datasetTrain = d,
     datasetPredict = d,

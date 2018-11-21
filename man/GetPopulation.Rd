@@ -2,14 +2,10 @@
 % Please edit documentation in R/GetPopulation.R
 \name{GetPopulation}
 \alias{GetPopulation}
-\title{GetPopulation
-Mostly a function used by the package maintainer
-to generate new population files as necessary}
+\title{Creates the population dataset}
 \usage{
 GetPopulation()
 }
 \description{
-GetPopulation
-Mostly a function used by the package maintainer
-to generate new population files as necessary
+Creates the population dataset
 }

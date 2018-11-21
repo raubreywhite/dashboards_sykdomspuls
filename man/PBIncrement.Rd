@@ -2,10 +2,10 @@
 % Please edit documentation in R/PB.R
 \name{PBIncrement}
 \alias{PBIncrement}
-\title{PBIncrement}
+\title{Increment the progress bar}
 \usage{
 PBIncrement()
 }
 \description{
-PBIncrement
+Increment the progress bar
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/DataCreationAndValidation.R
 \name{GenFakeDataClean}
 \alias{GenFakeDataClean}
-\title{Generate data clean}
+\title{Generate fake clean data}
 \usage{
 GenFakeDataClean(syndrome = "influensa", xmunicipEnd = "municip5054")
 }
@@ -12,5 +12,5 @@ GenFakeDataClean(syndrome = "influensa", xmunicipEnd = "municip5054")
 \item{xmunicipEnd}{municipality}
 }
 \description{
-Generate data clean
+Generate fake clean data
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/DataCreationAndValidation.R
 \name{ValidateDataClean}
 \alias{ValidateDataClean}
-\title{Validate raw data}
+\title{Validate clean data}
 \usage{
 ValidateDataClean(d)
 }
@@ -10,5 +10,5 @@ ValidateDataClean(d)
 \item{d}{Dataset to validate}
 }
 \description{
-Validate raw data
+Validate clean data
 }

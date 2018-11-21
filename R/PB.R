@@ -1,4 +1,4 @@
-#' PBInitialize
+#' Initialize the progress bar
 #' @param n a
 #' @param flush a
 #' @export PBInitialize
@@ -7,7 +7,7 @@ PBInitialize <- function(n, flush=fhi::DashboardIsDev()){
   PB$pb <- RAWmisc::ProgressBarCreate(max = n, flush=flush)
 }
 
-#' PBIncrement
+#' Increment the progress bar
 #' @export PBIncrement
 PBIncrement <- function(){
   PB$i <- PB$i + 1

@@ -3,12 +3,12 @@
 \docType{data}
 \name{displayDays}
 \alias{displayDays}
-\title{displayDays}
+\title{The last date for each isoweek}
 \format{An object of class \code{data.table} (inherits from \code{data.frame}) with 1567 rows and 2 columns.}
 \usage{
 displayDays
 }
 \description{
-displayDays
+The last date for each isoweek
 }
 \keyword{datasets}

@@ -8,8 +8,7 @@
 
   if(max(norwayMunicipMerging$year)!=RAWmisc::YearN(lubridate::today())){
     packageStartupMessage("\u2716 norwayMunicipMerging is out of date. Regenerating.")
-    GenNorwayMunicipMerging()
-    norwayMunicipMerging <<- readRDS(system.file("createddata","norwayMunicipMerging.RDS",package="sykdomspuls"))
+    norwayMunicipMerging <<- GenNorwayMunicipMerging()
   }
-  packageStartupMessage("\u2713 norwayMunicipMerging is up to date")
+  packageStartupMessage("\u2713 norwayMunicipMerging is up to date.")
 }

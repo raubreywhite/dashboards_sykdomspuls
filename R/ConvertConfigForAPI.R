@@ -1,5 +1,4 @@
-#' Convert the new config for use in the API
-#'
+#' Convert the new \code{CONFIG} for use in the old external API
 #' @export ConvertConfigForAPI
 ConvertConfigForAPI <- function(){
   alertInternal <- NULL

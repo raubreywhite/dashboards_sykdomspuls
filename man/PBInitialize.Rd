@@ -2,7 +2,7 @@
 % Please edit documentation in R/PB.R
 \name{PBInitialize}
 \alias{PBInitialize}
-\title{PBInitialize}
+\title{Initialize the progress bar}
 \usage{
 PBInitialize(n, flush = fhi::DashboardIsDev())
 }
@@ -12,5 +12,5 @@ PBInitialize(n, flush = fhi::DashboardIsDev())
 \item{flush}{a}
 }
 \description{
-PBInitialize
+Initialize the progress bar
 }
