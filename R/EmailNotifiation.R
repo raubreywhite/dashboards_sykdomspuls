@@ -31,9 +31,9 @@ EmailTechnicalNewResults <- function() {
   New Sykdomspulsen results available at <a href='http://smhb.fhi.no/'>http://smhb.fhi.no/</a>
   "
   fhi::DashboardEmail(
-    emailsFromExcel="sykdomspuls_results",
-    emailSubject="New Sykdomspuls results available",
-    emailText=emailText
+    emailsFromExcel = "sykdomspuls_results",
+    emailSubject = "New Sykdomspuls results available",
+    emailText = emailText
   )
 }
 
@@ -179,9 +179,9 @@ EmailExternalGenerateTable <- function(results, xtag, xemail) {
   results[, output := sprintf("<tr> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> </tr>", link, tag_pretty, locationName, location, age, n, round(cumE1), RAWmisc::Format(zscore, digits = 2))]
 
   r <- results[email == xemail & tag == xtag]
-  if (nrow(r) == 0) return(sprintf("%s utbrudd:<br><br>Ingen utbrudd registrert", CONFIG$SYNDROMES[tag==xtag]$namesLong))
+  if (nrow(r) == 0) return(sprintf("%s utbrudd:<br><br>Ingen utbrudd registrert", CONFIG$SYNDROMES[tag == xtag]$namesLong))
 
-  emailText <- sprintf("%s utbrudd:<br><br><table style='width:90%%'><tr><th>Til nettsiden</th> <th>Syndrom</th> <th>Geografisk omr\u00E5de</th> <th>Geografisk omr\u00E5de</th> <th>Alder</th> <th>Meldte tilfeller</th> <th>Eksess</th> <th>Z-verdi</th></tr>", CONFIG$SYNDROMES[tag==xtag]$namesLong)
+  emailText <- sprintf("%s utbrudd:<br><br><table style='width:90%%'><tr><th>Til nettsiden</th> <th>Syndrom</th> <th>Geografisk omr\u00E5de</th> <th>Geografisk omr\u00E5de</th> <th>Alder</th> <th>Meldte tilfeller</th> <th>Eksess</th> <th>Z-verdi</th></tr>", CONFIG$SYNDROMES[tag == xtag]$namesLong)
   for (i in 1:nrow(r)) {
     emailText <- sprintf("%s%s", emailText, r$output[i])
   }
@@ -345,7 +345,7 @@ Sykdomspulsen kan i noen tilfeller generere et OBS varsel selv om det bare er en
     emailText <- sprintf("%s</table><br><br>", emailText)
 
     # include outbreaks
-    for (tag in CONFIG$SYNDROMES[alertExternal==T]$tag) {
+    for (tag in CONFIG$SYNDROMES[alertExternal == T]$tag) {
       emailText <- paste0(emailText, EmailExternalGenerateTable(results = r, xtag = tag, xemail = useEmail), "<br><br>")
     }
 

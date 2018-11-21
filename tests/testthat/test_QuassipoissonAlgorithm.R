@@ -25,7 +25,6 @@ test_that("Sandefjord significantByThreshold vs significantByZScore", {
   significantByThreshold <- res[n > threshold2]
   significantByConfidenceIntervals <- res[cumL1 > 0]
   testthat::expect_equal(significantByThreshold, significantByConfidenceIntervals)
-
 })
 
 
@@ -87,4 +86,3 @@ test_that("Sandefjord daily - restrict datasetPredict vs not", {
 
   testthat::expect_equal(resAll, resRestricted)
 })
-

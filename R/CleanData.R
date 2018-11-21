@@ -52,9 +52,10 @@ CleanData <- function(d,
   ))
 
   d <- d[municip != "municip9999",
-         lapply(.SD, sum),
-         by = .(age, date, municip),
-         .SDcols = syndromeAndConsult]
+    lapply(.SD, sum),
+    by = .(age, date, municip),
+    .SDcols = syndromeAndConsult
+  ]
 
   dateMin <- min(d$date)
   dateMax <- max(d$date)
@@ -66,7 +67,7 @@ CleanData <- function(d,
     skeleton <-
       data.table(expand.grid(
         unique(norwayMunicipMerging[municipEnd %in% unique(d$municip) |
-                                      municip %in% unique(d$municip)]$municip),
+          municip %in% unique(d$municip)]$municip),
         unique(d$age),
         seq.Date(dateMin, dateMax, 1)
       ))
@@ -82,18 +83,20 @@ CleanData <- function(d,
   skeleton[, date := data.table::as.IDate(date)]
   data <-
     merge(skeleton,
-          d,
-          by = c("municip", "age", "date"),
-          all.x = TRUE)
+      d,
+      by = c("municip", "age", "date"),
+      all.x = TRUE
+    )
 
   for (i in syndromeAndConsult) {
     data[is.na(get(i)), (i) := 0]
   }
 
   total <- data[municip != "municip9999",
-                lapply(.SD, sum),
-                keyby = .(date, municip),
-                .SDcols = syndromeAndConsult]
+    lapply(.SD, sum),
+    keyby = .(date, municip),
+    .SDcols = syndromeAndConsult
+  ]
   total[, age := "Totalt"]
   data <- rbind(total, data[age != "Ukjent"])
 
@@ -116,9 +119,10 @@ CleanData <- function(d,
   dim(data)
   data <-
     merge(data,
-          norwayMunicipMerging[, c("municip", "year", "municipEnd")],
-          by = c("municip", "year"),
-          all.x = T)
+      norwayMunicipMerging[, c("municip", "year", "municipEnd")],
+      by = c("municip", "year"),
+      all.x = T
+    )
   dim(data)
   data <- data[!is.na(municipEnd)]
 
@@ -126,13 +130,15 @@ CleanData <- function(d,
   data <- merge(data, population, by = c("municip", "age", "year"))
   n2 <- nrow(data)
 
-  if (n1 != n2)
+  if (n1 != n2) {
     fhi::DashboardMsg("Population file not merging correctly", type = "err")
+  }
 
   data <- data[!is.na(municipEnd),
-               lapply(.SD, sum),
-               keyby = .(municipEnd, year, age, date),
-               .SDcols = c(syndromeAndConsult, "pop")]
+    lapply(.SD, sum),
+    keyby = .(municipEnd, year, age, date),
+    .SDcols = c(syndromeAndConsult, "pop")
+  ]
   dim(data)
   setnames(data, "municipEnd", "municip")
 
@@ -149,8 +155,8 @@ CleanData <- function(d,
   setnames(hellidager, c("date", "HelligdagIndikator"))
   hellidager[, date := data.table::as.IDate(date)]
   if (testIfHelligdagIndikatorFileIsOutdated &
-      lubridate::today() > max(hellidager$date)) {
-    fhi::DashboardMsg("HELLIGDAGER NEEDS UPDATING",type="err")
+    lubridate::today() > max(hellidager$date)) {
+    fhi::DashboardMsg("HELLIGDAGER NEEDS UPDATING", type = "err")
   }
   dim(data)
   data <- merge(data, hellidager, by = "date")
@@ -160,10 +166,12 @@ CleanData <- function(d,
 
   setnames(data, syndrome, "n")
 
-  if (!"consultWithInfluensa" %in% names(data))
+  if (!"consultWithInfluensa" %in% names(data)) {
     data[, consultWithInfluensa := n]
-  if (!"consultWithoutInfluensa" %in% names(data))
+  }
+  if (!"consultWithoutInfluensa" %in% names(data)) {
     data[, consultWithoutInfluensa := n]
+  }
 
   setcolorder(data, unique(
     c(
@@ -243,10 +251,11 @@ StackAndEfficientDataForAnalysis <- function(conf) {
 
   data <- readRDS(file = fhi::DashboardFolder(
     "data_clean",
-    sprintf("%s_%s_cleaned.RDS",LatestRawID(),conf$tag)))
+    sprintf("%s_%s_cleaned.RDS", LatestRawID(), conf$tag)
+  ))
 
-  counties <- unique(data[granularityGeo=="municip"]$county)
-  municips <- unique(data[granularityGeo=="municip"]$location)
+  counties <- unique(data[granularityGeo == "municip"]$county)
+  municips <- unique(data[granularityGeo == "municip"]$location)
   locations <- c("Norge", counties, municips)
 
   ages <- unique(data$age)
@@ -262,10 +271,10 @@ StackAndEfficientDataForAnalysis <- function(conf) {
       stringsAsFactors = FALSE
     )
   )
-  analysesCounties[,weeklyDenominatorFunction := list(conf$weeklyDenominatorFunction)]
+  analysesCounties[, weeklyDenominatorFunction := list(conf$weeklyDenominatorFunction)]
   analysesCounties[, v := sykdomspuls::CONFIG$VERSION]
-  analysesCounties[, file := sprintf("%s_%s.RDS","resRecentLine",tag)]
-  analysesCounties[granularity=="Weekly", file := sprintf("%s_%s.RDS","resYearLine",tag)]
+  analysesCounties[, file := sprintf("%s_%s.RDS", "resRecentLine", tag)]
+  analysesCounties[granularity == "Weekly", file := sprintf("%s_%s.RDS", "resYearLine", tag)]
 
   # setting control stack for municipalities
   analysesMunicips <- data.table(
@@ -278,9 +287,9 @@ StackAndEfficientDataForAnalysis <- function(conf) {
       stringsAsFactors = FALSE
     )
   )
-  analysesMunicips[,weeklyDenominatorFunction := list(conf$weeklyDenominatorFunction)]
+  analysesMunicips[, weeklyDenominatorFunction := list(conf$weeklyDenominatorFunction)]
   analysesMunicips[, v := sykdomspuls::CONFIG$VERSION]
-  analysesMunicips[, file := sprintf("%s_%s.RDS","resYearLineMunicip",tag)]
+  analysesMunicips[, file := sprintf("%s_%s.RDS", "resYearLineMunicip", tag)]
 
   # control stack for comparison of models
   analysesComparison <-
@@ -292,13 +301,13 @@ StackAndEfficientDataForAnalysis <- function(conf) {
     analysesComparison[[vx]] <- copy(temp)
   }
   analysesComparison <- rbindlist(analysesComparison)
-  analysesComparison[, file := sprintf("%s_%s.RDS","resComparisons",tag)]
+  analysesComparison[, file := sprintf("%s_%s.RDS", "resComparisons", tag)]
 
-  analyses <- rbind(analysesCounties,analysesMunicips,analysesComparison)
-  if(fhi::DashboardIsDev()){
-    analyses[,id:=1:.N,by=.(file)]
-    analyses <- analyses[id %in% 1:100 | location=="Norge"]
-    analyses[,id:=NULL]
+  analyses <- rbind(analysesCounties, analysesMunicips, analysesComparison)
+  if (fhi::DashboardIsDev()) {
+    analyses[, id := 1:.N, by = .(file)]
+    analyses <- analyses[id %in% 1:100 | location == "Norge"]
+    analyses[, id := NULL]
   }
 
   return(

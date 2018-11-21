@@ -3,11 +3,11 @@ context("GenerateOutbreakListExternal")
 test_that("Basic example", {
   library(data.table)
 
-  df <- GenFakeResultsFull(granularity = "weekly", syndrome="gastro",xmunicipEnd = "municip0301")
-  dk <- GenFakeResultsFull(granularity = "weekly", syndrome="gastro",xmunicipEnd = "municip0301")
+  df <- GenFakeResultsFull(granularity = "weekly", syndrome = "gastro", xmunicipEnd = "municip0301")
+  dk <- GenFakeResultsFull(granularity = "weekly", syndrome = "gastro", xmunicipEnd = "municip0301")
 
-  df[,status:="Normal"]
-  dk[,status:="Normal"]
+  df[, status := "Normal"]
+  dk[, status := "Normal"]
 
   dk[.N, status := "High"]
 

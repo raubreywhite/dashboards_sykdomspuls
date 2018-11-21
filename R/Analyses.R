@@ -24,9 +24,9 @@
 #' for the last \code{numPerYear1} years
 #' @return A list containing a sequence of training years and prediction years
 #' @examples
-#' sykdomspuls::CalculateTrainPredictYearPattern(2000,2015,1)
-#'
-#' sykdomspuls::CalculateTrainPredictYearPattern(2000,2015,3)
+#' sykdomspuls::CalculateTrainPredictYearPattern(2000, 2015, 1)
+#' 
+#' sykdomspuls::CalculateTrainPredictYearPattern(2000, 2015, 3)
 #' @export CalculateTrainPredictYearPattern
 CalculateTrainPredictYearPattern <- function(yearMin, yearMax, numPerYear1 = 1) {
   perYear1 <- seq(yearMax - numPerYear1 + 1, yearMax, by = 1)
@@ -76,7 +76,7 @@ CalculateTrainPredictYearPattern <- function(yearMin, yearMax, numPerYear1 = 1) 
 #' @return A data.table with the extra variable \code{x}
 #' @examples
 #' library(data.table)
-#' d <- data.table(week=1:52)
+#' d <- data.table(week = 1:52)
 #' AddXToWeekly(d)
 #' @import data.table
 #' @export AddXToWeekly
@@ -100,7 +100,7 @@ AddXToWeekly <- function(data) {
 #' @return A data.table with the extra variables \code{wkyr} and \code{displayDay}.
 #' @examples
 #' library(data.table)
-#' d <- data.table(year=2015,week=1:10)
+#' d <- data.table(year = 2015, week = 1:10)
 #' AddWkyrAndDisplayDateToWeekly(d)
 #' @import data.table
 #' @export AddWkyrAndDisplayDateToWeekly
@@ -183,7 +183,7 @@ RunOneAnalysis <- function(analysesStack, analysisData) {
   tag <- NULL
   # end
 
-  analysisData[,denominator:=get(analysesStack$denominator)]
+  analysisData[, denominator := get(analysesStack$denominator)]
 
   yearMax <- as.numeric(format.Date(max(analysisData$date), "%G"))
   yearMin <- as.numeric(format.Date(min(analysisData$date), "%G"))
@@ -209,7 +209,7 @@ RunOneAnalysis <- function(analysesStack, analysisData) {
       datasetPredict = dataset[date >= datePredictMin & date <= datePredictMax],
       isDaily = analysesStack$granularity == "Daily",
       v = v,
-      weeklyDenominatorFunction=analysesStack$weeklyDenominatorFunction[[1]]
+      weeklyDenominatorFunction = analysesStack$weeklyDenominatorFunction[[1]]
     )
   }
   res <- rbindlist(res)
@@ -235,7 +235,7 @@ RunOneAnalysis <- function(analysesStack, analysisData) {
   # validate data
   if (!ValidateResultsFull(res)) stop("Results in a bad format")
 
-  setcolorder(res,VARS$REQ_RESULTS_FULL)
+  setcolorder(res, VARS$REQ_RESULTS_FULL)
 
   return(res)
 }

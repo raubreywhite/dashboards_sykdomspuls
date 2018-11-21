@@ -2,7 +2,7 @@
 #' @param xmunicipEnd municipality
 #' @import data.table
 #' @export GenFakeDataRaw
-GenFakeDataRaw <- function(xmunicipEnd="municip5054") {
+GenFakeDataRaw <- function(xmunicipEnd = "municip5054") {
   municipEnd <- NULL
   municip <- NULL
   consult <- NULL
@@ -28,14 +28,14 @@ GenFakeDataRaw <- function(xmunicipEnd="municip5054") {
     data[[i]][, municip := skeleton$municip[i]]
 
     data[[i]][, consult := rpois(.N, 50)]
-    for (j in unique(CONFIG$SYNDROMES[syndromeOrConsult=="syndrome"]$syndrome)) {
+    for (j in unique(CONFIG$SYNDROMES[syndromeOrConsult == "syndrome"]$syndrome)) {
       data[[i]][, (j) := rpois(.N, 5)]
       data[[i]][, consult := consult + get(j)]
     }
   }
   data <- rbindlist(data)
   setcolorder(data, VARS$REQ_DATA_RAW)
-  data <- data[age!="Totalt"]
+  data <- data[age != "Totalt"]
 
   return(data)
 }
@@ -47,7 +47,7 @@ ValidateDataRaw <- function(d) {
   # names(d) must contain all required variables
   n <- VARS$REQ_DATA_RAW[!VARS$REQ_DATA_RAW %in% names(d)]
   if (length(n) > 0) {
-    for(i in n){
+    for (i in n) {
       fhi::DashboardMsg(sprintf("%s not in names(d)", i))
     }
     return(FALSE)
@@ -56,10 +56,10 @@ ValidateDataRaw <- function(d) {
   # there must not be any extra variables in names(d)
   n <- names(d)[!names(d) %in% VARS$REQ_DATA_RAW]
   if (sum(!names(d) %in% VARS$REQ_DATA_RAW) > 0) {
-    for(i in n){
+    for (i in n) {
       fhi::DashboardMsg(sprintf("%s not in VARS$REQ_DATA_RAW", i))
     }
-    fhi::DashboardMsg("Variables in names(d) not in VARS$REQ_DATA_RAW", type="warn")
+    fhi::DashboardMsg("Variables in names(d) not in VARS$REQ_DATA_RAW", type = "warn")
   }
 
   return(TRUE)
@@ -69,12 +69,12 @@ ValidateDataRaw <- function(d) {
 #' @param syndrome Syndrome to validate
 #' @param xmunicipEnd municipality
 #' @export GenFakeDataClean
-GenFakeDataClean <- function(syndrome="influensa",xmunicipEnd="municip5054") {
+GenFakeDataClean <- function(syndrome = "influensa", xmunicipEnd = "municip5054") {
   granularityGeo <- NULL
 
-  d <- GenFakeDataRaw(xmunicipEnd=xmunicipEnd)
-  d <- CleanData(d, syndrome=syndrome, removeMunicipsWithoutConsults = T)
-  d <- d[granularityGeo=="municip"]
+  d <- GenFakeDataRaw(xmunicipEnd = xmunicipEnd)
+  d <- CleanData(d, syndrome = syndrome, removeMunicipsWithoutConsults = T)
+  d <- d[granularityGeo == "municip"]
 
   return(d)
 }
@@ -103,10 +103,10 @@ ValidateDataClean <- function(d) {
 #' @param xmunicipEnd municipality
 #' @import data.table
 #' @export GenFakeDataAnalysis
-GenFakeDataAnalysis <- function(syndrome = "influensa", xage="Totalt", xmunicipEnd="municip5054") {
+GenFakeDataAnalysis <- function(syndrome = "influensa", xage = "Totalt", xmunicipEnd = "municip5054") {
   age <- NULL
 
-  d <- GenFakeDataClean(syndrome=syndrome, xmunicipEnd=xmunicipEnd)[age==xage]
+  d <- GenFakeDataClean(syndrome = syndrome, xmunicipEnd = xmunicipEnd)[age == xage]
 
   setnames(d, "consultWithInfluensa", "denominator")
   return(d)
@@ -119,21 +119,21 @@ GenFakeDataAnalysis <- function(syndrome = "influensa", xage="Totalt", xmunicipE
 #' @param xmunicipEnd municipality
 #' @import data.table
 #' @export GenFakeResultsFull
-GenFakeResultsFull <- function(granularity = "weekly", syndrome = "influensa", xage="Totalt", xmunicipEnd="municip5054") {
+GenFakeResultsFull <- function(granularity = "weekly", syndrome = "influensa", xage = "Totalt", xmunicipEnd = "municip5054") {
   age <- NULL
 
-  d <- GenFakeDataClean(syndrome=syndrome, xmunicipEnd=xmunicipEnd)[age==xage]
+  d <- GenFakeDataClean(syndrome = syndrome, xmunicipEnd = xmunicipEnd)[age == xage]
 
   stack <- data.table(
-    tag=syndrome,
-    denominator="consultWithInfluensa",
-    location=xmunicipEnd,
-    ages=xage,
-    granularity=granularity,
+    tag = syndrome,
+    denominator = "consultWithInfluensa",
+    location = xmunicipEnd,
+    ages = xage,
+    granularity = granularity,
     stringsAsFactors = F,
-    weeklyDenominatorFunction=sum,
-    v=1,
-    file="test.RDS"
+    weeklyDenominatorFunction = sum,
+    v = 1,
+    file = "test.RDS"
   )
 
   res <- RunOneAnalysis(analysesStack = stack, analysisData = d)
