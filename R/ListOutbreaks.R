@@ -13,8 +13,7 @@ GenerateOutbreakListInternal <- function(df = readRDS(fhi::DashboardFolder("resu
                                            fhi::DashboardFolder("results", "outbreaks.RDS"),
                                            fhi::DashboardFolder("data_app", "outbreaks.RDS")
                                          ),
-                                         useType=FALSE
-                                         ) {
+                                         useType = FALSE) {
   # variables used in data.table functions in this function
   . <- NULL
   status <- NULL
@@ -141,9 +140,9 @@ GenerateOutbreakListInternal <- function(df = readRDS(fhi::DashboardFolder("resu
   setcolorder(dk, c("tag", "wkyr", "age", "countyName", "locationName", "meanZScore", "sumCum"))
   setnames(dk, "locationName", "High")
 
-  if(useType){
-    setnames(df,"tag","type")
-    setnames(dk,"tag","type")
+  if (useType) {
+    setnames(df, "tag", "type")
+    setnames(dk, "tag", "type")
   }
 
   outbreaks <- list(df = df, dk = dk)

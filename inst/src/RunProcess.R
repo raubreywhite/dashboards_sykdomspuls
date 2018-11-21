@@ -5,7 +5,7 @@ suppressMessages(library(foreach))
 suppressMessages(library(doSNOW))
 suppressMessages(library(iterators))
 
-if(!dir.exists(fhi::DashboardFolder("results","externalapi"))) dir.create(fhi::DashboardFolder("results","externalapi"))
+if (!dir.exists(fhi::DashboardFolder("results", "externalapi"))) dir.create(fhi::DashboardFolder("results", "externalapi"))
 
 SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("results", "config.RDS"))
 SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("data_app", "config.RDS"))
@@ -89,8 +89,8 @@ fhi::DashboardMsg("Generate list of outbreaks")
 GenerateOutbreakListInternal()
 GenerateOutbreakListInternal(
   saveFiles = fhi::DashboardFolder("results", "externalapi/outbreaks.RDS"),
-  useType=TRUE
-  )
+  useType = TRUE
+)
 GenerateOutbreakListExternal()
 
 # Done with analyses
