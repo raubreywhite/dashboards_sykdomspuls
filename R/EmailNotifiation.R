@@ -181,7 +181,7 @@ EmailExternalGenerateTable <- function(results, xtag, xemail) {
   r <- results[email == xemail & tag == xtag]
   if (nrow(r) == 0) return(sprintf("%s utbrudd:<br><br>Ingen utbrudd registrert", CONFIG$SYNDROMES[tag==xtag]$namesLong))
 
-  emailText <- sprintf("%s utbrudd:<br><br><table style='width:90%%'><tr><th>Til nettsiden</th> <th>Syndrom</th> <th>Geografisk omr\u00E5de</th> <th>Geografisk omr\u00E5de</th> <th>Alder</th> <th>Meldte tilfeller</th> <th>Eksess</th> <th>Z-verdi</th></tr>", names(CONFIG$SYNDROMES)[CONFIG$SYNDROMES == xtag])
+  emailText <- sprintf("%s utbrudd:<br><br><table style='width:90%%'><tr><th>Til nettsiden</th> <th>Syndrom</th> <th>Geografisk omr\u00E5de</th> <th>Geografisk omr\u00E5de</th> <th>Alder</th> <th>Meldte tilfeller</th> <th>Eksess</th> <th>Z-verdi</th></tr>", CONFIG$SYNDROMES[tag==xtag]$namesLong)
   for (i in 1:nrow(r)) {
     emailText <- sprintf("%s%s", emailText, r$output[i])
   }

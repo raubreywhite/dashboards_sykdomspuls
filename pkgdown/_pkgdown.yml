@@ -48,8 +48,8 @@ reference:
   contents:
   - GenFakeDataRaw
   - GenFakeDataClean
-  - GenerateFakeDataAnalysis
-  - GenerateFakeResultsFull
+  - GenFakeDataAnalysis
+  - GenFakeResultsFull
   - ValidateDataClean
   - ValidateResultsFull
   - ValidateDataRaw
