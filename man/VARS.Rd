@@ -4,11 +4,13 @@
 \name{VARS}
 \alias{VARS}
 \title{Global variables used for defining formats of data structures}
-\format{An environment containing 3 variables:
+\format{An environment containing 5 variables:
 \describe{
-  \item{REQ_DATA_RAW_STRUCTURAL}{Required columns for raw data that are structural in nature (i.e. these form the skeleton).}
-  \item{REQ_DATA_RAW_OTHER}{Required columns for raw data that are not structural in nature and are not listed in `CONFIG$SYNDROMES`.}
-  \item{REQ_DATA_RAW_ALL}{The combination of `REQ_DATA_RAW_STRUCTURAL` and `REQ_DATA_RAW_OTHER`}
+  \item{REQ_DATA_RAW}{Required columns for raw data.}
+  \item{REQ_DATA_CLEAN}{Required columns for clean data.}
+  \item{REQ_DATA_ANALYSIS}{Required columns for data analysis.}
+  \item{REQ_RESULTS_BASIC}{Required columns for the results (basic, right after the analysis is run)}
+  \item{REQ_RESULTS_FULL}{Required columns for the full results (i.e. those that will be saved and used further)}
 }}
 \usage{
 VARS

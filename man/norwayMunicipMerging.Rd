@@ -3,12 +3,12 @@
 \docType{data}
 \name{norwayMunicipMerging}
 \alias{norwayMunicipMerging}
-\title{norwayMunicipMerging}
+\title{List of municipality merging over time}
 \format{An object of class \code{data.table} (inherits from \code{data.frame}) with 5571 rows and 9 columns.}
 \usage{
 norwayMunicipMerging
 }
 \description{
-norwayMunicipMerging
+List of municipality merging over time
 }
 \keyword{datasets}

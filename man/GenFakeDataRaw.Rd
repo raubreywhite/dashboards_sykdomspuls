@@ -4,7 +4,10 @@
 \alias{GenFakeDataRaw}
 \title{Generate fake raw data}
 \usage{
-GenFakeDataRaw()
+GenFakeDataRaw(xmunicipEnd = "municip5054")
+}
+\arguments{
+\item{xmunicipEnd}{municipality}
 }
 \description{
 Generate fake raw data

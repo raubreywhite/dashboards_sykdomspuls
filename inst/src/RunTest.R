@@ -97,7 +97,7 @@ if (res == 0) {
 
 res <- tryCatch(
   EmailExternal(
-    alerts = readxl::read_excel(file.path("/etc", "gmailr", "emails_sykdomspuls_alert_test.xlsx")),
+    alerts = sykdomspuls::GetAlertsEmails(),
     isTest = TRUE,
     forceNoOutbreak = TRUE
   ),
@@ -120,7 +120,7 @@ if (res == 0) {
 
 res <- tryCatch(
   EmailExternal(
-    alerts = readxl::read_excel(file.path("/etc", "gmailr", "emails_sykdomspuls_alert_test.xlsx")),
+    alerts = sykdomspuls::GetAlertsEmails(),
     isTest = TRUE,
     forceYesOutbreak = TRUE
   ),

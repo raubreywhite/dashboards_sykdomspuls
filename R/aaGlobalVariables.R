@@ -7,94 +7,148 @@
 #' \describe{
 #'   \item{date}{Date of the observation}
 #' }
-#' @export variablesAlgorithmDaily
-variablesAlgorithmDaily <- c("date")
 
-#' variablesAlgorithmWeekly
-#' @export variablesAlgorithmWeekly
-variablesAlgorithmWeekly <- c("displayDay", "wkyr", "x", "year", "week")
-
-#' variablesAlgorithmBasic
-#' @export variablesAlgorithmBasic
-variablesAlgorithmBasic <- c("n", "consult", "pop", "HelligdagIndikator")
-
-#' variablesAlgorithmProduced
-#' @export variablesAlgorithmProduced
-variablesAlgorithmProduced <- c("threshold0", "threshold2", "threshold4", "threshold6", "cumE1", "cumL1", "cumU1", "zscore", "failed")
-
-#' variablesPostProcessing
-#' @export variablesPostProcessing
-variablesPostProcessing <- c("age", "type", "location", "locationName", "status")
-
-#' variablesMunicip
-#' @export variablesMunicip
-variablesMunicip <- c("county")
 
 #' Configuration of analyses
 #'
 #' This environment holds a number of important variables for
 #' configuring the analyses that will be run.
 #'
-#' @format An environment containing 9 variables:
+#' @format An environment containing 6 variables:
 #' \describe{
 #'   \item{VERSION}{The version that we are currently running.}
 #'   \item{VERSIONS}{All available versions.}
-#'   \item{SYNDROMES_DOCTOR}{Syndromes for which we will only count consultations where a doctor was seen.}
-#'   \item{SYNDROMES_ALL}{Syndromes for which we will count consultations where a doctor was seen and over the phone.}
-#'   \item{SYNDROMES}{A combined vector of SYNDROMES_DOCTOR and SYNDROMES_ALL.}
-#'   \item{SYNDROMES_ALERT_INTERNAL}{Syndromes for the internal FHI dashboard/alerts.}
-#'   \item{SYNDROMES_ALERT_EXTERNAL}{Syndromes for the external dashboard/alerts.}
-#'   \item{SYNDROMES_SHORT}{The short names of the syndromes.}
+#'   \item{SYNDROMES}{A data.table of all the syndromes/analyses that will be run}
+#'   \item{tagsWithLong}{A convenience vector used to switch between tags and pretty names}
 #'   \item{AGES}{The age groups that we run analyses on.}
+#'   \item{smallMunicips}{Small municipalities that need to be censored.}
 #' }
 #' @export CONFIG
 CONFIG <- new.env(parent = emptyenv())
 CONFIG$VERSION <- 1
 CONFIG$VERSIONS <- 1:2
-CONFIG$SYNDROMES_DOCTOR <- c("Influensa" = "influensa")
-CONFIG$SYNDROMES_ALL <- c(
-  "Mage-tarm diagnose" = "gastro",
-  "\u00D8vre-luftvei diagnose" = "respiratoryinternal",
-  "\u00D8vre-luftvei diagnose" = "respiratoryexternal",
-  "Lungebetennelse diagnose" = "lungebetennelse",
-  "Bronkitt diagnose" = "bronkitt"
+CONFIG$SYNDROMES <- data.table(
+  tag=c(
+    "influensa",
+    "gastro",
+    "respiratoryinternal",
+    "respiratoryexternal",
+    "lungebetennelse",
+    "bronkitt",
+    "consultWithInfluensa",
+    "consultWithoutInfluensa"
+  ),
+  syndrome=c(
+    "influensa",
+    "gastro",
+    "respiratoryinternal",
+    "respiratoryexternal",
+    "lungebetennelse",
+    "bronkitt",
+    "consultWithInfluensa",
+    "consultWithoutInfluensa"
+  ),
+  alertInternal=c(
+    TRUE,
+    TRUE,
+    TRUE,
+    FALSE,
+    TRUE,
+    TRUE,
+    FALSE,
+    FALSE
+  ),
+  alertExternal=c(
+    FALSE,
+    TRUE,
+    FALSE,
+    TRUE,
+    FALSE,
+    FALSE,
+    FALSE,
+    FALSE
+  ),
+  contactType=list(
+    "Legekontakt",
+    c("Legekontakt","Telefonkontakt"),
+    c("Legekontakt","Telefonkontakt"),
+    c("Legekontakt","Telefonkontakt"),
+    c("Legekontakt","Telefonkontakt"),
+    c("Legekontakt","Telefonkontakt"),
+    c("Legekontakt","Telefonkontakt"),
+    c("Legekontakt","Telefonkontakt")
+  ),
+  syndromeOrConsult=c(
+    "syndrome",
+    "syndrome",
+    "syndrome",
+    "syndrome",
+    "syndrome",
+    "syndrome",
+    "consult",
+    "consult"
+  ),
+  denominator=c(
+    "consultWithInfluensa",
+    "consultWithoutInfluensa",
+    "consultWithoutInfluensa",
+    "consultWithoutInfluensa",
+    "consultWithoutInfluensa",
+    "consultWithoutInfluensa",
+    "pop",
+    "pop"
+  ),
+  weeklyDenominatorFunction=c(
+    sum,
+    sum,
+    sum,
+    sum,
+    sum,
+    sum,
+    mean,
+    mean
+  ),
+  namesLong=c(
+    "Influensa",
+    "Mage-tarm diagnose",
+    "\u00D8vre-luftvei diagnose",
+    "\u00D8vre-luftvei diagnose",
+    "Lungebetennelse diagnose",
+    "Bronkitt diagnose",
+    "consultWithInfluensa",
+    "consultWithoutInfluensa"
+  ),
+  namesShort=c(
+    "Influensa",
+    "Mage-tarm",
+    "Luftvei",
+    "Luftvei",
+    "Lungebet",
+    "Bronkitt",
+    "ConsWithInf",
+    "ConsWOInf"
+  )
 )
 
-CONFIG$SYNDROMES <- c(CONFIG$SYNDROMES_DOCTOR, CONFIG$SYNDROMES_ALL)
+CONFIG$tagsWithLong <- CONFIG$SYNDROMES$tag
+names(CONFIG$tagsWithLong) <- CONFIG$SYNDROMES$namesLong
 
-CONFIG$SYNDROMES_ALERT_INTERNAL <- c(
-  "influensa",
-  "gastro",
-  "respiratoryinternal",
-  "lungebetennelse",
-  "bronkitt"
+
+CONFIG$AGES <- list(
+  "Totalt"=c(0:105),
+  "0-4"=c(0:4),
+  "5-14"=c(5:14),
+  "15-19"=c(15:19),
+  "20-29"=c(20:29),
+  "30-64"=c(30:64),
+  "65+"=c(65:105)
 )
 
-CONFIG$SYNDROMES_ALERT_EXTERNAL <- c(
-  "gastro",
-  "respiratoryexternal"
-)
-
-CONFIG$SYNDROMES_SHORT <- c(
-  "Influensa" = "influensa",
-  "Mage-tarm" = "gastro",
-  "Luftvei" = "respiratoryinternal",
-  "Luftvei" = "respiratoryexternal",
-  "Lungebet" = "lungebetennelse",
-  "Bronkitt" = "bronkitt"
-)
-
-# remove any excess short syndromes
-CONFIG$SYNDROMES_SHORT <- CONFIG$SYNDROMES_SHORT[CONFIG$SYNDROMES_SHORT %in% CONFIG$SYNDROMES]
-
-CONFIG$AGES <- c(
-  "Totalt",
-  "0-4",
-  "5-14",
-  "15-19",
-  "20-29",
-  "30-64",
-  "65+"
+CONFIG$smallMunicips <- c(
+  "municip1151",
+  "municip1835",
+  "municip1252",
+  "municip1739"
 )
 
 #' Global variables used for defining formats of data structures
@@ -102,45 +156,100 @@ CONFIG$AGES <- c(
 #' This environment holds a number of variables that are used for
 #' defining the formats of data structures.
 #'
-#' @format An environment containing 3 variables:
+#' @format An environment containing 5 variables:
 #' \describe{
-#'   \item{REQ_DATA_RAW_STRUCTURAL}{Required columns for raw data that are structural in nature (i.e. these form the skeleton).}
-#'   \item{REQ_DATA_RAW_OTHER}{Required columns for raw data that are not structural in nature and are not listed in `CONFIG$SYNDROMES`.}
-#'   \item{REQ_DATA_RAW_ALL}{The combination of `REQ_DATA_RAW_STRUCTURAL` and `REQ_DATA_RAW_OTHER`}
+#'   \item{REQ_DATA_RAW}{Required columns for raw data.}
+#'   \item{REQ_DATA_CLEAN}{Required columns for clean data.}
+#'   \item{REQ_DATA_ANALYSIS}{Required columns for data analysis.}
+#'   \item{REQ_RESULTS_BASIC}{Required columns for the results (basic, right after the analysis is run)}
+#'   \item{REQ_RESULTS_FULL}{Required columns for the full results (i.e. those that will be saved and used further)}
 #' }
 #' @export VARS
 VARS <- new.env(parent = emptyenv())
 
-VARS$REQ_DATA_RAW_STRUCTURAL <- c(
+VARS$REQ_DATA_RAW <- c(
   "age",
   "date",
-  "Kontakttype",
+  "Kontaktype",
   "Praksis",
-  "municip"
-)
-
-VARS$REQ_DATA_RAW_OTHER <- c(
+  "municip",
+  unique(CONFIG$SYNDROMES[syndromeOrConsult=="syndrome"]$syndrome),
   "consult"
 )
 
-VARS$REQ_DATA_RAW_ALL <- c(
-  VARS$REQ_DATA_RAW_STRUCTURAL,
-  CONFIG$SYNDROMES,
-  VARS$REQ_DATA_RAW_OTHER
+VARS$REQ_DATA_CLEAN <- c(
+  "granularityGeo",
+  "county",
+  "location",
+  "age",
+  "date",
+  "HelligdagIndikator",
+  "n",
+  "consultWithoutInfluensa",
+  "consultWithInfluensa",
+  "pop"
 )
 
+VARS$REQ_DATA_ANALYSIS <- c(
+  "age",
+  "date",
+  "municip",
+  "n",
+  "consultWithInfluensa",
+  "consultWithoutInfluensa",
+  "pop"
+)
 
-#' norwayLocations
+VARS$REQ_RESULTS_BASIC <- c(
+  "wkyr",
+  "year",
+  "week",
+  "x",
+  "date",
+  "displayDay",
+  "HelligdagIndikator",
+  "n",
+  "denominator",
+  "threshold0",
+  "threshold2",
+  "threshold4",
+  "threshold6",
+  "zscore",
+  "cumE1",
+  "cumL1",
+  "cumU1",
+  "failed"
+)
+
+VARS$REQ_RESULTS_FULL <- c(
+  "tag",
+  "type",
+  "county",
+  "location",
+  "locationName",
+  "age",
+  "status",
+  VARS$REQ_RESULTS_BASIC,
+  "file"
+)
+
+#' List of municipalities and counties
 #' @export norwayLocations
-norwayLocations <- GenNorwayLocations()
+norwayLocations <- readRDS(system.file("createddata","norwayLocations.RDS",package="sykdomspuls"))
 
-#' norwayMunicipMerging
+#' List of municipality merging over time
 #' @export norwayMunicipMerging
-norwayMunicipMerging <- GenNorwayMunicipMerging()
+norwayMunicipMerging <- readRDS(system.file("createddata","norwayMunicipMerging.RDS",package="sykdomspuls"))
 
-#' displayDays
+#' The last date for each isoweek
 #' @export displayDays
-displayDays <- data.table(day = seq.Date(as.Date("2000-01-01"), as.Date("2030-01-01"), by = "days"))
+displayDays <- data.table(day = seq.Date(as.IDate("2000-01-01"), as.IDate("2030-01-01"), by = "days"))
 displayDays[, wkyr := format.Date(day, format = "%G-%V")]
-displayDays <- displayDays[, .(displayDay = max(day)), by = .(wkyr)]
+displayDays <- displayDays[, .(displayDay = as.IDate(max(day))), by = .(wkyr)]
 setkey(displayDays, wkyr)
+
+#' Environment for progress bars
+#' @export PB
+PB <- new.env(parent = emptyenv())
+PB$i <- 0
+PB$pb <- RAWmisc::ProgressBarCreate(max = 1)

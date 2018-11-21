@@ -5,17 +5,13 @@
 \title{Sends an external email warning about alters}
 \usage{
 EmailExternal(results = readRDS(fhi::DashboardFolder("results",
-  "outbreaks_alert_external.RDS")),
-  alerts = readxl::read_excel(file.path("/etc", "gmailr",
-  "emails_sykdomspuls_alert.xlsx")), isTest = TRUE, forceNoOutbreak = FALSE,
-  forceYesOutbreak = FALSE)
+  "outbreaks_alert_external.RDS")), alerts = GetAlertsEmails(),
+  forceNoOutbreak = FALSE, forceYesOutbreak = FALSE)
 }
 \arguments{
 \item{results}{Results file.}
 
 \item{alerts}{Excel file containing the emails.}
-
-\item{isTest}{Is this a test?}
 
 \item{forceNoOutbreak}{For testing. Do you want to force a "No outbreak" email?}
 

@@ -4,7 +4,10 @@
 GenNorwayLocations <- function() {
   norwayLocations <- readxl::read_excel(system.file("extdata", "norwayLocations.xlsx", package = "sykdomspuls"))
   norwayLocations <- norwayLocations[is.na(norwayLocations$yearEnd), c("municip", "municipName", "county", "countyName")]
-  return(norwayLocations)
+  if(dir.exists(file.path("inst","createddata"))){
+    saveRDS(norwayLocations,file.path("inst","createddata","norwayLocations.RDS"))
+  }
+  return(invisible(norwayLocations))
 }
 
 #' Creates the Norway Municip Merging (kommunesammenslaping) data.table
@@ -82,5 +85,7 @@ GenNorwayMunicipMerging <- function() {
   # skeletonFinal[municip %in% c("municip1723","municip1756","municip5053")]
   # skeletonFinal[municip %in% c("municip0301")]
 
-  return(skeletonFinal)
+  if(dir.exists(file.path("inst","createddata"))){
+    saveRDS(skeletonFinal,file.path("inst","createddata","norwayMunicipMerging.RDS"))
+  }
 }

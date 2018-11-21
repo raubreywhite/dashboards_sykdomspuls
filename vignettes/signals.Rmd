@@ -35,8 +35,8 @@ We format the data into panel data:
 
 ```{r}
 # Format the data into panel data
-d <- sykdomspuls::FormatData(d,
-    SYNDROME = "influensa",
+d <- sykdomspuls::CleanData(d,
+    syndrome = "influensa",
     testIfHelligdagIndikatorFileIsOutdated = FALSE,
     removeMunicipsWithoutConsults = TRUE
   )
@@ -46,9 +46,7 @@ print(d)
 We take out the total age, and change some names:
 
 ```{r}
-d <- d[age=="Totalt"]
-setnames(d, "value", "n")
-setnames(d, "consultWithInfluensa", "consult")
+d <- d[age=="Totalt" & granularityGeo=="municip"]
 print(d)
 ```
 

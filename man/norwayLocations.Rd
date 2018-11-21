@@ -3,12 +3,12 @@
 \docType{data}
 \name{norwayLocations}
 \alias{norwayLocations}
-\title{norwayLocations}
+\title{List of municipalities and counties}
 \format{An object of class \code{tbl_df} (inherits from \code{tbl}, \code{data.frame}) with 422 rows and 4 columns.}
 \usage{
 norwayLocations
 }
 \description{
-norwayLocations
+List of municipalities and counties
 }
 \keyword{datasets}

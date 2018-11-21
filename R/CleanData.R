@@ -1,261 +1,19 @@
-#' Identify all raw/clean datasets that are available
-#' @param raw Folder containing raw data
-#' @param clean Folder containing clean data
-#' @import data.table
-#' @import fhi
-#' @export IdentifyAllDatasets
-IdentifyAllDatasets <- function(raw = list.files(fhi::DashboardFolder("data_raw"), "^partially_formatted_"),
-                                clean = list.files(fhi::DashboardFolder("data_clean"), "done_")) {
-  # variables used in data.table functions in this function
-  id <- isRaw <- isClean <- NULL
-  # end
-
-  raw <- data.table(raw)
-  clean <- data.table(clean)
-
-  raw[, id := gsub(".txt", "", gsub("partially_formatted_", "", raw))]
-  raw[, isRaw := TRUE]
-  clean[, id := gsub(".txt", "", gsub("done_", "", clean))]
-  clean[, isClean := TRUE]
-  res <- merge(raw, clean, by = "id", all = TRUE)
-  setorder(res, id)
-
-  return(res)
-}
-
-#' Delete old datasets
-#'
-#' Delete all old raw/clean datasets except the latest
-#'
-#' @param raw Folder containing raw data
-#' @param clean Folder containing clean data
-#' @import data.table
-#' @import fhi
-#' @export DeleteOldDatasets
-DeleteOldDatasets <- function(raw = list.files(fhi::DashboardFolder("data_raw"), "^partially_formatted_"),
-                              clean = list.files(fhi::DashboardFolder("data_clean"), "done_")) {
-  res <- IdentifyAllDatasets(raw = raw, clean = clean)
-  if (nrow(res) > 0) {
-    res <- res[-nrow(res)]
-  }
-  for (i in 1:nrow(res)) {
-    unlink(file.path(fhi::DashboardFolder("data_raw"), res[i]$raw))
-    unlink(file.path(fhi::DashboardFolder("data_clean"), sprintf("*%s*", res[i]$id)))
-  }
-}
-
-#' Identify the latest raw/clean datasets
-#' @param raw Folder containing raw data
-#' @param clean Folder containing clean data
-#' @import data.table
-#' @import fhi
-#' @export IdentifyDatasets
-IdentifyDatasets <- function(raw = list.files(fhi::DashboardFolder("data_raw"), "^partially_formatted_"),
-                             clean = list.files(fhi::DashboardFolder("data_clean"), "done_")) {
-  res <- IdentifyAllDatasets(raw = raw, clean = clean)
-  if (nrow(res) > 0) res <- res[nrow(res)]
-
-  return(res)
-}
-
-#' test
-#' @export LatestRawID
-LatestRawID <- function() {
-  f <- IdentifyDatasets()
-  return(max(f$id))
-}
-
-#' Delete the latest done file
-#' @param file Location of the latest done file (according to latest raw data file)
-#' @import fhi
-#' @export DeleteLatestDoneFile
-DeleteLatestDoneFile <- function(file = fhi::DashboardFolder("data_clean", paste0("done_", LatestRawID(), ".txt"))) {
-  try(unlink(file), TRUE)
-  # try(unlink(paste0("data_clean/done_",LatestRawID(),".txt")),TRUE)
-}
-
-#' Create the latest done file
-#' @param file Location of the latest done file (according to latest raw data file)
-#' @import fhi
-#' @export CreateLatestDoneFile
-CreateLatestDoneFile <- function(file = fhi::DashboardFolder("data_clean", paste0("done_", LatestRawID(), ".txt"))) {
-  try(file.create(file), TRUE)
-  # try(file.create(paste0("data_clean/done_",LatestRawID(),".txt")),TRUE)
-}
-
-#' Latest datasets
-#'
-#' Returns the names of the four datasets corresponding to a
-#' date/syndrome.
-#'
-#' @param clean A date/ID
-#' @param SYNDROME Syndrome that you are interested in
-#' @import fhi
-#' @export LatestDatasets
-LatestDatasets <- function(clean = LatestRawID(), SYNDROME = "influensa") {
-  return(list(
-    "everyone_everyone" = paste0(clean, "_", SYNDROME, "_cleaned_everyone_everyone.RDS"),
-    "everyone_fastlege" = paste0(clean, "_", SYNDROME, "_cleaned_everyone_fastlege.RDS"),
-    "legekontakt_everyone" = paste0(clean, "_", SYNDROME, "_cleaned_legekontakt_everyone.RDS"),
-    "legekontakt_fastlege" = paste0(clean, "_", SYNDROME, "_cleaned_legekontakt_fastlege.RDS"),
-    "date" = clean
-  ))
-}
-
-
-#' GetPopulation
-#' Mostly a function used by the package maintainer
-#' to generate new population files as necessary
-#' @param L a
-#' @param U a
-#' @param municip a
-#' @param saveFiles a
-#' @param yearsCopiedAtTail a
-#' @import fhi
-#' @import data.table
-#' @importFrom lubridate today
-#' @import httr
-#' @import jsonlite
-#' @export GetPopulation
-GetPopulation <- function(
-                          L = c(0, 5, 15, 20, 30, 65),
-                          U = c(4, 14, 19, 29, 64, 9999),
-                          municip = stringr::str_extract(readxl::read_excel(system.file("extdata", "norwayLocations.xlsx", package = "sykdomspuls"))$municip, "[0-9][0-9][0-9][0-9]$"),
-                          saveFiles = file.path("/git", "dashboards_sykdomspuls", "inst", "extdata", "pop.RDS"),
-                          yearsCopiedAtTail = 5) {
-  # variables used in data.table functions in this function
-  . <- NULL
-  value <- NULL
-  age <- NULL
-  Var2 <- NULL
-  agecont <- NULL
-  pop <- NULL
-  # end
-
-  municip <- municip[nchar(municip) == 4 & municip != "9999"]
-  ages <- c(formatC(0:104, width = 3, flag = "0"), "105+")
-
-  lastYear <- data.table::year(lubridate::today())
-  if (data.table::month(lubridate::today()) < 3) {
-    lastYear <- lastYear - 1
-  }
-  years <- as.character(c((data.table::year(lubridate::today()) - 15):lastYear))
-
-  retval <- vector("list", length(years) + yearsCopiedAtTail)
-  for (i in 1:length(years)) {
-    useYear <- years[i]
-    print(useYear)
-
-    b <- paste0('
-  {
-    "query": [
-      {
-        "code": "Region",
-        "selection": {
-          "filter": "item",
-          "values": [
-  ', paste0('"', municip, '"', collapse = ","), '
-          ]
-        }
-      },
-      {
-        "code": "Kjonn",
-        "selection": {
-          "filter": "item",
-          "values": [
-            "1",
-            "2"
-          ]
-        }
-      },
-      {
-        "code": "Alder",
-        "selection": {
-          "filter": "item",
-          "values": [
-  ', paste0('"', ages, '"', collapse = ","), '
-          ]
-        }
-      },
-      {
-        "code": "ContentsCode",
-        "selection": {
-          "filter": "item",
-          "values": [
-            "Personer1"
-          ]
-        }
-      },
-      {
-        "code": "Tid",
-        "selection": {
-          "filter": "item",
-          "values": [
-  ', paste0('"', useYear, '"', collapse = ","), '
-          ]
-        }
-      }
-    ],
-    "response": {
-      "format": "json-stat"
-    }
-  }
-
-    ')
-
-    x <- httr::POST("http://data.ssb.no/api/v0/no/table/07459",
-      body = b, encode = "json"
-    )
-
-    y <- jsonlite::fromJSON(httr::content(x, "text"))
-    d1 <- municip # unlist(y$dataset$dimension$Region$category$label)
-    d2 <- unlist(y$dataset$dimension$Kjonn$category$label)
-    d3 <- unlist(y$dataset$dimension$Alder$category$label)
-    d4 <- unlist(y$dataset$dimension$Tid$category$label)
-    res <- expand.grid(d4, d3, d2, d1)
-    res$value <- as.character(y$dataset$value)
-    res <- data.table(res)
-    res[, value := as.numeric(value)]
-    res[, age := as.numeric(stringr::str_extract(Var2, "^[0-9]*"))]
-    res <- res[, c("Var1", "Var4", "value", "age"), with = F]
-    setnames(res, c("year", "municip", "pop", "agecont"))
-    res[, age := paste0(L[1], "-", U[1])]
-    for (j in 2:(length(L) - 1)) {
-      res[agecont >= L[j] & agecont <= U[j], age := paste0(L[j], "-", U[j])]
-    }
-    res[agecont >= L[length(L)], age := paste0(L[length(L)], "+")]
-
-    res[, municip := paste0("municip", municip)]
-    res <- res[, .(pop = sum(pop)), by = .(year, municip, age)]
-    x <- res[, .(pop = sum(pop)), by = .(year, municip)]
-    x[, age := "Totalt"]
-    res <- rbind(res, x)
-    res[, year := as.character(year)]
-
-    retval[[i]] <- copy(res)
-  }
-  for (j in 1:yearsCopiedAtTail) {
-    res[, year := as.character(as.numeric(year) + 1)]
-    retval[[i + j]] <- copy(res)
-  }
-  saveRDS(retval, saveFiles)
-}
-
 #' Format the raw data
 #' @param d Raw data
-#' @param SYNDROME Syndrome of interest
-#' @param population Population file
-#' @param hellidager Hellidager file
+#' @param syndrome syndrome of interest
+#' @param population Population dataset
+#' @param hellidager Hellidager dataset
 #' @param testIfHelligdagIndikatorFileIsOutdated Boolean. Test if the current date is older than the last hellidag recorded in the fiel?
 #' @param removeMunicipsWithoutConsults Boolean. Remove municipalities that do not have any consultations?
 #' @import data.table
 #' @importFrom lubridate today
-#' @export FormatData
-FormatData <- function(d, SYNDROME,
-                       population = readRDS(system.file("extdata", "pop.RDS", package = "sykdomspuls")),
-                       hellidager = fread(system.file("extdata", "DatoerMedHelligdager.txt", package = "sykdomspuls"))[, c("Dato", "HelligdagIndikator"), with = FALSE],
-                       testIfHelligdagIndikatorFileIsOutdated = TRUE,
-                       removeMunicipsWithoutConsults = FALSE) {
+#' @export CleanData
+CleanData <- function(d,
+                      syndrome,
+                      population = GetPopulation(),
+                      hellidager = fread(system.file("extdata", "DatoerMedHelligdager.txt", package = "sykdomspuls"))[, c("Dato", "HelligdagIndikator"), with = FALSE],
+                      testIfHelligdagIndikatorFileIsOutdated = TRUE,
+                      removeMunicipsWithoutConsults = FALSE) {
   # variables used in data.table functions in this function
   . <- NULL
   municip <- NULL
@@ -269,45 +27,73 @@ FormatData <- function(d, SYNDROME,
   influensa <- NULL
   pop <- NULL
   error <- NULL
+  n <- NULL
+  granularityGeo <- NULL
+  HelligdagIndikator <- NULL
+  county <- NULL
+  location <- NULL
   # end
+
+  if (!ValidateDataRaw(d)) {
+    fhi::DashboardMsg("RAW data not validated", type = "err")
+  }
 
   if (!"IDate" %in% class(d$date)) {
     d[, date := data.table::as.IDate(date)]
   }
 
-  SYNDROME_AND_INFLUENSA <- unique(c(SYNDROME, "influensa"))
+  d[, consultWithoutInfluensa := consult - influensa]
+  setnames(d, "consult", "consultWithInfluensa")
+
+  syndromeAndConsult <- unique(c(
+    syndrome,
+    "consultWithInfluensa",
+    "consultWithoutInfluensa"
+  ))
 
   d <- d[municip != "municip9999",
-    lapply(.SD, sum),
-    by = .(age, date, municip),
-    .SDcols = c(SYNDROME_AND_INFLUENSA, "consult")
-  ]
+         lapply(.SD, sum),
+         by = .(age, date, municip),
+         .SDcols = syndromeAndConsult]
 
   dateMin <- min(d$date)
   dateMax <- max(d$date)
   if (removeMunicipsWithoutConsults) {
-    d[, total := sum(consult, na.rm = T), by = municip]
+    d[, total := sum(consultWithInfluensa, na.rm = T), by = municip]
     d <- d[is.finite(total)]
     d <- d[total > 0]
     d[, total := NULL]
-    skeleton <- data.table(expand.grid(unique(norwayMunicipMerging[municipEnd %in% unique(d$municip) | municip %in% unique(d$municip)]$municip), unique(d$age), seq.Date(dateMin, dateMax, 1)))
+    skeleton <-
+      data.table(expand.grid(
+        unique(norwayMunicipMerging[municipEnd %in% unique(d$municip) |
+                                      municip %in% unique(d$municip)]$municip),
+        unique(d$age),
+        seq.Date(dateMin, dateMax, 1)
+      ))
   } else {
-    skeleton <- data.table(expand.grid(unique(norwayMunicipMerging$municip), unique(d$age), seq.Date(dateMin, dateMax, 1)))
+    skeleton <-
+      data.table(expand.grid(
+        unique(norwayMunicipMerging$municip),
+        unique(d$age),
+        seq.Date(dateMin, dateMax, 1)
+      ))
   }
   setnames(skeleton, c("municip", "age", "date"))
   skeleton[, date := data.table::as.IDate(date)]
-  data <- merge(skeleton, d, by = c("municip", "age", "date"), all.x = TRUE)
+  data <-
+    merge(skeleton,
+          d,
+          by = c("municip", "age", "date"),
+          all.x = TRUE)
 
-  for (i in c(SYNDROME_AND_INFLUENSA, "consult")) {
+  for (i in syndromeAndConsult) {
     data[is.na(get(i)), (i) := 0]
   }
 
-
   total <- data[municip != "municip9999",
-    lapply(.SD, sum),
-    by = .(date, municip),
-    .SDcols = c(SYNDROME_AND_INFLUENSA, "consult")
-  ]
+                lapply(.SD, sum),
+                keyby = .(date, municip),
+                .SDcols = syndromeAndConsult]
   total[, age := "Totalt"]
   data <- rbind(total, data[age != "Ukjent"])
 
@@ -325,57 +111,46 @@ FormatData <- function(d, SYNDROME,
   dates[, yrwk := NULL]
   data <- merge(data, dates, by = "date")
 
-  # POPULATION
-
-  if (FALSE) {
-    lastYr <- as.numeric(population[[length(population) - 2]]$year[1])
-
-    population[[length(population) - 1]] <- copy(population[[length(population) - 2]])
-    population[[length(population)]] <- copy(population[[length(population) - 2]])
-
-    population[[length(population) - 1]][, year := as.character(lastYr + 1)]
-    population[[length(population)]][, year := as.character(lastYr + 2)]
-
-    population <- rbindlist(population)
-    population[, year := as.numeric(year)]
-
-    dim(data)
-    data <- merge(data, population, by = c("municip", "year", "age"), all.x = T)
-    dim(data)
-  } else {
-    data[, pop := 1]
-  }
-
   # KOMMUNE MERGING
 
   dim(data)
-  data <- merge(data, norwayMunicipMerging[, c("municip", "year", "municipEnd")], by = c("municip", "year"), all.x = T)
+  data <-
+    merge(data,
+          norwayMunicipMerging[, c("municip", "year", "municipEnd")],
+          by = c("municip", "year"),
+          all.x = T)
   dim(data)
+  data <- data[!is.na(municipEnd)]
+
+  n1 <- nrow(data)
+  data <- merge(data, population, by = c("municip", "age", "year"))
+  n2 <- nrow(data)
+
+  if (n1 != n2)
+    fhi::DashboardMsg("Population file not merging correctly", type = "err")
+
   data <- data[!is.na(municipEnd),
-    lapply(.SD, sum),
-    by = .(municipEnd, year, age, date),
-    .SDcols = c(SYNDROME_AND_INFLUENSA, "consult", "pop")
-  ]
+               lapply(.SD, sum),
+               keyby = .(municipEnd, year, age, date),
+               .SDcols = c(syndromeAndConsult, "pop")]
   dim(data)
   setnames(data, "municipEnd", "municip")
 
   # merging in municipalitiy-fylke names
-  data <- merge(data, norwayLocations[, c("municip", "county")], by = "municip")
-  for (i in c(SYNDROME, "consult")) {
+  data <-
+    merge(data, norwayLocations[, c("municip", "county")], by = "municip")
+  for (i in syndromeAndConsult) {
     data[is.na(get(i)), (i) := 0]
   }
-  data[, consultWithInfluensa := as.numeric(consult)]
-  data[, consultWithoutInfluensa := consultWithInfluensa - influensa]
-  data[, consult := NULL]
-  data[, pop := as.numeric(pop)]
 
   data <- data[date >= data.table::as.IDate("2006-01-01")]
   data[, municip := as.character(municip)]
 
   setnames(hellidager, c("date", "HelligdagIndikator"))
   hellidager[, date := data.table::as.IDate(date)]
-  if (testIfHelligdagIndikatorFileIsOutdated & lubridate::today() > max(hellidager$date)) {
-    error("HELLIGDAGER NEEDS UPDATING")
+  if (testIfHelligdagIndikatorFileIsOutdated &
+      lubridate::today() > max(hellidager$date)) {
+    fhi::DashboardMsg("HELLIGDAGER NEEDS UPDATING",type="err")
   }
   dim(data)
   data <- merge(data, hellidager, by = "date")
@@ -383,103 +158,161 @@ FormatData <- function(d, SYNDROME,
 
   data[, year := NULL]
 
-  if (SYNDROME != "influensa") {
-    data[, influensa := NULL]
-  }
+  setnames(data, syndrome, "n")
 
-  setcolorder(data, c(
-    "date",
-    "HelligdagIndikator",
-    "county",
-    "municip",
-    "age",
-    SYNDROME,
-    "consultWithInfluensa",
-    "consultWithoutInfluensa",
-    "pop"
+  if (!"consultWithInfluensa" %in% names(data))
+    data[, consultWithInfluensa := n]
+  if (!"consultWithoutInfluensa" %in% names(data))
+    data[, consultWithoutInfluensa := n]
+
+  setcolorder(data, unique(
+    c(
+      "date",
+      "HelligdagIndikator",
+      "county",
+      "municip",
+      "age",
+      "n",
+      "consultWithoutInfluensa",
+      "consultWithInfluensa",
+      "pop"
+    )
   ))
-  setnames(data, SYNDROME, "value")
 
   setorder(data, municip, age, date)
   setkey(data, municip, age, date)
 
+  data[, granularityGeo := "municip"]
+  setnames(data, "municip", "location")
+
+  # create fylke
+  fylke <- data[, .(
+    HelligdagIndikator = mean(HelligdagIndikator),
+    n = sum(n),
+    consultWithoutInfluensa = sum(consultWithoutInfluensa),
+    consultWithInfluensa = sum(consultWithInfluensa),
+    pop = sum(pop)
+  ), keyby = .(county, age, date)]
+
+  fylke[, location := county]
+  fylke[, granularityGeo := "county"]
+
+  # create national
+  norge <- data[, .(
+    HelligdagIndikator = mean(HelligdagIndikator),
+    n = sum(n),
+    consultWithoutInfluensa = sum(consultWithoutInfluensa),
+    consultWithInfluensa = sum(consultWithInfluensa),
+    pop = sum(pop)
+  ), keyby = .(age, date)]
+
+  norge[, location := "Norge"]
+  norge[, county := location]
+  norge[, granularityGeo := "national"]
+
+  data <- rbind(data, fylke, norge)
+  setcolorder(data, c("granularityGeo", "county", "location", "age", "date"))
+  setorderv(data, c("granularityGeo", "county", "location", "age", "date"))
+  setkey(data, location, age)
+
+  if (!ValidateDataClean(data)) {
+    fhi::DashboardMsg("Clean data not validated", type = "err")
+  }
+
   return(data)
 }
 
-#' Not used.
-#' @param ageStrings a
-#' @import stringr
-#' @export GetAgesLU
-GetAgesLU <- function(ageStrings) {
-  ageStrings <- ageStrings[ageStrings != "Ukjent"]
-  ageStrings <- gsub("\\+", "", ageStrings)
-  ageStrings <- stringr::str_split(ageStrings, "-")
-  L <- c()
-  for (i in 1:length(ageStrings)) L[i] <- as.numeric(ageStrings[[i]][1])
-  L <- as.numeric(L)
-  L <- sort(L)
-  U <- L[2:length(L)] - 1
-  U <- c(U, 99999)
-  return(list(
-    L = L,
-    U = U
-  ))
-}
 
-#' Top level function call for cleaning of data
+#' Create analysis stack and datasets for a tag
 #'
-#' This function checks if there is new stable data and then cleans it.
-#'
-#' @import data.table
-#' @import fhi
-#' @importFrom RAWmisc IsFileStable
-#' @export UpdateData
-UpdateData <- function() {
-  # variables used in data.table functions in this function
-  isClean <- NULL
-  Kontaktype <- NULL
-  # end
+#' Given one row from \code{CONFIG$SYNDROMES} we need
+#' to generate an analysis stack and all relevant datasets
+#' that can be directly sent to \code{QuasipoissonTrainPredictData}
+#' without additional formatting.
+#' @param conf A row from \code{CONFIG$SYNDROMES}
+#' @export StackAndEfficientDataForAnalysis
+StackAndEfficientDataForAnalysis <- function(conf) {
+  . <- NULL
+  granularityGeo <- NULL
+  weeklyDenominatorFunction <- NULL
+  v <- NULL
+  tag <- NULL
+  granularity <- NULL
+  location <- NULL
+  id <- NULL
 
-  files <- IdentifyDatasets()
-  files <- files[is.na(isClean)]
-  if (nrow(files) == 0) {
-    cat(sprintf("%s/%s/R/SYKDOMSPULS No new data", Sys.time(), Sys.getenv("COMPUTER")), "\n")
-    return(FALSE)
-  } else {
-    cat(sprintf("%s/%s/R/SYKDOMSPULS Updating data", Sys.time(), Sys.getenv("COMPUTER")), "\n")
-    if (Sys.getenv("COMPUTER") == "smhb") EmailNotificationOfNewData(files$id, isTest = FALSE)
-    for (i in 1:nrow(files)) {
-      if (!RAWmisc::IsFileStable(fhi::DashboardFolder("data_raw", files[i]$raw))) {
-        cat(sprintf("%s/%s/R/SYKDOMSPULS Unstable file %s", Sys.time(), Sys.getenv("COMPUTER"), files[i]$raw), "\n")
-        return(FALSE)
-      }
-      cat(sprintf("%s/%s/R/SYKDOMSPULS Cleaning file %s", Sys.time(), Sys.getenv("COMPUTER"), files[i]$raw), "\n")
-      d <- fread(fhi::DashboardFolder("data_raw", files[i]$raw))
-      d[, date := data.table::as.IDate(date)]
+  data <- readRDS(file = fhi::DashboardFolder(
+    "data_clean",
+    sprintf("%s_%s_cleaned.RDS",LatestRawID(),conf$tag)))
 
-      for (SYNDROME in CONFIG$SYNDROMES) {
-        cat(sprintf("%s/%s/R/SYKDOMSPULS Processing %s", Sys.time(), Sys.getenv("COMPUTER"), SYNDROME), "\n")
-        res <- FormatData(d[Kontaktype == "Legekontakt"], SYNDROME = SYNDROME)
-        saveRDS(res, file = fhi::DashboardFolder(
-          "data_clean",
-          sprintf(
-            "%s_%s_cleaned_legekontakt_everyone.RDS",
-            files[i]$id, SYNDROME
-          )
-        ))
+  counties <- unique(data[granularityGeo=="municip"]$county)
+  municips <- unique(data[granularityGeo=="municip"]$location)
+  locations <- c("Norge", counties, municips)
 
-        res <- FormatData(d, SYNDROME = SYNDROME)
-        saveRDS(res, file = fhi::DashboardFolder(
-          "data_clean",
-          sprintf(
-            "%s_%s_cleaned_everyone_everyone.RDS",
-            files[i]$id, SYNDROME
-          )
-        ))
-      }
-    }
+  ages <- unique(data$age)
 
-    cat(sprintf("%s/%s/R/SYKDOMSPULS New data is now formatted and ready", Sys.time(), Sys.getenv("COMPUTER")), "\n")
-    return(TRUE)
+  # setting control stack for counties
+  analysesCounties <- data.table(
+    expand.grid(
+      tag = conf$tag,
+      denominator = conf$denominator,
+      location = c("Norge", counties),
+      age = ages,
+      granularity = c("Daily", "Weekly"),
+      stringsAsFactors = FALSE
+    )
+  )
+  analysesCounties[,weeklyDenominatorFunction := list(conf$weeklyDenominatorFunction)]
+  analysesCounties[, v := sykdomspuls::CONFIG$VERSION]
+  analysesCounties[, file := sprintf("%s_%s.RDS","resRecentLine",tag)]
+  analysesCounties[granularity=="Weekly", file := sprintf("%s_%s.RDS","resYearLine",tag)]
+
+  # setting control stack for municipalities
+  analysesMunicips <- data.table(
+    expand.grid(
+      tag = conf$tag,
+      denominator = conf$denominator,
+      location = municips,
+      age = ages,
+      granularity = c("Weekly"),
+      stringsAsFactors = FALSE
+    )
+  )
+  analysesMunicips[,weeklyDenominatorFunction := list(conf$weeklyDenominatorFunction)]
+  analysesMunicips[, v := sykdomspuls::CONFIG$VERSION]
+  analysesMunicips[, file := sprintf("%s_%s.RDS","resYearLineMunicip",tag)]
+
+  # control stack for comparison of models
+  analysesComparison <-
+    vector("list", length(sykdomspuls::CONFIG$VERSIONS))
+  for (vx in sykdomspuls::CONFIG$VERSIONS) {
+    temp <-
+      analysesCounties[location == "Norge" & granularity == "Weekly"]
+    temp[, v := vx]
+    analysesComparison[[vx]] <- copy(temp)
   }
+  analysesComparison <- rbindlist(analysesComparison)
+  analysesComparison[, file := sprintf("%s_%s.RDS","resComparisons",tag)]
+
+  analyses <- rbind(analysesCounties,analysesMunicips,analysesComparison)
+  if(fhi::DashboardIsDev()){
+    analyses[,id:=1:.N,by=.(file)]
+    analyses <- analyses[id %in% 1:100 | location=="Norge"]
+    analyses[,id:=NULL]
+  }
+
+  return(
+    list(
+      conf = conf,
+      data = data,
+      counties = counties,
+      municips = municips,
+      locations = locations,
+      ages = ages,
+      analyses = analyses,
+      analysesCounties = analysesCounties,
+      analysesMunicips = analysesMunicips,
+      analysesComparison = analysesComparison
+    )
+  )
 }

@@ -5,12 +5,10 @@
 \title{Internal email for possible outbreaks}
 \usage{
 EmailInternal(resYearLine = readRDS(fhi::DashboardFolder("results",
-  "resYearLine.RDS")), isTest = TRUE)
+  "resYearLine.RDS")))
 }
 \arguments{
 \item{resYearLine}{Data from an resYearLine.RDS file}
-
-\item{isTest}{Is it a test?}
 }
 \description{
 Internal email for possible outbreaks

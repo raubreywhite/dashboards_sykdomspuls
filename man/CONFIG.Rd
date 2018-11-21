@@ -3,24 +3,20 @@
 \docType{data}
 \name{CONFIG}
 \alias{CONFIG}
-\title{Configuration of analyses}
-\format{An environment containing 9 variables:
+\title{Variables produced by the daily algorithm}
+\format{A vector with one variable:
 \describe{
-  \item{VERSION}{The version that we are currently running.}
-  \item{VERSIONS}{All available versions.}
-  \item{SYNDROMES_DOCTOR}{Syndromes for which we will only count consultations where a doctor was seen.}
-  \item{SYNDROMES_ALL}{Syndromes for which we will count consultations where a doctor was seen and over the phone.}
-  \item{SYNDROMES}{A combined vector of SYNDROMES_DOCTOR and SYNDROMES_ALL.}
-  \item{SYNDROMES_ALERT_INTERNAL}{Syndromes for the internal FHI dashboard/alerts.}
-  \item{SYNDROMES_ALERT_EXTERNAL}{Syndromes for the external dashboard/alerts.}
-  \item{SYNDROMES_SHORT}{The short names of the syndromes.}
-  \item{AGES}{The age groups that we run analyses on.}
-}}
+  \item{date}{Date of the observation}
+}
+Configuration of analyses
+
+This environment holds a number of important variables for
+configuring the analyses that will be run.}
 \usage{
 CONFIG
 }
 \description{
-This environment holds a number of important variables for
-configuring the analyses that will be run.
+A variable containing the variables produced by the daily algorithm.
+The variabels are as follows:
 }
 \keyword{datasets}

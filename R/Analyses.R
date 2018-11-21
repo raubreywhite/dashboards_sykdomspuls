@@ -155,127 +155,7 @@ DetermineStatus <- function(data) {
 #' @export AddCounty
 AddCounty <- function(data, loc) {
   county <- GetCountyFromMunicip(loc, norwayLocations = norwayLocations)
-  if (county != loc) {
-    data[, county := county]
-  }
-}
-
-#' Run a weekly analysis with correctly specified data
-#'
-#' This function runs a weekly analysis where the data
-#' has been correctly formatted for the desired analysis.
-#'
-#' @param data A data.table. TODO: Validate the input.
-#' @param v The version of sykdomspuls to use. Does not work.
-#' @importFrom RAWmisc YearN WeekN
-#' @import data.table
-#' @export AnalyseYearLine
-AnalyseYearLine <- function(data, v) {
-  # variables used in data.table functions in this function
-  . <- NULL
-  value <- NULL
-  consult <- NULL
-  pop <- NULL
-  HelligdagIndikator <- NULL
-  threshold2 <- NULL
-  x <- NULL
-  wkyr <- NULL
-  day <- NULL
-  # end
-
-  yearMax <- as.numeric(format.Date(max(data$date), "%G"))
-  yearMin <- as.numeric(format.Date(min(data$date), "%G"))
-
-  dataset <- data[, .(
-    n = sum(value),
-    consult = sum(consult),
-    pop = sum(pop),
-    HelligdagIndikator = mean(HelligdagIndikator)
-  ), by = .(date)]
-
-  dates <- dataset[, "date"]
-  dates[, year := RAWmisc::YearN(date)]
-  dates[, week := RAWmisc::WeekN(date)]
-
-  years <- CalculateTrainPredictYearPattern(yearMin = yearMin, yearMax = yearMax, numPerYear1 = 1)
-  res <- vector("list", length = length(years))
-
-  for (i in 1:length(years)) {
-    dateTrainMin <- min(dates[year == years[[i]]$yearTrainMin]$date)
-    dateTrainMax <- max(dates[year == years[[i]]$yearTrainMax]$date)
-
-    datePredictMin <- min(dates[year == years[[i]]$yearPredictMin]$date)
-    datePredictMax <- max(dates[year == years[[i]]$yearPredictMax]$date)
-
-    res[[i]] <- QuasipoissonTrainPredictData(
-      datasetTrain = dataset[date >= dateTrainMin & date <= dateTrainMax],
-      datasetPredict = dataset[date >= datePredictMin & date <= datePredictMax],
-      isDaily = F, v = v
-    )
-  }
-  res <- rbindlist(res)
-  res <- res[!is.na(threshold2)]
-
-  res <- res[, c(variablesAlgorithmWeekly, variablesAlgorithmBasic, variablesAlgorithmProduced), with = F]
-  return(res)
-}
-
-#' Run a daily analysis with correctly specified data
-#'
-#' This function runs a daily analysis where the data
-#' has been correctly formatted for the desired analysis.
-#'
-#' @param data A data.table. TODO: Validate the input.
-#' @param v The version of sykdomspuls to use. Does not work.
-#' @importFrom RAWmisc YearN WeekN
-#' @import data.table
-#' @export AnalyseRecentLine
-AnalyseRecentLine <- function(data, v) {
-  # variables used in data.table functions in this function
-  . <- NULL
-  value <- NULL
-  consult <- NULL
-  pop <- NULL
-  HelligdagIndikator <- NULL
-  threshold2 <- NULL
-  # end
-
-  yearMax <- as.numeric(format.Date(max(data$date), "%G"))
-  yearMin <- as.numeric(format.Date(min(data$date), "%G"))
-
-  dataset <- data[, .(
-    n = sum(value),
-    consult = sum(consult),
-    pop = sum(pop),
-    HelligdagIndikator = mean(HelligdagIndikator)
-  ), by = .(date)]
-
-  dates <- dataset[, "date"]
-  dates[, year := RAWmisc::YearN(date)]
-  dates[, week := RAWmisc::WeekN(date)]
-
-  years <- CalculateTrainPredictYearPattern(yearMin = yearMin, yearMax = yearMax, numPerYear1 = 1)
-  res <- vector("list", length = length(years))
-
-  for (i in 1:length(years)) {
-    dateTrainMin <- min(dates[year == years[[i]]$yearTrainMin]$date)
-    dateTrainMax <- max(dates[year == years[[i]]$yearTrainMax]$date)
-
-    datePredictMin <- min(dates[year == years[[i]]$yearPredictMin]$date)
-    datePredictMax <- max(dates[year == years[[i]]$yearPredictMax]$date)
-
-    res[[i]] <- QuasipoissonTrainPredictData(
-      datasetTrain = dataset[date >= dateTrainMin & date <= dateTrainMax],
-      datasetPredict = dataset[date >= datePredictMin & date <= datePredictMax],
-      isDaily = T, v = v
-    )
-  }
-  res <- rbindlist(res)
-  res <- res[!is.na(threshold2)]
-
-  res <- res[, c(variablesAlgorithmDaily, variablesAlgorithmBasic, variablesAlgorithmProduced), with = F]
-
-  return(res)
+  data[, county := county]
 }
 
 #' Run one analysis according to the analysis stack
@@ -298,46 +178,66 @@ RunOneAnalysis <- function(analysesStack, analysisData) {
   n <- NULL
   threshold2 <- NULL
   threshold4 <- NULL
+  denominator <- NULL
+  v <- NULL
+  tag <- NULL
   # end
 
-  if (analysesStack$type == "influensa") {
-    setnames(analysisData, "consultWithInfluensa", "consult")
-  } else {
-    setnames(analysisData, "consultWithoutInfluensa", "consult")
-  }
+  analysisData[,denominator:=get(analysesStack$denominator)]
 
-  retval <- NULL
-  if (analysesStack$granularity == "Daily") {
-    retval <- AnalyseRecentLine(
-      data = analysisData,
-      v = analysesStack$v
-    )
-  } else {
-    retval <- AnalyseYearLine(
-      data = analysisData,
-      v = analysesStack$v
+  yearMax <- as.numeric(format.Date(max(analysisData$date), "%G"))
+  yearMin <- as.numeric(format.Date(min(analysisData$date), "%G"))
+
+  dataset <- copy(analysisData)
+
+  dates <- dataset[, "date"]
+  dates[, year := RAWmisc::YearN(date)]
+  dates[, week := RAWmisc::WeekN(date)]
+
+  years <- CalculateTrainPredictYearPattern(yearMin = yearMin, yearMax = yearMax, numPerYear1 = 1)
+  res <- vector("list", length = length(years))
+
+  for (i in 1:length(years)) {
+    dateTrainMin <- min(dates[year == years[[i]]$yearTrainMin]$date)
+    dateTrainMax <- max(dates[year == years[[i]]$yearTrainMax]$date)
+
+    datePredictMin <- min(dates[year == years[[i]]$yearPredictMin]$date)
+    datePredictMax <- max(dates[year == years[[i]]$yearPredictMax]$date)
+
+    res[[i]] <- QuasipoissonTrainPredictData(
+      datasetTrain = dataset[date >= dateTrainMin & date <= dateTrainMax],
+      datasetPredict = dataset[date >= datePredictMin & date <= datePredictMax],
+      isDaily = analysesStack$granularity == "Daily",
+      v = v,
+      weeklyDenominatorFunction=analysesStack$weeklyDenominatorFunction[[1]]
     )
   }
+  res <- rbindlist(res)
+  res <- res[!is.na(threshold2)]
 
-  retval[, age := analysesStack$age]
-  retval[, type := analysesStack$type]
-  retval[, location := analysesStack$location]
-  retval[, locationName := GetLocationName(analysesStack$location, norwayLocations = norwayLocations)]
+  res[, age := analysesStack$age]
+  res[, type := analysesStack$tag]
+  res[, tag := analysesStack$tag]
+  res[, location := analysesStack$location]
+  res[, locationName := GetLocationName(analysesStack$location, norwayLocations = norwayLocations)]
+  res[, file := analysesStack$file]
 
   # make threshold2 minimum of 2 and threshold4 minimum of 3
-  retval[threshold2 < 2, threshold2 := 2]
-  retval[threshold4 < 3, threshold4 := 3]
+  res[threshold2 < 2, threshold2 := 2]
+  res[threshold4 < 3, threshold4 := 3]
 
   # create "normal", "medium", "high" categories
-  DetermineStatus(retval)
+  DetermineStatus(res)
 
   # add county if this is a municipality
-  AddCounty(data = retval, loc = analysesStack$location)
+  AddCounty(data = res, loc = analysesStack$location)
 
   # validate data
-  if (!ValidateAnalysisResults(retval, granularity = analysesStack$granularity)) stop("Results in a bad format")
+  if (!ValidateResultsFull(res)) stop("Results in a bad format")
 
-  return(retval)
+  setcolorder(res,VARS$REQ_RESULTS_FULL)
+
+  return(res)
 }
 
 #' Get location name from location code
@@ -359,7 +259,7 @@ GetLocationName <- function(location, norwayLocations) {
     }
   }
 
-  return(locationName)
+  return(locationName[1])
 }
 
 #' Finds county from municipality

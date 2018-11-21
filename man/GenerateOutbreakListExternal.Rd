@@ -7,9 +7,7 @@
 GenerateOutbreakListExternal(df = readRDS(fhi::DashboardFolder("results",
   "resYearLine.RDS")), dk = readRDS(fhi::DashboardFolder("results",
   "resYearLineMunicip.RDS")), saveFiles = fhi::DashboardFolder("results",
-  "outbreaks_alert_external.RDS"),
-  alerts = readxl::read_excel(file.path("/etc", "gmailr",
-  "emails_sykdomspuls_alert.xlsx")))
+  "outbreaks_alert_external.RDS"), alerts = GetAlertsEmails())
 }
 \arguments{
 \item{df}{Data inside resYearLine.RDS}

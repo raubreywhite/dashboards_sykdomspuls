@@ -21,7 +21,7 @@ GenerateOutbreakListInternal <- function(df = readRDS(fhi::DashboardFolder("resu
   location <- NULL
   locationName <- NULL
   zscore <- NULL
-  type <- NULL
+  tag <- NULL
   cumE1 <- NULL
   meanZScore <- NULL
   sumCum <- NULL
@@ -32,8 +32,8 @@ GenerateOutbreakListInternal <- function(df = readRDS(fhi::DashboardFolder("resu
   counties <- unique(df[, c("location", "locationName"), with = F])
   setnames(counties, c("county", "countyName"))
 
-  df <- df[, c("wkyr", "age", "type", "locationName", "status", "zscore", "cumE1"), with = F]
-  dk <- dk[, c("wkyr", "age", "type", "location", "locationName", "status", "county", "zscore", "cumE1"), with = F]
+  df <- df[, c("wkyr", "age", "tag", "locationName", "status", "zscore", "cumE1"), with = F]
+  dk <- dk[, c("wkyr", "age", "tag", "location", "locationName", "status", "county", "zscore", "cumE1"), with = F]
   dk <- merge(dk, counties, by = "county")
 
   setorder(df, status, -wkyr, -age)
@@ -57,7 +57,7 @@ GenerateOutbreakListInternal <- function(df = readRDS(fhi::DashboardFolder("resu
   ), by = .(
     wkyr,
     age,
-    type
+    tag
   )]
   df1[, zscore := NULL]
   df1[, cumE1 := NULL]
@@ -68,17 +68,17 @@ GenerateOutbreakListInternal <- function(df = readRDS(fhi::DashboardFolder("resu
   ), by = .(
     wkyr,
     age,
-    type
+    tag
   )]
   df3 <- df[stringr::str_detect(locationName, "Norge"), .(
     sumCumNorge = sum(cumE1)
   ), by = .(
     wkyr,
     age,
-    type
+    tag
   )]
-  df <- merge(df1, df2, by = c("wkyr", "age", "type"), all.x = T)
-  df <- merge(df, df3, by = c("wkyr", "age", "type"), all.x = T)
+  df <- merge(df1, df2, by = c("wkyr", "age", "tag"), all.x = T)
+  df <- merge(df, df3, by = c("wkyr", "age", "tag"), all.x = T)
   df[is.na(meanZScore), meanZScore := 0]
   df[is.na(sumCum), sumCum := 0]
   df[is.na(sumCumNorge), sumCumNorge := 0]
@@ -95,7 +95,7 @@ GenerateOutbreakListInternal <- function(df = readRDS(fhi::DashboardFolder("resu
   ), by = .(
     wkyr,
     age,
-    type,
+    tag,
     county,
     countyName
   )]
@@ -108,10 +108,10 @@ GenerateOutbreakListInternal <- function(df = readRDS(fhi::DashboardFolder("resu
   ), by = .(
     wkyr,
     age,
-    type,
+    tag,
     county
   )]
-  dk <- merge(dk1, dk2, by = c("wkyr", "age", "type", "county"), all.x = T)
+  dk <- merge(dk1, dk2, by = c("wkyr", "age", "tag", "county"), all.x = T)
   dk[is.na(meanZScore), meanZScore := 0]
   dk[is.na(sumCum), sumCum := 0]
   dk[, meanZScore := formatC(meanZScore, digits = 2, format = "f")]
@@ -122,25 +122,25 @@ GenerateOutbreakListInternal <- function(df = readRDS(fhi::DashboardFolder("resu
   df[, locationName := gsub(", , ", "", locationName)]
   df[, locationName := gsub(", $", "", locationName)]
   df[, locationName := gsub("^, ", "", locationName)]
-  setorder(df, type, -wkyr, -age)
+  setorder(df, tag, -wkyr, -age)
   setnames(df, "locationName", "High")
 
   df[, age := factor(age, levels = c("Totalt", "0-4", "5-14", "15-19", "20-29", "30-64", "65+"))]
-  setorder(df, type, -wkyr, age)
-  setcolorder(df, c("type", "wkyr", "age", "High", "meanZScore", "sumCum"))
+  setorder(df, tag, -wkyr, age)
+  setcolorder(df, c("tag", "wkyr", "age", "High", "meanZScore", "sumCum"))
 
   dk[, locationName := gsub(", , ", "", locationName)]
   dk[, locationName := gsub(", $", "", locationName)]
   dk[, locationName := gsub("^, ", "", locationName)]
   dk[, age := factor(age, levels = c("Totalt", "0-4", "5-14", "15-19", "20-29", "30-64", "65+"))]
-  setorder(dk, type, -wkyr, age, county)
+  setorder(dk, tag, -wkyr, age, county)
   dk[, county := NULL]
-  setcolorder(dk, c("type", "wkyr", "age", "countyName", "locationName", "meanZScore", "sumCum"))
+  setcolorder(dk, c("tag", "wkyr", "age", "countyName", "locationName", "meanZScore", "sumCum"))
   setnames(dk, "locationName", "High")
 
   outbreaks <- list(df = df, dk = dk)
   if (!is.null(saveFiles)) {
-    SaveData(outbreaks, saveFiles)
+    SaveRDS(outbreaks, saveFiles)
   } else {
     return(outbreaks)
   }
@@ -158,19 +158,20 @@ GenerateOutbreakListInternal <- function(df = readRDS(fhi::DashboardFolder("resu
 GenerateOutbreakListExternal <- function(df = readRDS(fhi::DashboardFolder("results", "resYearLine.RDS")),
                                          dk = readRDS(fhi::DashboardFolder("results", "resYearLineMunicip.RDS")),
                                          saveFiles = fhi::DashboardFolder("results", "outbreaks_alert_external.RDS"),
-                                         alerts = readxl::read_excel(file.path("/etc", "gmailr", "emails_sykdomspuls_alert.xlsx"))) {
+                                         alerts = GetAlertsEmails()) {
   # variables used in data.table functions in this function
   . <- NULL
   status <- NULL
   displayDay <- NULL
   email <- NULL
   age <- NULL
-  type <- NULL
+  tag <- NULL
   location <- NULL
+  alertExternal <- NULL
   # end
 
-  df <- df[displayDay == max(displayDay) & type %in% CONFIG$SYNDROMES_ALERT_EXTERNAL]
-  dk <- dk[displayDay == max(displayDay) & type %in% CONFIG$SYNDROMES_ALERT_EXTERNAL]
+  df <- df[displayDay == max(displayDay) & tag %in% CONFIG$SYNDROMES[alertExternal==T]$tag]
+  dk <- dk[displayDay == max(displayDay) & tag %in% CONFIG$SYNDROMES[alertExternal==T]$tag]
 
   resultsk <- resultsf <- list()
   for (i in 1:nrow(alerts)) {
@@ -184,16 +185,16 @@ GenerateOutbreakListExternal <- function(df = readRDS(fhi::DashboardFolder("resu
   resultsf <- rbindlist(resultsf)
   resultsk <- rbindlist(resultsk)
 
-  resultsf[, age := factor(age, levels = CONFIG$AGES)]
-  setorder(resultsf, type, location, age)
+  resultsf[, age := factor(age, levels = names(CONFIG$AGES))]
+  setorder(resultsf, tag, location, age)
 
-  resultsk[, age := factor(age, levels = CONFIG$AGES)]
-  setorder(resultsk, type, location, age)
+  resultsk[, age := factor(age, levels = names(CONFIG$AGES))]
+  setorder(resultsk, tag, location, age)
 
   results <- rbind(resultsf, resultsk, fill = T)
 
   if (!is.null(saveFiles)) {
-    SaveData(results, saveFiles)
+    SaveRDS(results, saveFiles)
   } else {
     return(results)
   }
