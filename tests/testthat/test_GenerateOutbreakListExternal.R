@@ -13,7 +13,7 @@ test_that("Basic example", {
 
   alerts <- data.table(email = "richardaubrey.white@fhi.no", location = "municip0301")
 
-  res <- GenOutbreakListExternal(
+  res <- GenerateOutbreakListExternal(
     df = df,
     dk = dk,
     saveFiles = NULL,
