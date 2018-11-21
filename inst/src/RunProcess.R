@@ -17,8 +17,8 @@ if (!UpdateData()) {
 }
 DeleteOldDatasets()
 
-if(!fhi::DashboardIsDev()){
-  fhi::DashboardMsg("Registering cluster", newLine=T)
+if (!fhi::DashboardIsDev()) {
+  fhi::DashboardMsg("Registering cluster", newLine = T)
   cl <- makeCluster(parallel::detectCores())
   registerDoSNOW(cl)
 }
@@ -27,13 +27,13 @@ for (i in 1:nrow(sykdomspuls::CONFIG$SYNDROMES)) {
   conf <- sykdomspuls::CONFIG$SYNDROMES[i]
   fhi::DashboardMsg(conf$tag)
 
-  stackAndData <- StackAndEfficientDataForAnalysis(conf=conf)
+  stackAndData <- StackAndEfficientDataForAnalysis(conf = conf)
   data <- stackAndData$data
   stack <- stackAndData$analyses
 
-  if (i==1) {
+  if (i == 1) {
     fhi::DashboardMsg("Initializing progress bar")
-    PBInitialize(n=nrow(stack) * nrow(sykdomspuls::CONFIG$SYNDROMES))
+    PBInitialize(n = nrow(stack) * nrow(sykdomspuls::CONFIG$SYNDROMES))
   }
 
   fhi::DashboardMsg("Setting keys for binary search")
@@ -46,8 +46,8 @@ for (i in 1:nrow(sykdomspuls::CONFIG$SYNDROMES)) {
     }
 
     exceptionalFunction <- function(err) {
-      fhi::DashboardMsg(err,syscallsDepth = 10, newLine=T)
-      fhi::DashboardMsg(analysisIter$stack, newLine=T)
+      fhi::DashboardMsg(err, syscallsDepth = 10, newLine = T)
+      fhi::DashboardMsg(analysisIter$stack, newLine = T)
     }
 
     analysesStack <- analysisIter$stack
@@ -67,17 +67,17 @@ for (i in 1:nrow(sykdomspuls::CONFIG$SYNDROMES)) {
   res[location %in% CONFIG$smallMunicips & age != "Totalt", threshold2 := 5 ]
   res[location %in% CONFIG$smallMunicips & age != "Totalt", threshold4 := 10 ]
 
-  fhi::DashboardMsg("Saving files", newLine=T)
-  for(f in unique(res$file)){
-    fhi::DashboardMsg(sprintf("Saving file %s",f))
-    saveRDS(res[file==f], file=fhi::DashboardFolder("results", f))
+  fhi::DashboardMsg("Saving files", newLine = T)
+  for (f in unique(res$file)) {
+    fhi::DashboardMsg(sprintf("Saving file %s", f))
+    saveRDS(res[file == f], file = fhi::DashboardFolder("results", f))
   }
 
   rm("res", "data", "stackAndData")
 }
 
-if(!fhi::DashboardIsDev()){
-  fhi::DashboardMsg("Stopping cluster", newLine=T)
+if (!fhi::DashboardIsDev()) {
+  fhi::DashboardMsg("Stopping cluster", newLine = T)
   stopCluster(cl)
 }
 
@@ -103,6 +103,6 @@ cat("done", file = "/data_app/sykdomspuls/done.txt")
 EmailNotificationOfNewResults()
 
 fhi::DashboardMsg("Finished analyses and exiting")
-if(!fhi::DashboardIsDev()) quit(save = "no", status = 0)
+if (!fhi::DashboardIsDev()) quit(save = "no", status = 0)
 
-#dk = readRDS(fhi::DashboardFolder("results", "resYearLineMunicip.RDS"))
+# dk = readRDS(fhi::DashboardFolder("results", "resYearLineMunicip.RDS"))

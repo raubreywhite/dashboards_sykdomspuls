@@ -15,7 +15,7 @@ FormatDatasetDaily <- function(data) {
   return(data)
 }
 
-FormatDatasetWeekly <- function(data, weeklyDenominatorFunction=sum) {
+FormatDatasetWeekly <- function(data, weeklyDenominatorFunction = sum) {
   # variables used in data.table functions in this function
   . <- NULL
   n <- NULL
@@ -83,7 +83,7 @@ QuasipoissonTrainPredictData <- function(
                                          sign.level = 0.05,
                                          isDaily = TRUE,
                                          v = 1,
-                                         weeklyDenominatorFunction=sum) {
+                                         weeklyDenominatorFunction = sum) {
   # variables used in data.table functions in this function
   consult <- NULL
   n <- NULL
@@ -140,8 +140,8 @@ QuasipoissonTrainPredictData <- function(
   } else {
     regformula <- n ~ offset(log(denominator)) + trend + sin(2 * pi * (week - 1) / 52) + cos(2 * pi * (week - 1) / 52) + HelligdagIndikator
 
-    datasetTrain <- FormatDatasetWeekly(datasetTrain, weeklyDenominatorFunction=weeklyDenominatorFunction)
-    datasetPredict <- FormatDatasetWeekly(datasetPredict, weeklyDenominatorFunction=weeklyDenominatorFunction)
+    datasetTrain <- FormatDatasetWeekly(datasetTrain, weeklyDenominatorFunction = weeklyDenominatorFunction)
+    datasetPredict <- FormatDatasetWeekly(datasetPredict, weeklyDenominatorFunction = weeklyDenominatorFunction)
   }
 
   if (remove.pandemic.year == T) {
@@ -229,13 +229,12 @@ QuasipoissonTrainPredictData <- function(
   datasetPredict <- AddWkyrAndDisplayDateToWeekly(datasetPredict)
 
   if (isDaily) {
-    datasetPredict[,displayDay:=date]
+    datasetPredict[, displayDay := date]
   } else {
-    datasetPredict[,date:=displayDay]
+    datasetPredict[, date := displayDay]
   }
-  datasetPredict[, displayDay:=as.Date(displayDay)]
-  datasetPredict[, date:=as.Date(date)]
+  datasetPredict[, displayDay := as.Date(displayDay)]
+  datasetPredict[, date := as.Date(date)]
 
-  return(datasetPredict[,VARS$REQ_RESULTS_BASIC,with=F])
-
+  return(datasetPredict[, VARS$REQ_RESULTS_BASIC, with = F])
 }

@@ -178,8 +178,8 @@ GenerateOutbreakListExternal <- function(df = readRDS(fhi::DashboardFolder("resu
   alertExternal <- NULL
   # end
 
-  df <- df[displayDay == max(displayDay) & tag %in% CONFIG$SYNDROMES[alertExternal==T]$tag]
-  dk <- dk[displayDay == max(displayDay) & tag %in% CONFIG$SYNDROMES[alertExternal==T]$tag]
+  df <- df[displayDay == max(displayDay) & tag %in% CONFIG$SYNDROMES[alertExternal == T]$tag]
+  dk <- dk[displayDay == max(displayDay) & tag %in% CONFIG$SYNDROMES[alertExternal == T]$tag]
 
   resultsk <- resultsf <- list()
   for (i in 1:nrow(alerts)) {

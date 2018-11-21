@@ -1,6 +1,6 @@
 #' ResultsAggregateStack
 #' @export ResultsAggregateStack
-ResultsAggregateStack <- function(){
+ResultsAggregateStack <- function() {
   fileNameInput <- NULL
   fileType <- NULL
   tag <- NULL
@@ -10,8 +10,8 @@ ResultsAggregateStack <- function(){
   variable <- NULL
 
   files <- data.table(expand.grid(
-    "fileType"=c("resComparisons", "resRecentLine", "resYearLine", "resYearLineMunicip"),
-    "tag"=sykdomspuls::CONFIG$SYNDROMES$tag,
+    "fileType" = c("resComparisons", "resRecentLine", "resYearLine", "resYearLineMunicip"),
+    "tag" = sykdomspuls::CONFIG$SYNDROMES$tag,
     stringsAsFactors = F
   ))
   files[,fileNameInput:=fhi::DashboardFolder("results",
@@ -38,23 +38,22 @@ ResultsAggregateStack <- function(){
   ),
   value.name="fileNameOutput")
   files[,variable:=NULL]
-
   return(files)
 }
 
 #' ResultsAggregateApply
 #' @param stackFiles The file stack that chooses which files to aggregate
 #' @export ResultsAggregateApply
-ResultsAggregateApply <- function(stackFiles = ResultsAggregateStack()){
+ResultsAggregateApply <- function(stackFiles = ResultsAggregateStack()) {
   fileNameOutput <- NULL
 
-  for(fo in unique(stackFiles$fileNameOutput)){
-    fis <- stackFiles[fileNameOutput==fo]$fileNameInput
-    res <- vector("list",length=length(fis))
-    for(i in seq_along(fis)){
+  for (fo in unique(stackFiles$fileNameOutput)) {
+    fis <- stackFiles[fileNameOutput == fo]$fileNameInput
+    res <- vector("list", length = length(fis))
+    for (i in seq_along(fis)) {
       res[[i]] <- readRDS(fis[i])
     }
     res <- rbindlist(res)
-    saveRDS(res,fo)
+    saveRDS(res, fo)
   }
 }

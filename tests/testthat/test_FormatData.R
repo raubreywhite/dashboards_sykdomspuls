@@ -61,7 +61,7 @@ test_that("Basic Oslo", {
   expectedRes[age == "Totalt", pop := 600]
   expectedRes[, county := "county03"]
   expectedRes[, HelligdagIndikator := 0]
-  expectedRes[, granularityGeo:="municip"]
+  expectedRes[, granularityGeo := "municip"]
   setcolorder(expectedRes, VARS$REQ_DATA_CLEAN)
   setkey(expectedRes, location, age, date)
   setkey(res, location, age, date)
@@ -82,7 +82,7 @@ test_that("Sandefjord joining together", {
     testIfHelligdagIndikatorFileIsOutdated = FALSE,
     removeMunicipsWithoutConsults = TRUE
   )
-  res <- res[granularityGeo=="municip"]
+  res <- res[granularityGeo == "municip"]
 
   testthat::expect_equal(unique(res$location), "municip0710")
 })

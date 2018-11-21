@@ -6,7 +6,7 @@
 #' @export IdentifyAllDatasets
 IdentifyAllDatasets <-
   function(raw = list.files(fhi::DashboardFolder("data_raw"), "^partially_formatted_"),
-           clean = list.files(fhi::DashboardFolder("data_clean"), "done_")) {
+             clean = list.files(fhi::DashboardFolder("data_clean"), "done_")) {
     # variables used in data.table functions in this function
     id <- isRaw <- isClean <- NULL
     # end
@@ -35,7 +35,7 @@ IdentifyAllDatasets <-
 #' @export DeleteOldDatasets
 DeleteOldDatasets <-
   function(raw = list.files(fhi::DashboardFolder("data_raw"), "^partially_formatted_"),
-           clean = list.files(fhi::DashboardFolder("data_clean"), "done_")) {
+             clean = list.files(fhi::DashboardFolder("data_clean"), "done_")) {
     res <- IdentifyAllDatasets(raw = raw, clean = clean)
     if (nrow(res) > 0) {
       res <- res[-nrow(res)]
@@ -57,10 +57,11 @@ DeleteOldDatasets <-
 #' @export IdentifyDatasets
 IdentifyDatasets <-
   function(raw = list.files(fhi::DashboardFolder("data_raw"), "^partially_formatted_"),
-           clean = list.files(fhi::DashboardFolder("data_clean"), "done_")) {
+             clean = list.files(fhi::DashboardFolder("data_clean"), "done_")) {
     res <- IdentifyAllDatasets(raw = raw, clean = clean)
-    if (nrow(res) > 0)
+    if (nrow(res) > 0) {
       res <- res[nrow(res)]
+    }
 
     return(res)
   }
@@ -130,8 +131,9 @@ UpdateData <- function() {
   # end
 
   files <- IdentifyDatasets()
-  if (!fhi::DashboardIsDev())
+  if (!fhi::DashboardIsDev()) {
     files <- files[is.na(isClean)]
+  }
   if (nrow(files) == 0) {
     fhi::DashboardMsg("No new data")
     return(FALSE)
@@ -146,7 +148,7 @@ UpdateData <- function() {
 
   d <- fread(fhi::DashboardFolder("data_raw", files$raw))
   d[, date := data.table::as.IDate(date)]
-  d[,respiratory:=NULL]
+  d[, respiratory := NULL]
 
   for (i in 1:nrow(CONFIG$SYNDROMES)) {
     conf <- CONFIG$SYNDROMES[i]
@@ -154,7 +156,8 @@ UpdateData <- function() {
 
 
     res <- CleanData(copy(d[Kontaktype %in% conf$contactType[[1]]]),
-                      syndrome = conf$syndrome)
+      syndrome = conf$syndrome
+    )
     saveRDS(res, file = fhi::DashboardFolder(
       "data_clean",
       sprintf(
@@ -167,5 +170,4 @@ UpdateData <- function() {
 
   fhi::DashboardMsg("New data is now formatted and ready")
   return(TRUE)
-
 }

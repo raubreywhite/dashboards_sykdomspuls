@@ -28,7 +28,7 @@ CONFIG <- new.env(parent = emptyenv())
 CONFIG$VERSION <- 1
 CONFIG$VERSIONS <- 1:2
 CONFIG$SYNDROMES <- data.table(
-  tag=c(
+  tag = c(
     "influensa",
     "gastro",
     "respiratoryinternal",
@@ -38,7 +38,7 @@ CONFIG$SYNDROMES <- data.table(
     "consultWithInfluensa",
     "consultWithoutInfluensa"
   ),
-  syndrome=c(
+  syndrome = c(
     "influensa",
     "gastro",
     "respiratoryinternal",
@@ -48,7 +48,7 @@ CONFIG$SYNDROMES <- data.table(
     "consultWithInfluensa",
     "consultWithoutInfluensa"
   ),
-  alertInternal=c(
+  alertInternal = c(
     TRUE,
     TRUE,
     TRUE,
@@ -58,7 +58,7 @@ CONFIG$SYNDROMES <- data.table(
     FALSE,
     FALSE
   ),
-  alertExternal=c(
+  alertExternal = c(
     FALSE,
     TRUE,
     FALSE,
@@ -68,17 +68,17 @@ CONFIG$SYNDROMES <- data.table(
     FALSE,
     FALSE
   ),
-  contactType=list(
+  contactType = list(
     "Legekontakt",
-    c("Legekontakt","Telefonkontakt"),
-    c("Legekontakt","Telefonkontakt"),
-    c("Legekontakt","Telefonkontakt"),
-    c("Legekontakt","Telefonkontakt"),
-    c("Legekontakt","Telefonkontakt"),
-    c("Legekontakt","Telefonkontakt"),
-    c("Legekontakt","Telefonkontakt")
+    c("Legekontakt", "Telefonkontakt"),
+    c("Legekontakt", "Telefonkontakt"),
+    c("Legekontakt", "Telefonkontakt"),
+    c("Legekontakt", "Telefonkontakt"),
+    c("Legekontakt", "Telefonkontakt"),
+    c("Legekontakt", "Telefonkontakt"),
+    c("Legekontakt", "Telefonkontakt")
   ),
-  syndromeOrConsult=c(
+  syndromeOrConsult = c(
     "syndrome",
     "syndrome",
     "syndrome",
@@ -88,7 +88,7 @@ CONFIG$SYNDROMES <- data.table(
     "consult",
     "consult"
   ),
-  denominator=c(
+  denominator = c(
     "consultWithInfluensa",
     "consultWithoutInfluensa",
     "consultWithoutInfluensa",
@@ -98,7 +98,7 @@ CONFIG$SYNDROMES <- data.table(
     "pop",
     "pop"
   ),
-  weeklyDenominatorFunction=c(
+  weeklyDenominatorFunction = c(
     sum,
     sum,
     sum,
@@ -108,7 +108,7 @@ CONFIG$SYNDROMES <- data.table(
     mean,
     mean
   ),
-  namesLong=c(
+  namesLong = c(
     "Influensa",
     "Mage-tarm diagnose",
     "\u00D8vre-luftvei diagnose",
@@ -118,7 +118,7 @@ CONFIG$SYNDROMES <- data.table(
     "consultWithInfluensa",
     "consultWithoutInfluensa"
   ),
-  namesShort=c(
+  namesShort = c(
     "Influensa",
     "Mage-tarm",
     "Luftvei",
@@ -135,13 +135,13 @@ names(CONFIG$tagsWithLong) <- CONFIG$SYNDROMES$namesLong
 
 
 CONFIG$AGES <- list(
-  "Totalt"=c(0:105),
-  "0-4"=c(0:4),
-  "5-14"=c(5:14),
-  "15-19"=c(15:19),
-  "20-29"=c(20:29),
-  "30-64"=c(30:64),
-  "65+"=c(65:105)
+  "Totalt" = c(0:105),
+  "0-4" = c(0:4),
+  "5-14" = c(5:14),
+  "15-19" = c(15:19),
+  "20-29" = c(20:29),
+  "30-64" = c(30:64),
+  "65+" = c(65:105)
 )
 
 CONFIG$smallMunicips <- c(
@@ -173,7 +173,7 @@ VARS$REQ_DATA_RAW <- c(
   "Kontaktype",
   "Praksis",
   "municip",
-  unique(CONFIG$SYNDROMES[syndromeOrConsult=="syndrome"]$syndrome),
+  unique(CONFIG$SYNDROMES[syndromeOrConsult == "syndrome"]$syndrome),
   "consult"
 )
 
@@ -235,11 +235,11 @@ VARS$REQ_RESULTS_FULL <- c(
 
 #' List of municipalities and counties
 #' @export norwayLocations
-norwayLocations <- readRDS(system.file("createddata","norwayLocations.RDS",package="sykdomspuls"))
+norwayLocations <- readRDS(system.file("createddata", "norwayLocations.RDS", package = "sykdomspuls"))
 
 #' List of municipality merging over time
 #' @export norwayMunicipMerging
-norwayMunicipMerging <- readRDS(system.file("createddata","norwayMunicipMerging.RDS",package="sykdomspuls"))
+norwayMunicipMerging <- readRDS(system.file("createddata", "norwayMunicipMerging.RDS", package = "sykdomspuls"))
 
 #' The last date for each isoweek
 #' @export displayDays
