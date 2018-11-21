@@ -2,11 +2,11 @@ if (.Platform$OS.type == "unix") {
   if (Sys.getenv("RSTUDIO") == "1") {
     HOME <- "/git/dashboards/dashboards_sykdomspuls/inst/src"
     PLUMB <- "plumb"
-    DATA <- "/data_app/sykdomspuls"
+    DATA <- "/results/sykdomspuls/externalapi/"
   } else {
     HOME <- "/r/sykdomspuls/src"
     PLUMB <- "plumb"
-    DATA <- "/data_app/sykdomspuls"
+    DATA <- "/results/sykdomspuls/externalapi/"
   }
 } else {
   HOME <- "C:/Sykdomspulsen"

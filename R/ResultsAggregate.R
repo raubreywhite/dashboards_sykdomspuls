@@ -6,6 +6,7 @@ ResultsAggregateStack <- function() {
   tag <- NULL
   fileNameOutput1 <- NULL
   fileNameOutput2 <- NULL
+  fileNameOutput3 <- NULL
   variable <- NULL
 
   files <- data.table(expand.grid(
@@ -13,38 +14,30 @@ ResultsAggregateStack <- function() {
     "tag" = sykdomspuls::CONFIG$SYNDROMES$tag,
     stringsAsFactors = F
   ))
-  files[, fileNameInput := fhi::DashboardFolder(
-    "results",
-    sprintf(
-      "%s_%s.RDS",
-      fileType,
-      tag
-    )
-  )]
-  files[, fileNameOutput1 := fhi::DashboardFolder(
-    "results",
-    sprintf(
-      "%s.RDS",
-      fileType
-    )
-  )]
-  files[, fileNameOutput2 := fhi::DashboardFolder(
-    "data_app",
-    sprintf(
-      "%s.RDS",
-      fileType
-    )
-  )]
-  files <- melt.data.table(files,
-    id.vars = c(
-      "fileType",
-      "tag",
-      "fileNameInput"
-    ),
-    value.name = "fileNameOutput"
-  )
-  files[, variable := NULL]
-
+  files[,fileNameInput:=fhi::DashboardFolder("results",
+                                             sprintf("%s_%s.RDS",
+                                                     fileType,
+                                                     tag
+                                             ))]
+  files[,fileNameOutput1:=fhi::DashboardFolder("results",
+                                               sprintf("%s.RDS",
+                                                       fileType
+                                               ))]
+  files[,fileNameOutput2:=fhi::DashboardFolder("data_app",
+                                               sprintf("%s.RDS",
+                                                       fileType
+                                               ))]
+  files[,fileNameOutput3:=fhi::DashboardFolder("results",
+                                               sprintf("externalapi/%s.RDS",
+                                                       fileType
+                                               ))]
+  files <- melt.data.table(files,id.vars=c(
+    "fileType",
+    "tag",
+    "fileNameInput"
+  ),
+  value.name="fileNameOutput")
+  files[,variable:=NULL]
   return(files)
 }
 

@@ -7,7 +7,8 @@
 GenerateOutbreakListInternal(df = readRDS(fhi::DashboardFolder("results",
   "resYearLine.RDS")), dk = readRDS(fhi::DashboardFolder("results",
   "resYearLineMunicip.RDS")), saveFiles = c(fhi::DashboardFolder("results",
-  "outbreaks.RDS"), fhi::DashboardFolder("data_app", "outbreaks.RDS")))
+  "outbreaks.RDS"), fhi::DashboardFolder("data_app", "outbreaks.RDS")),
+  useType = FALSE)
 }
 \arguments{
 \item{df}{Data inside resYearLine.RDS}
@@ -15,6 +16,8 @@ GenerateOutbreakListInternal(df = readRDS(fhi::DashboardFolder("results",
 \item{dk}{Data inside resYearLineMunicip.RDS}
 
 \item{saveFiles}{Where are you saving the outbreak lists?}
+
+\item{useType}{Use type or tag as variable name}
 }
 \description{
 Generates the internal outbreak list

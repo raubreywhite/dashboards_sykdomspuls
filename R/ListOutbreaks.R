@@ -2,6 +2,7 @@
 #' @param df Data inside resYearLine.RDS
 #' @param dk Data inside resYearLineMunicip.RDS
 #' @param saveFiles Where are you saving the outbreak lists?
+#' @param useType Use type or tag as variable name
 #' @import data.table
 #' @import fhi
 #' @import stringr
@@ -11,7 +12,9 @@ GenerateOutbreakListInternal <- function(df = readRDS(fhi::DashboardFolder("resu
                                          saveFiles = c(
                                            fhi::DashboardFolder("results", "outbreaks.RDS"),
                                            fhi::DashboardFolder("data_app", "outbreaks.RDS")
-                                         )) {
+                                         ),
+                                         useType=FALSE
+                                         ) {
   # variables used in data.table functions in this function
   . <- NULL
   status <- NULL
@@ -137,6 +140,11 @@ GenerateOutbreakListInternal <- function(df = readRDS(fhi::DashboardFolder("resu
   dk[, county := NULL]
   setcolorder(dk, c("tag", "wkyr", "age", "countyName", "locationName", "meanZScore", "sumCum"))
   setnames(dk, "locationName", "High")
+
+  if(useType){
+    setnames(df,"tag","type")
+    setnames(dk,"tag","type")
+  }
 
   outbreaks <- list(df = df, dk = dk)
   if (!is.null(saveFiles)) {
