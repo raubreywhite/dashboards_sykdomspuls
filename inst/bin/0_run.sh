@@ -18,8 +18,8 @@ COMPUTER=$(cat /tmp/computer)
   if [ $? -eq 0 ] ; then
     if [ "$COMPUTER" == "smhb" ] ; then
       echo "`date +%Y-%m-%d` `date +%H:%M:%S`/$COMPUTER/BASH/SYKDOMSPULS NCFTPPUT"
-      ncftpput -R -v -u "sykdomspulsen.fhi.no|data" -p $SYKDOMSPULS_PROD sykdomspulsen.fhi.no /data/ /data_app/sykdomspuls/*.RDS
-      ncftpput -R -v -u "sykdomspulsen-test.fhi.no|data" -p $SYKDOMSPULS_TEST sykdomspulsen-test.fhi.no /data/ /data_app/sykdomspuls/*.RDS
+      ncftpput -R -v -u "sykdomspulsen.fhi.no|data" -p $SYKDOMSPULS_PROD sykdomspulsen.fhi.no /data/ /results/sykdomspuls/externalapi/*.RDS
+      ncftpput -R -v -u "sykdomspulsen-test.fhi.no|data" -p $SYKDOMSPULS_TEST sykdomspulsen-test.fhi.no /data/ /results/sykdomspuls/externalapi/*.RDS
 
       echo "`date +%Y-%m-%d` `date +%H:%M:%S`/$COMPUTER/BASH/SYKDOMSPULS TRYING TO DELETE WEBSITE DATA TOKEN"
       /r/sykdomspuls/bin/1_delete_website_token.sh

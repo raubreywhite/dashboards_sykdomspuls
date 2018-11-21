@@ -6,6 +6,7 @@ ResultsAggregateStack <- function(){
   tag <- NULL
   fileNameOutput1 <- NULL
   fileNameOutput2 <- NULL
+  fileNameOutput3 <- NULL
   variable <- NULL
 
   files <- data.table(expand.grid(
@@ -24,6 +25,10 @@ ResultsAggregateStack <- function(){
                                                ))]
   files[,fileNameOutput2:=fhi::DashboardFolder("data_app",
                                                sprintf("%s.RDS",
+                                                       fileType
+                                               ))]
+  files[,fileNameOutput3:=fhi::DashboardFolder("results",
+                                               sprintf("externalapi/%s.RDS",
                                                        fileType
                                                ))]
   files <- melt.data.table(files,id.vars=c(
