@@ -76,7 +76,7 @@ fhi::DashboardInitialiseOpinionated("sykdomspuls")
 
 # check internal email works
 res <- tryCatch(
-  EmailInternal(isTest = TRUE),
+  EmailInternal(),
   warning = function(war) {
     print(war)
     return(-1)
@@ -98,7 +98,6 @@ if (res == 0) {
 res <- tryCatch(
   EmailExternal(
     alerts = sykdomspuls::GetAlertsEmails(),
-    isTest = TRUE,
     forceNoOutbreak = TRUE
   ),
   warning = function(war) {
@@ -121,7 +120,6 @@ if (res == 0) {
 res <- tryCatch(
   EmailExternal(
     alerts = sykdomspuls::GetAlertsEmails(),
-    isTest = TRUE,
     forceYesOutbreak = TRUE
   ),
   warning = function(war) {
@@ -143,8 +141,7 @@ if (res == 0) {
 
 res <- tryCatch(
   EmailNotificationOfNewData(
-    files = "test_file_name.txt",
-    isTest = TRUE
+    files = "test_file_name.txt"
   ),
   warning = function(war) {
     print(war)
