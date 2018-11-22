@@ -19,6 +19,6 @@ to the dataset \code{data} as the variables \code{wkyr} and \code{displayDay}.
 }
 \examples{
 library(data.table)
-d <- data.table(year=2015,week=1:10)
+d <- data.table(year = 2015, week = 1:10)
 AddWkyrAndDisplayDateToWeekly(d)
 }
