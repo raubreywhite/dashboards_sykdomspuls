@@ -376,46 +376,45 @@ EmailNotificationOfFailedResults <- function() {
 
 #' Email notification of comparison between NorMOMO and Influensa
 #' @export EmailNorMOMOInfluensa
-EmailNorMOMOInfluensa <- function(){
-
-  files <- list.files(fhi::DashboardFolder("data_raw","normomo"))
-  nor <- vector("list",length=length(files))
-  for(i in seq_along(nor)){
-    nor[[i]] <- readRDS(file.path(fhi::DashboardFolder("data_raw","normomo"),files[i]))
-    nor[[i]][,x:=files[i]]
+EmailNorMOMOInfluensa <- function() {
+  files <- list.files(fhi::DashboardFolder("data_raw", "normomo"))
+  nor <- vector("list", length = length(files))
+  for (i in seq_along(nor)) {
+    nor[[i]] <- readRDS(file.path(fhi::DashboardFolder("data_raw", "normomo"), files[i]))
+    nor[[i]][, x := files[i]]
   }
-  nor <- rbindlist(nor)[GROUP=="Total"]
-  nor[,location:=sprintf("county%s",stringr::str_extract(x,"[0-9][0-9]"))]
-  nor[location=="countyNA",location:="Norge"]
-  nor[,x:=NULL]
-  setnames(nor,"zscore","zscore_inf")
+  nor <- rbindlist(nor)[GROUP == "Total"]
+  nor[, location := sprintf("county%s", stringr::str_extract(x, "[0-9][0-9]"))]
+  nor[location == "countyNA", location := "Norge"]
+  nor[, x := NULL]
+  setnames(nor, "zscore", "zscore_inf")
 
-  inf <- readRDS(fhi::DashboardFolder("results","resYearLine_influensa.RDS"))[age=="Totalt"]
-  setnames(inf,"zscore","zscore_death")
+  inf <- readRDS(fhi::DashboardFolder("results", "resYearLine_influensa.RDS"))[age == "Totalt"]
+  setnames(inf, "zscore", "zscore_death")
 
   nrow(inf)
-  inf <- merge(inf,nor,by.x=c("location","wkyr"),by.y=c("location","wk2"))
+  inf <- merge(inf, nor, by.x = c("location", "wkyr"), by.y = c("location", "wk2"))
   nrow(inf)
-  inf[,season:=sprintf("%s/%s",year-1,year)]
-  inf[week>=30,season:=sprintf("%s/%s",year,year+1)]
+  inf[, season := sprintf("%s/%s", year - 1, year)]
+  inf[week >= 30, season := sprintf("%s/%s", year, year + 1)]
 
-  breaks <- unique(inf[season==max(season),c("wkyr","x")])
-  breaks <- breaks[seq(1,.N,2)]
+  breaks <- unique(inf[season == max(season), c("wkyr", "x")])
+  breaks <- breaks[seq(1, .N, 2)]
 
-  q <- ggplot(inf[season==max(season)], aes(x=x))
-  q <- q + geom_ribbon(ymin=-Inf,ymax=2,fill="#91bfdb",alpha=0.4)
-  q <- q + geom_ribbon(ymin=2,ymax=Inf,fill="#fc8d59",alpha=0.4)
-  q <- q + geom_line(aes(y=zscore_death),lwd=1.5)
-  q <- q + geom_line(aes(y=zscore_inf),lwd=1.5)
-  q <- q + geom_line(aes(y=zscore_death,colour="Death"),lwd=1.25)
-  q <- q + geom_line(aes(y=zscore_inf,colour="Influensa"),lwd=1.25)
-  q <- q + scale_colour_brewer("",palette="Set1")
+  q <- ggplot(inf[season == max(season)], aes(x = x))
+  q <- q + geom_ribbon(ymin = -Inf, ymax = 2, fill = "#91bfdb", alpha = 0.4)
+  q <- q + geom_ribbon(ymin = 2, ymax = Inf, fill = "#fc8d59", alpha = 0.4)
+  q <- q + geom_line(aes(y = zscore_death), lwd = 1.5)
+  q <- q + geom_line(aes(y = zscore_inf), lwd = 1.5)
+  q <- q + geom_line(aes(y = zscore_death, colour = "Death"), lwd = 1.25)
+  q <- q + geom_line(aes(y = zscore_inf, colour = "Influensa"), lwd = 1.25)
+  q <- q + scale_colour_brewer("", palette = "Set1")
   q <- q + scale_y_continuous("Z-Score")
-  q <- q + scale_x_continuous("",breaks=breaks$x,labels=breaks$wkyr)
+  q <- q + scale_x_continuous("", breaks = breaks$x, labels = breaks$wkyr)
   q <- q + theme(axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5))
   q <- q + facet_wrap(~locationName)
 
-  RAWmisc::saveA4(q,fhi::DashboardFolder("results","death_and_influensa.png"))
+  RAWmisc::saveA4(q, fhi::DashboardFolder("results", "death_and_influensa.png"))
 
 
   emailText <- sprintf("
@@ -432,11 +431,10 @@ To add or remove people to/from this notification list, send their details to ri
     "normomo_influensa",
     emailSubject = "NorMOMO and NorSySS Comparison",
     emailText,
-    emailAttachFiles = fhi::DashboardFolder("results","death_and_influensa.png"),
+    emailAttachFiles = fhi::DashboardFolder("results", "death_and_influensa.png"),
     emailFooter = FALSE,
     BCC = FALSE
   )
-
 }
 
 #' Email notification of new results

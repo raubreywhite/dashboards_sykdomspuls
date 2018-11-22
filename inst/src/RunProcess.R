@@ -110,6 +110,3 @@ fhi::DashboardMsg("Finished analyses and exiting")
 if (!fhi::DashboardIsDev()) quit(save = "no", status = 0)
 
 # dk = readRDS(fhi::DashboardFolder("results", "resYearLineMunicip.RDS"))
-
-
-
