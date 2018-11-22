@@ -161,6 +161,7 @@ setnames(outbreaks[["dk"]], c("type", "wkyr", "Sykdom", "Alder", "Fylke", "Kommu
 
 r <- plumb(file.path(PLUMB, "plumb.R"))
 r$run(host = "0.0.0.0", port = 8000)
+# curl http://localhost:8000/v1_0_DataWeeklyOverviewKommune?xname=municip0301
 
 # curl http://localhost:8000/test?x=3
 
