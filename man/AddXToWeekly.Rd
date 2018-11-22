@@ -18,6 +18,6 @@ to the dataset \code{data} as the variable \code{x}.
 }
 \examples{
 library(data.table)
-d <- data.table(week=1:52)
+d <- data.table(week = 1:52)
 AddXToWeekly(d)
 }

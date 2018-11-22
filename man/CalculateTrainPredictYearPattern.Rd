@@ -38,7 +38,7 @@ only be used for 1 subsequent year of outbreak detection
 through the \code{numPerYear1} parameter.
 }
 \examples{
-sykdomspuls::CalculateTrainPredictYearPattern(2000,2015,1)
+sykdomspuls::CalculateTrainPredictYearPattern(2000, 2015, 1)
 
-sykdomspuls::CalculateTrainPredictYearPattern(2000,2015,3)
+sykdomspuls::CalculateTrainPredictYearPattern(2000, 2015, 3)
 }

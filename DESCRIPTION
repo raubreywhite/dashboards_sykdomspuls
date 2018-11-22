@@ -20,6 +20,10 @@ Imports:
   zoo,
   iterators,
   ggplot2,
+  dplyr,
+  pool,
+  RMariaDB,
+  plumber,
   RAWmisc
 Suggests: testthat,
     knitr,

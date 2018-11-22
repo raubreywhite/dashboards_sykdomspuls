@@ -109,6 +109,7 @@ reference:
     These functions are related to the shiny dashboard
   contents:
   - RunShiny
+  - SaveShinyAppDataToDB
 - title: Helper Functions
   desc: >
     These functions are helper functions

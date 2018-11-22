@@ -93,6 +93,9 @@ GenerateOutbreakListInternal(
 )
 GenerateOutbreakListExternal()
 
+fhi::DashboardMsg("Send data to DB")
+SaveShinyAppDataToDB()
+
 # Done with analyses
 fhi::DashboardMsg("Done with all analyses")
 
