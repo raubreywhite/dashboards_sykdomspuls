@@ -6,6 +6,7 @@ suppressMessages(library(doSNOW))
 suppressMessages(library(iterators))
 
 if (!dir.exists(fhi::DashboardFolder("results", "externalapi"))) dir.create(fhi::DashboardFolder("results", "externalapi"))
+if (!dir.exists(fhi::DashboardFolder("data_raw", "normomo"))) dir.create(fhi::DashboardFolder("data_raw", "normomo"))
 
 SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("results", "config.RDS"))
 SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("data_app", "config.RDS"))
@@ -109,3 +110,6 @@ fhi::DashboardMsg("Finished analyses and exiting")
 if (!fhi::DashboardIsDev()) quit(save = "no", status = 0)
 
 # dk = readRDS(fhi::DashboardFolder("results", "resYearLineMunicip.RDS"))
+
+
+
