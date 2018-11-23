@@ -8,10 +8,12 @@ navbar:
       menu:
       - text: "Overview"
         href: articles/overview.html
-      - text: "Input data"
+      - text: "Input Data"
         href: articles/inputdata.html
       - text: "Signals"
         href: articles/signals.html
+      - text: "Sykdomsplus on Windows"
+        href: articles/sykdomspulsonwindows.html
     - text: "Reference"
       href: reference/
     - text: "Changelog"
