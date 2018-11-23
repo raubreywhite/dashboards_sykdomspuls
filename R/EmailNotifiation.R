@@ -376,6 +376,7 @@ EmailNotificationOfFailedResults <- function() {
 }
 
 #' Email notification of comparison between NorMOMO and Influensa
+#' @import ggplot2
 #' @export EmailNorMOMOInfluensa
 EmailNorMOMOInfluensa <- function() {
   files <- list.files(fhi::DashboardFolder("data_raw", "normomo"))
@@ -390,7 +391,7 @@ EmailNorMOMOInfluensa <- function() {
   nor[, x := NULL]
   setnames(nor, "zscore", "zscore_inf")
 
-  inf <- readRDS(fhi::DashboardFolder("results", "resYearLine_influensa.RDS"))[age == "Totalt"]
+  inf <- readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine_influensa.RDS", LatestRawID())))[age == "Totalt"]
   setnames(inf, "zscore", "zscore_death")
 
   nrow(inf)
@@ -415,7 +416,7 @@ EmailNorMOMOInfluensa <- function() {
   q <- q + theme(axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5))
   q <- q + facet_wrap(~locationName)
 
-  RAWmisc::saveA4(q, fhi::DashboardFolder("results", "death_and_influensa.png"))
+  RAWmisc::saveA4(q, fhi::DashboardFolder("results", sprintf("%s/death_and_influensa.png", LatestRawID())))
 
 
   emailText <- sprintf("
@@ -432,7 +433,7 @@ To add or remove people to/from this notification list, send their details to ri
     "normomo_influensa",
     emailSubject = "NorMOMO and NorSySS Comparison",
     emailText,
-    emailAttachFiles = fhi::DashboardFolder("results", "death_and_influensa.png"),
+    emailAttachFiles = fhi::DashboardFolder("results", sprintf("%s/death_and_influensa.png", LatestRawID())),
     emailFooter = FALSE,
     BCC = FALSE
   )

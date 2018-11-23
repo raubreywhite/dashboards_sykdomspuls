@@ -1,0 +1,31 @@
+---
+title: "Sykdomspuls on Windows"
+author: "Richard White"
+date: "2018-11-23"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+To install the `sykdomspuls` package you first need to edit your `.Rprofile` file. This can be done with the command `usethis::edit_r_profile()`.
+
+You will then add the following lines to your `.Rprofile`:
+
+```
+options(repos=structure(c(
+  CRAN="https://cran.rstudio.com",
+  FHI="https://folkehelseinstituttet.github.io/drat/",
+  RAW="https://raubreywhite.github.io/drat/"
+)))
+```
+
+Save this file and restart R/RStudio.
+
+You can then install `sykdomspuls`:
+
+```
+install.packages("sykdomspuls", type = "source")
+```
+

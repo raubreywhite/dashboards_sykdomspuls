@@ -5,9 +5,12 @@
 \title{Generates the external outbreak list}
 \usage{
 GenerateOutbreakListExternal(df = readRDS(fhi::DashboardFolder("results",
-  "resYearLine.RDS")), dk = readRDS(fhi::DashboardFolder("results",
-  "resYearLineMunicip.RDS")), saveFiles = fhi::DashboardFolder("results",
-  "outbreaks_alert_external.RDS"), alerts = GetAlertsEmails())
+  sprintf("\%s/resYearLine.RDS", LatestRawID()))),
+  dk = readRDS(fhi::DashboardFolder("results",
+  sprintf("\%s/resYearLineMunicip.RDS", LatestRawID()))),
+  saveFiles = fhi::DashboardFolder("results",
+  sprintf("\%s/outbreaks_alert_external.RDS", LatestRawID())),
+  alerts = GetAlertsEmails())
 }
 \arguments{
 \item{df}{Data inside resYearLine.RDS}

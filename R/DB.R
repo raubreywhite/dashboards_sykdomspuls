@@ -16,24 +16,24 @@ SaveShinyAppDataToDB <- function() {
   RMariaDB::dbExecute(db, "USE sykdomspuls")
 
   GLOBAL <- new.env(parent = emptyenv())
-  CONFIG_OLD <- readRDS("/data_app/sykdomspuls/config.RDS")
+  CONFIG_OLD <- ConvertConfigForAPI()
   GLOBAL$weeklyTypes <- GLOBAL$dailyTypes <- CONFIG_OLD$SYNDROMES[CONFIG_OLD$SYNDROMES %in% CONFIG_OLD$SYNDROMES_ALERT_INTERNAL]
   GLOBAL$weeklyAges <- GLOBAL$dailyAges <- CONFIG_OLD$AGES
 
-  resYearLine <- readRDS("/data_app/sykdomspuls/resYearLine.RDS")[type %in% GLOBAL$weeklyTypes]
+  resYearLine <- readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine.RDS",LatestRawID())))[type %in% GLOBAL$weeklyTypes]
   GLOBAL$dateMax <- max(resYearLine$displayDay)
   GLOBAL$dateMinRestrictedRecent <- GLOBAL$dateMax - 365
   GLOBAL$dateMinRestrictedLine <- GLOBAL$dateMax - 365 * 15
 
-  outbreaks <- readRDS("/data_app/sykdomspuls/outbreaks.RDS")
+  outbreaks <- readRDS(fhi::DashboardFolder("results", sprintf("%s/outbreaks.RDS",LatestRawID())))
   outbreaksDF <- outbreaks[["df"]][tag %in% GLOBAL$weeklyTypes]
   outbreaksDK <- outbreaks[["dk"]][tag %in% GLOBAL$weeklyTypes]
 
-  resRecentLine <- readRDS("/data_app/sykdomspuls/resRecentLine.RDS")[
+  resRecentLine <- readRDS(fhi::DashboardFolder("results", sprintf("%s/resRecentLine.RDS",LatestRawID())))[
     date >= GLOBAL$dateMinRestrictedRecent & date <= GLOBAL$dateMax &
       tag %in% GLOBAL$weeklyTypes
   ]
-  resYearLineMunicip <- readRDS("/data_app/sykdomspuls/resYearLineMunicip.RDS")[
+  resYearLineMunicip <- readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLineMunicip.RDS",LatestRawID())))[
     displayDay >= GLOBAL$dateMinRestrictedLine & displayDay <= GLOBAL$dateMax &
       tag %in% GLOBAL$weeklyTypes
   ]

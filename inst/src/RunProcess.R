@@ -6,6 +6,7 @@ suppressMessages(library(doSNOW))
 suppressMessages(library(iterators))
 
 if (!dir.exists(fhi::DashboardFolder("results", "externalapi"))) dir.create(fhi::DashboardFolder("results", "externalapi"))
+if (!dir.exists(fhi::DashboardFolder("results", LatestRawID()))) dir.create(fhi::DashboardFolder("results",  LatestRawID()))
 if (!dir.exists(fhi::DashboardFolder("data_raw", "normomo"))) dir.create(fhi::DashboardFolder("data_raw", "normomo"))
 
 SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("results", "config.RDS"))
@@ -71,7 +72,7 @@ for (i in 1:nrow(sykdomspuls::CONFIG$SYNDROMES)) {
   fhi::DashboardMsg("Saving files", newLine = T)
   for (f in unique(res$file)) {
     fhi::DashboardMsg(sprintf("Saving file %s", f))
-    saveRDS(res[file == f], file = fhi::DashboardFolder("results", f))
+    saveRDS(res[file == f], file = fhi::DashboardFolder("results", sprintf("%s/%s",LatestRawID(),f)))
   }
 
   rm("res", "data", "stackAndData")
