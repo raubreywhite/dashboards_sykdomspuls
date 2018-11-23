@@ -160,6 +160,26 @@ if (res == 0) {
   a$add_result("sykdomspuls", "EmailNotificationOfNewData", testthat::expectation("error", "Fail"))
 }
 
+res <- tryCatch(
+  EmailNorMOMOInfluensa(
+  ),
+  warning = function(war) {
+    print(war)
+    return(-1)
+  },
+  error = function(err) {
+    print(err)
+    return(-1)
+  }
+)
+if (res == 0) {
+  cat("\n**PASS 9**\n")
+  a$add_result("sykdomspuls", "EmailNorMOMOInfluensa", testthat::expectation("success", "Pass"))
+} else {
+  cat("\n**FAIL 9**\n")
+  a$add_result("sykdomspuls", "EmailNorMOMOInfluensa", testthat::expectation("error", "Fail"))
+}
+
 
 a$end_context("sykdomspuls")
 a$end_reporter()

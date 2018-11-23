@@ -372,6 +372,7 @@ EmailNotificationOfFailedResults <- function() {
       emailText
     )
   }
+  return(0)
 }
 
 #' Email notification of comparison between NorMOMO and Influensa
@@ -435,6 +436,7 @@ To add or remove people to/from this notification list, send their details to ri
     emailFooter = FALSE,
     BCC = FALSE
   )
+  return(0)
 }
 
 #' Email notification of new results
