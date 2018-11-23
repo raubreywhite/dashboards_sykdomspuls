@@ -161,8 +161,7 @@ if (res == 0) {
 }
 
 res <- tryCatch(
-  EmailNorMOMOInfluensa(
-  ),
+  EmailNorMOMOInfluensa(),
   warning = function(war) {
     print(war)
     return(-1)
