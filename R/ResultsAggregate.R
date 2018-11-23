@@ -6,7 +6,6 @@ ResultsAggregateStack <- function() {
   tag <- NULL
   fileNameOutput1 <- NULL
   fileNameOutput2 <- NULL
-  fileNameOutput3 <- NULL
   variable <- NULL
 
   files <- data.table(expand.grid(
@@ -17,7 +16,8 @@ ResultsAggregateStack <- function() {
   files[, fileNameInput := fhi::DashboardFolder(
     "results",
     sprintf(
-      "%s_%s.RDS",
+      "%s/%s_%s.RDS",
+      LatestRawID(),
       fileType,
       tag
     )
@@ -25,18 +25,12 @@ ResultsAggregateStack <- function() {
   files[, fileNameOutput1 := fhi::DashboardFolder(
     "results",
     sprintf(
-      "%s.RDS",
+      "%s/%s.RDS",
+      LatestRawID(),
       fileType
     )
   )]
   files[, fileNameOutput2 := fhi::DashboardFolder(
-    "data_app",
-    sprintf(
-      "%s.RDS",
-      fileType
-    )
-  )]
-  files[, fileNameOutput3 := fhi::DashboardFolder(
     "results",
     sprintf(
       "externalapi/%s.RDS",

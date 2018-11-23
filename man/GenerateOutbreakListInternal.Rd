@@ -5,10 +5,11 @@
 \title{Generates the internal outbreak list}
 \usage{
 GenerateOutbreakListInternal(df = readRDS(fhi::DashboardFolder("results",
-  "resYearLine.RDS")), dk = readRDS(fhi::DashboardFolder("results",
-  "resYearLineMunicip.RDS")), saveFiles = c(fhi::DashboardFolder("results",
-  "outbreaks.RDS"), fhi::DashboardFolder("data_app", "outbreaks.RDS")),
-  useType = FALSE)
+  sprintf("\%s/resYearLine.RDS", LatestRawID()))),
+  dk = readRDS(fhi::DashboardFolder("results",
+  sprintf("\%s/resYearLineMunicip.RDS", LatestRawID()))),
+  saveFiles = c(fhi::DashboardFolder("results", sprintf("\%s/outbreaks.RDS",
+  LatestRawID()))), useType = FALSE)
 }
 \arguments{
 \item{df}{Data inside resYearLine.RDS}
