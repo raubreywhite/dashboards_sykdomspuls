@@ -7,8 +7,8 @@
 #' @import fhi
 #' @import stringr
 #' @export GenerateOutbreakListInternal
-GenerateOutbreakListInternal <- function(df = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine.RDS",LatestRawID()))),
-                                         dk = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLineMunicip.RDS",LatestRawID()))),
+GenerateOutbreakListInternal <- function(df = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine.RDS", LatestRawID()))),
+                                         dk = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLineMunicip.RDS", LatestRawID()))),
                                          saveFiles = c(
                                            fhi::DashboardFolder("results", sprintf("%s/outbreaks.RDS", LatestRawID()))
                                          ),
@@ -161,8 +161,8 @@ GenerateOutbreakListInternal <- function(df = readRDS(fhi::DashboardFolder("resu
 #' @import data.table
 #' @import stringr
 #' @export GenerateOutbreakListExternal
-GenerateOutbreakListExternal <- function(df = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine.RDS",LatestRawID()))),
-                                         dk = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLineMunicip.RDS",LatestRawID()))),
+GenerateOutbreakListExternal <- function(df = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine.RDS", LatestRawID()))),
+                                         dk = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLineMunicip.RDS", LatestRawID()))),
                                          saveFiles = fhi::DashboardFolder("results", sprintf("%s/outbreaks_alert_external.RDS", LatestRawID())),
                                          alerts = GetAlertsEmails()) {
   # variables used in data.table functions in this function
