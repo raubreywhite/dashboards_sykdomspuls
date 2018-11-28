@@ -43,7 +43,7 @@ EmailTechnicalNewResults <- function() {
 #' @import data.table
 #' @export EmailInternal
 EmailInternal <- function(
-                          resYearLine = readRDS(fhi::DashboardFolder("results", "resYearLine.RDS"))) {
+                          resYearLine = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine.RDS", LatestRawID())))) {
   # variables used in data.table functions in this function
   status <- NULL
   location <- NULL
@@ -199,7 +199,7 @@ EmailExternalGenerateTable <- function(results, xtag, xemail) {
 #' @import fhi
 #' @export EmailExternal
 EmailExternal <- function(
-                          results = readRDS(fhi::DashboardFolder("results", "outbreaks_alert_external.RDS")),
+                          results = readRDS(fhi::DashboardFolder("results", sprintf("%s/outbreaks_alert_external.RDS", LatestRawID()))),
                           alerts = GetAlertsEmails(),
                           forceNoOutbreak = FALSE,
                           forceYesOutbreak = FALSE) {

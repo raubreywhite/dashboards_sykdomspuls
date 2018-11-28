@@ -5,7 +5,7 @@
 \title{Internal email for possible outbreaks}
 \usage{
 EmailInternal(resYearLine = readRDS(fhi::DashboardFolder("results",
-  "resYearLine.RDS")))
+  sprintf("\%s/resYearLine.RDS", LatestRawID()))))
 }
 \arguments{
 \item{resYearLine}{Data from an resYearLine.RDS file}
