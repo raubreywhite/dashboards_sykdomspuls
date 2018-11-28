@@ -5,8 +5,9 @@
 \title{Sends an external email warning about alters}
 \usage{
 EmailExternal(results = readRDS(fhi::DashboardFolder("results",
-  "outbreaks_alert_external.RDS")), alerts = GetAlertsEmails(),
-  forceNoOutbreak = FALSE, forceYesOutbreak = FALSE)
+  sprintf("\%s/outbreaks_alert_external.RDS", LatestRawID()))),
+  alerts = GetAlertsEmails(), forceNoOutbreak = FALSE,
+  forceYesOutbreak = FALSE)
 }
 \arguments{
 \item{results}{Results file.}
