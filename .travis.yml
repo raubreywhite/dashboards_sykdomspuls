@@ -1,6 +1,7 @@
 language: r
 
 warnings_are_errors: true
+cache: packages
 
 repos:
   CRAN: https://cloud.r-project.org
