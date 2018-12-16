@@ -28,7 +28,6 @@ Imports:
 Suggests: testthat,
     knitr,
     rmarkdown
-Remotes: raubreywhite/RAWmisc, raubreywhite/fhi
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
