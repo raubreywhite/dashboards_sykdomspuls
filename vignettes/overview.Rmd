@@ -20,6 +20,10 @@ knitr::opts_chunk$set(
 )
 ```
 
+## Deployment diagram
+
+![Deployment diagram](deployment.png)
+
 ## External Website
 
 The external website is comprised of two parts:
