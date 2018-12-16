@@ -1,6 +1,6 @@
 Package: sykdomspuls
 Title: Norwegian Syndromic Surveillance System - NorSySS
-Version: 2018.11.29
+Version: 2018.12.16
 Authors@R: person("Richard", "White", email = "w@rwhite.no", role = c("aut", "cre"))
 Author: Richard White
 Maintainer: Richard White <w@rwhite.no>
