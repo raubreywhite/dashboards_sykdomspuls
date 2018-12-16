@@ -20,6 +20,12 @@ knitr::opts_chunk$set(
 )
 ```
 
+## Deployment diagram
+
+Red means manual steps. Green means automatic testing. Blue means automatic steps.
+
+![Deployment diagram](deployment.png)
+
 ## External Website
 
 The external website is comprised of two parts:
