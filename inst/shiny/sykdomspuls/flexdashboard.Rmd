@@ -18,14 +18,8 @@ library(fhi)
 library(magrittr)
 library(dplyr)
 
-autoInvalidate <- reactiveTimer(10000)
-
-observe({
-  autoInvalidate()
-  if(latestDataTime!=GetLatestDataTime()){
-    cat("hello",file="restart.txt")
-  }
-})
+CONFIG <- readRDS("/data_app/sykdomspuls/config.RDS")
+GLOBAL <- readRDS("/data_app/sykdomspuls/GLOBAL.RDS")
 
 GetLocationName <- function(location) {
   locationName <- "Norge"
@@ -75,8 +69,6 @@ GetStepGraph <- reactive({
   return(retval)
 })
 
-output$latestDataTime <- renderText(format.Date(latestDataTime,"%d.%M.%Y"))
-
 ```
 
 Nyheter {.storyboard}
@@ -90,6 +82,7 @@ pd <- pool %>% tbl("resYearLine") %>%
 setDT(pd)
 suppressWarnings(pd[, top := max(c(n, threshold4), na.rm = T) + 2])
 suppressWarnings(pd[, bottom := 0])
+print(pd)
 
 output$storyboard1 <- renderPlot({
   q <- MakeLineThresholdPlot(pd,x="displayDay",dataVal="n",L1="bottom",L2="threshold2",L3="threshold4",L4="top",allPoints = FALSE, title="\u00D8vre-luftvei diagnose i 15-19 \u00E5ringer i Norge", pointShift = -3.5, weekNumbers=TRUE, step=FALSE, GetCols=GetCols)
@@ -421,7 +414,7 @@ weeklyPlotData <- reactive({
   } else {
     retData <- pool %>% tbl("resYearLineMunicip") %>%
         filter(tag == input$weeklyType & 
-               location==input$weeklyCounty &
+               location==input$weeklyMunicip &
                age==input$weeklyAge) %>% collect()
     }
   setDT(retData)
@@ -541,8 +534,8 @@ weeklyMunicipChoices <- reactive({
   if (input$weeklyCounty == "Norge") {
     return("Norge")
   } else {
-    x <- municipToCounty$location[municipToCounty$county == input$weeklyCounty]
-    names(x)  <- municipToCounty$locationName[municipToCounty$county == input$weeklyCounty]
+    x <- GLOBAL$municipToCounty$location[GLOBAL$municipToCounty$county == input$weeklyCounty]
+    names(x)  <- GLOBAL$municipToCounty$locationName[GLOBAL$municipToCounty$county == input$weeklyCounty]
     return(c("Fylke", x))
   }
 })

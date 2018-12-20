@@ -1,4 +1,4 @@
-fhi::DashboardInitialiseOpinionated("sykdomspuls", PACKAGE_DIR = ".")
+fhi::DashboardInitialiseOpinionated("sykdomspuls")
 
 suppressMessages(library(data.table))
 suppressMessages(library(foreach))
