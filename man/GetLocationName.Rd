@@ -4,12 +4,12 @@
 \alias{GetLocationName}
 \title{Get location name from location code}
 \usage{
-GetLocationName(location, norwayLocations)
+GetLocationName(location, locationData = norwayLocations())
 }
 \arguments{
 \item{location}{Location code}
 
-\item{norwayLocations}{Dataset containing a map between locatino code and pretty location name}
+\item{locationData}{Dataset containing a map between location code and pretty location name}
 }
 \description{
 When given a location code, the pretty location name is returned

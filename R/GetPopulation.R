@@ -117,7 +117,8 @@ GetPopulation <- function() {
 
   missingYears <- max(pop$year):lubridate::year(lubridate::today())
   if (length(missingYears) > 1) {
-    fhi::DashboardMsg("POPULATION FILES OUT OF DATE", type = "warn")
+    CONFIG$outOfDate[["pop"]] <- TRUE
+    #fhi::DashboardMsg("POPULATION FILES OUT OF DATE", type = "warn")
     copiedYears <- vector("list", length = length(missingYears) - 1)
     for (i in seq_along(copiedYears)) {
       copiedYears[[i]] <- pop[year == missingYears[1]]
@@ -127,5 +128,5 @@ GetPopulation <- function() {
     pop <- rbind(pop, copiedYears)
   }
 
-  return(pop)
+  return(invisible(pop))
 }

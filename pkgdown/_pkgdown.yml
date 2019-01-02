@@ -42,8 +42,6 @@ reference:
     They should be moved inside the environment `VARS`
   contents:
   - displayDays
-  - norwayLocations
-  - norwayMunicipMerging
 - title: Fake Data and Validation
   desc: >
     These functions relate to fake data creation and data validation
@@ -79,6 +77,8 @@ reference:
   - IdentifyDatasets
   - LatestDatasets
   - LatestRawID
+  - norwayLocations
+  - norwayMunicipMerging
   - ResultsAggregateApply
   - ResultsAggregateStack
   - SaveRDS

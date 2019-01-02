@@ -6,9 +6,11 @@
   packageStartupMessage("Norwegian Institute of Public Health")
   packageStartupMessage("https://folkehelseinstituttet.github.io/dashboards_sykdomspuls/\n")
 
-  if (max(norwayMunicipMerging$year) != RAWmisc::YearN(lubridate::today())) {
-    packageStartupMessage("\u2716 norwayMunicipMerging is out of date. Regenerating.")
-    norwayMunicipMerging <<- GenNorwayMunicipMerging()
+  for(i in seq_along(CONFIG$outOfDate)){
+    if(CONFIG$outOfDate[[i]]){
+      packageStartupMessage(sprintf("\u2716 %s is out of date.",names(CONFIG$outOfDate)[i]))
+    } else {
+      packageStartupMessage(sprintf("\u2713 %s is up to date.",names(CONFIG$outOfDate)[i]))
+    }
   }
-  packageStartupMessage("\u2713 norwayMunicipMerging is up to date.")
 }

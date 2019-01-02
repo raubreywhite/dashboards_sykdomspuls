@@ -66,7 +66,7 @@ CleanData <- function(d,
     d[, total := NULL]
     skeleton <-
       data.table(expand.grid(
-        unique(norwayMunicipMerging[municipEnd %in% unique(d$municip) |
+        unique(norwayMunicipMerging()[municipEnd %in% unique(d$municip) |
           municip %in% unique(d$municip)]$municip),
         unique(d$age),
         seq.Date(dateMin, dateMax, 1)
@@ -74,7 +74,7 @@ CleanData <- function(d,
   } else {
     skeleton <-
       data.table(expand.grid(
-        unique(norwayMunicipMerging$municip),
+        unique(norwayMunicipMerging()$municip),
         unique(d$age),
         seq.Date(dateMin, dateMax, 1)
       ))
@@ -119,7 +119,7 @@ CleanData <- function(d,
   dim(data)
   data <-
     merge(data,
-      norwayMunicipMerging[, c("municip", "year", "municipEnd")],
+      norwayMunicipMerging()[, c("municip", "year", "municipEnd")],
       by = c("municip", "year"),
       all.x = T
     )
@@ -144,7 +144,7 @@ CleanData <- function(d,
 
   # merging in municipalitiy-fylke names
   data <-
-    merge(data, norwayLocations[, c("municip", "county")], by = "municip")
+    merge(data, norwayLocations()[, c("municip", "county")], by = "municip")
   for (i in syndromeAndConsult) {
     data[is.na(get(i)), (i) := 0]
   }

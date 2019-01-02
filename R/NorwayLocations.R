@@ -5,7 +5,7 @@ GenNorwayLocations <- function() {
   norwayLocations <- readxl::read_excel(system.file("extdata", "norwayLocations.xlsx", package = "sykdomspuls"))
   norwayLocations <- norwayLocations[is.na(norwayLocations$yearEnd), c("municip", "municipName", "county", "countyName")]
   if (dir.exists(file.path("inst", "createddata"))) {
-    saveRDS(norwayLocations, file.path("inst", "createddata", "norwayLocations.RDS"))
+    try(saveRDS(norwayLocations, file.path("inst", "createddata", "norwayLocations.RDS")),TRUE)
   }
   return(invisible(norwayLocations))
 }
@@ -86,6 +86,8 @@ GenNorwayMunicipMerging <- function() {
   # skeletonFinal[municip %in% c("municip0301")]
 
   if (dir.exists(file.path("inst", "createddata"))) {
-    saveRDS(skeletonFinal, file.path("inst", "createddata", "norwayMunicipMerging.RDS"))
+    try(saveRDS(skeletonFinal, file.path("inst", "createddata", "norwayMunicipMerging.RDS")),TRUE)
   }
+
+  return(invisible(skeletonFinal))
 }
