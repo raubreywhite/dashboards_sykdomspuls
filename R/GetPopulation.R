@@ -18,10 +18,12 @@ GenPopulation <- function() {
   agenum <- NULL
   # end
 
-  popFiles <- c("Personer2005-2009.csv",
-                "Personer2010-2014.csv",
-                "Personer2015-2018.csv",
-                "Personer2019.csv")
+  popFiles <- c(
+    "Personer2005-2009.csv",
+    "Personer2010-2014.csv",
+    "Personer2015-2018.csv",
+    "Personer2019.csv"
+  )
   pop <- vector("list", length = length(popFiles))
   for (i in seq_along(pop)) {
     pop[[i]] <- fread(system.file("extdata", popFiles[i], package = "sykdomspuls"))
@@ -118,7 +120,7 @@ GenPopulation <- function() {
   pop2[, municip := "municip1556"]
   pop2[, pop := round(pop / 2)]
   pop <- rbind(pop, pop2)
-  pop[, imputed:=FALSE]
+  pop[, imputed := FALSE]
 
   missingYears <- max(pop$year):lubridate::year(lubridate::today())
   if (length(missingYears) > 1) {
@@ -128,7 +130,7 @@ GenPopulation <- function() {
       copiedYears[[i]][, year := year + i]
     }
     copiedYears <- rbindlist(copiedYears)
-    copiedYears[, imputed:=TRUE]
+    copiedYears[, imputed := TRUE]
     pop <- rbind(pop, copiedYears)
   }
 

@@ -238,9 +238,9 @@ VARS$REQ_RESULTS_FULL <- c(
   "file"
 )
 
-if(file.exists(system.file("createddata", "pop.RDS", package = "sykdomspuls"))){
+if (file.exists(system.file("createddata", "pop.RDS", package = "sykdomspuls"))) {
   popCreated <- readRDS(system.file("createddata", "pop.RDS", package = "sykdomspuls"))
-  if (max(popCreated[imputed==FALSE]$year) == RAWmisc::YearN(lubridate::today())) {
+  if (max(popCreated[imputed == FALSE]$year) == RAWmisc::YearN(lubridate::today())) {
     CONFIG$outOfDate[["pop"]] <- FALSE
   }
 } else {
@@ -258,7 +258,7 @@ popSlow <- function() {
 #' @export pop
 pop <- memoise::memoise(popSlow)
 
-if(file.exists(system.file("createddata", "norwayMunicipMerging.RDS", package = "sykdomspuls"))){
+if (file.exists(system.file("createddata", "norwayMunicipMerging.RDS", package = "sykdomspuls"))) {
   norwayMunicipMergingCreated <- readRDS(system.file("createddata", "norwayMunicipMerging.RDS", package = "sykdomspuls"))
   if (max(norwayMunicipMergingCreated$year) == RAWmisc::YearN(lubridate::today())) {
     CONFIG$outOfDate[["norwayMunicipMerging"]] <- FALSE
