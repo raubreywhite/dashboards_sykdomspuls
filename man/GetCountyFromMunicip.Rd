@@ -4,12 +4,12 @@
 \alias{GetCountyFromMunicip}
 \title{Finds county from municipality}
 \usage{
-GetCountyFromMunicip(location, norwayLocations)
+GetCountyFromMunicip(location, locationData = norwayLocations())
 }
 \arguments{
 \item{location}{A location (either a municipality or county)}
 
-\item{norwayLocations}{Dataset containing a map between locatino code and pretty location name}
+\item{locationData}{Dataset containing a map between locatino code and pretty location name}
 }
 \description{
 Takes a location (either a municipality or county).

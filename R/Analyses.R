@@ -25,7 +25,7 @@
 #' @return A list containing a sequence of training years and prediction years
 #' @examples
 #' sykdomspuls::CalculateTrainPredictYearPattern(2000, 2015, 1)
-#' 
+#'
 #' sykdomspuls::CalculateTrainPredictYearPattern(2000, 2015, 3)
 #' @export CalculateTrainPredictYearPattern
 CalculateTrainPredictYearPattern <- function(yearMin, yearMax, numPerYear1 = 1) {
@@ -154,7 +154,7 @@ DetermineStatus <- function(data) {
 #' @import data.table
 #' @export AddCounty
 AddCounty <- function(data, loc) {
-  county <- GetCountyFromMunicip(loc, norwayLocations = norwayLocations)
+  county <- GetCountyFromMunicip(loc, locationData = norwayLocations())
   data[, county := county]
 }
 
@@ -219,7 +219,7 @@ RunOneAnalysis <- function(analysesStack, analysisData) {
   res[, type := analysesStack$tag]
   res[, tag := analysesStack$tag]
   res[, location := analysesStack$location]
-  res[, locationName := GetLocationName(analysesStack$location, norwayLocations = norwayLocations)]
+  res[, locationName := GetLocationName(analysesStack$location, locationData = norwayLocations())]
   res[, file := analysesStack$file]
 
   # make threshold2 minimum of 2 and threshold4 minimum of 3
@@ -245,17 +245,17 @@ RunOneAnalysis <- function(analysesStack, analysisData) {
 #' When given a location code, the pretty location name is returned
 #'
 #' @param location Location code
-#' @param norwayLocations Dataset containing a map between locatino code and pretty location name
+#' @param locationData Dataset containing a map between location code and pretty location name
 #' @import data.table
 #' @export GetLocationName
-GetLocationName <- function(location, norwayLocations) {
+GetLocationName <- function(location, locationData = norwayLocations()) {
   locationName <- "Norge"
 
   if (location != "Norge") {
-    if (sum(norwayLocations$municip == location) > 0) {
-      locationName <- as.character(norwayLocations$municipName[norwayLocations$municip == location])
-    } else if (sum(norwayLocations$county == location) > 0) {
-      locationName <- as.character(norwayLocations$countyName[norwayLocations$county == location])
+    if (sum(locationData$municip == location) > 0) {
+      locationName <- as.character(locationData$municipName[locationData$municip == location])
+    } else if (sum(locationData$county == location) > 0) {
+      locationName <- as.character(locationData$countyName[locationData$county == location])
     }
   }
 
@@ -270,12 +270,12 @@ GetLocationName <- function(location, norwayLocations) {
 #' and this is returned.
 #'
 #' @param location A location (either a municipality or county)
-#' @param norwayLocations Dataset containing a map between locatino code and pretty location name
+#' @param locationData Dataset containing a map between locatino code and pretty location name
 #' @import data.table
 #' @export GetCountyFromMunicip
-GetCountyFromMunicip <- function(location, norwayLocations) {
-  if (sum(norwayLocations$municip == location) > 0) {
-    location <- as.character(norwayLocations$county[norwayLocations$municip == location])
+GetCountyFromMunicip <- function(location, locationData = norwayLocations()) {
+  if (sum(locationData$municip == location) > 0) {
+    location <- as.character(locationData$county[locationData$municip == location])
   }
 
   return(location)

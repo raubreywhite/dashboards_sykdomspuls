@@ -151,6 +151,12 @@ CONFIG$smallMunicips <- c(
   "municip1739"
 )
 
+CONFIG$outOfDate <- list()
+CONFIG$outOfDate[["pop"]] <- FALSE
+GetPopulation()
+CONFIG$outOfDate[["norwayLocations"]] <- FALSE
+CONFIG$outOfDate[["norwayMunicipMerging"]] <- FALSE
+
 #' Global variables used for defining formats of data structures
 #'
 #' This environment holds a number of variables that are used for
@@ -233,13 +239,32 @@ VARS$REQ_RESULTS_FULL <- c(
   "file"
 )
 
-#' List of municipalities and counties
-#' @export norwayLocations
-norwayLocations <- readRDS(system.file("createddata", "norwayLocations.RDS", package = "sykdomspuls"))
-
 #' List of municipality merging over time
 #' @export norwayMunicipMerging
-norwayMunicipMerging <- readRDS(system.file("createddata", "norwayMunicipMerging.RDS", package = "sykdomspuls"))
+norwayMunicipMergingCreated <- readRDS(system.file("createddata", "norwayMunicipMerging.RDS", package = "sykdomspuls"))
+if (max(norwayMunicipMergingCreated$year) != RAWmisc::YearN(lubridate::today())){
+  CONFIG$outOfDate[["norwayMunicipMerging"]] <- TRUE
+  CONFIG$outOfDate[["norwayLocations"]] <- TRUE
+}
+
+norwayMunicipMerging <- function(){
+  if (CONFIG$outOfDate[["norwayMunicipMerging"]]){
+    return(GenNorwayMunicipMerging())
+  } else {
+    return(norwayMunicipMergingCreated)
+  }
+}
+
+#' List of municipalities and counties
+#' @export norwayLocations
+norwayLocationsCreated <- readRDS(system.file("createddata", "norwayLocations.RDS", package = "sykdomspuls"))
+norwayLocations <- function(){
+  if (CONFIG$outOfDate[["norwayLocations"]]){
+    return(GenNorwayLocations())
+  } else {
+    return(norwayLocationsCreated)
+  }
+}
 
 #' The last date for each isoweek
 #' @export displayDays
