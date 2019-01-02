@@ -68,17 +68,18 @@ reference:
   - DetermineStatus
   - GenNorwayLocations
   - GenNorwayMunicipMerging
+  - GenPopulation
   - GenerateOutbreakListExternal
   - GenerateOutbreakListInternal
   - GetCountyFromMunicip
   - GetLocationName
-  - GetPopulation
   - IdentifyAllDatasets
   - IdentifyDatasets
   - LatestDatasets
   - LatestRawID
   - norwayLocations
   - norwayMunicipMerging
+  - pop
   - ResultsAggregateApply
   - ResultsAggregateStack
   - SaveRDS
