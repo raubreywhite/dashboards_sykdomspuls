@@ -153,7 +153,6 @@ CONFIG$smallMunicips <- c(
 
 CONFIG$outOfDate <- list()
 CONFIG$outOfDate[["pop"]] <- FALSE
-GetPopulation()
 CONFIG$outOfDate[["norwayLocations"]] <- FALSE
 CONFIG$outOfDate[["norwayMunicipMerging"]] <- FALSE
 
@@ -239,6 +238,21 @@ VARS$REQ_RESULTS_FULL <- c(
   "file"
 )
 
+popCreated <- readRDS(system.file("createddata", "pop.RDS", package = "sykdomspuls"))
+if (max(popCreated[imputed==FALSE]$year) != RAWmisc::YearN(lubridate::today())) {
+  CONFIG$outOfDate[["pop"]] <- TRUE
+}
+popSlow <- function() {
+  if (CONFIG$outOfDate[["pop"]]) {
+    return(GenPopulation())
+  } else {
+    return(popCreated)
+  }
+}
+#' Population
+#' @export pop
+pop <- memoise::memoise(popSlow)
+
 
 norwayMunicipMergingCreated <- readRDS(system.file("createddata", "norwayMunicipMerging.RDS", package = "sykdomspuls"))
 if (max(norwayMunicipMergingCreated$year) != RAWmisc::YearN(lubridate::today())) {
@@ -246,9 +260,7 @@ if (max(norwayMunicipMergingCreated$year) != RAWmisc::YearN(lubridate::today()))
   CONFIG$outOfDate[["norwayLocations"]] <- TRUE
 }
 
-#' List of municipality merging over time
-#' @export norwayMunicipMerging
-norwayMunicipMerging <- function() {
+norwayMunicipMergingSlow <- function() {
   if (CONFIG$outOfDate[["norwayMunicipMerging"]]) {
     return(GenNorwayMunicipMerging())
   } else {
@@ -256,16 +268,21 @@ norwayMunicipMerging <- function() {
   }
 }
 
-norwayLocationsCreated <- readRDS(system.file("createddata", "norwayLocations.RDS", package = "sykdomspuls"))
-#' List of municipalities and counties
-#' @export norwayLocations
-norwayLocations <- function() {
+#' List of municipality merging over time
+#' @export norwayMunicipMerging
+norwayMunicipMerging <- memoise::memoise(norwayMunicipMergingSlow)
+
+norwayLocationsSlow <- function() {
   if (CONFIG$outOfDate[["norwayLocations"]]) {
     return(GenNorwayLocations())
   } else {
     return(norwayLocationsCreated)
   }
 }
+norwayLocationsCreated <- readRDS(system.file("createddata", "norwayLocations.RDS", package = "sykdomspuls"))
+#' List of municipalities and counties
+#' @export norwayLocations
+norwayLocations <- memoise::memoise(norwayLocationsSlow)
 
 #' The last date for each isoweek
 #' @export displayDays

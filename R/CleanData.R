@@ -10,7 +10,7 @@
 #' @export CleanData
 CleanData <- function(d,
                       syndrome,
-                      population = GetPopulation(),
+                      population = pop(),
                       hellidager = fread(system.file("extdata", "DatoerMedHelligdager.txt", package = "sykdomspuls"))[, c("Dato", "HelligdagIndikator"), with = FALSE],
                       testIfHelligdagIndikatorFileIsOutdated = TRUE,
                       removeMunicipsWithoutConsults = FALSE) {
