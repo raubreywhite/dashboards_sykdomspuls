@@ -7,3 +7,4 @@ inst/extdata/.~lock.norwayLocations.xlsx#
 docs/*
 inst/doc
 *.Rcheck*
+.DS_Store

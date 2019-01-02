@@ -19,11 +19,11 @@ if (!UpdateData()) {
 }
 DeleteOldDatasets()
 
-if (!fhi::DashboardIsDev()) {
+#if (!fhi::DashboardIsDev()) {
   fhi::DashboardMsg("Registering cluster", newLine = T)
   cl <- makeCluster(parallel::detectCores())
   registerDoSNOW(cl)
-}
+#}
 
 for (i in 1:nrow(sykdomspuls::CONFIG$SYNDROMES)) {
   conf <- sykdomspuls::CONFIG$SYNDROMES[i]
@@ -78,10 +78,10 @@ for (i in 1:nrow(sykdomspuls::CONFIG$SYNDROMES)) {
   rm("res", "data", "stackAndData")
 }
 
-if (!fhi::DashboardIsDev()) {
+#if (!fhi::DashboardIsDev()) {
   fhi::DashboardMsg("Stopping cluster", newLine = T)
   stopCluster(cl)
-}
+#}
 
 # Append all the syndromes together
 ResultsAggregateApply()
