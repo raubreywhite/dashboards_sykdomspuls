@@ -239,14 +239,15 @@ VARS$REQ_RESULTS_FULL <- c(
   "file"
 )
 
-#' List of municipality merging over time
-#' @export norwayMunicipMerging
+
 norwayMunicipMergingCreated <- readRDS(system.file("createddata", "norwayMunicipMerging.RDS", package = "sykdomspuls"))
 if (max(norwayMunicipMergingCreated$year) != RAWmisc::YearN(lubridate::today())){
   CONFIG$outOfDate[["norwayMunicipMerging"]] <- TRUE
   CONFIG$outOfDate[["norwayLocations"]] <- TRUE
 }
 
+#' List of municipality merging over time
+#' @export norwayMunicipMerging
 norwayMunicipMerging <- function(){
   if (CONFIG$outOfDate[["norwayMunicipMerging"]]){
     return(GenNorwayMunicipMerging())
@@ -255,9 +256,9 @@ norwayMunicipMerging <- function(){
   }
 }
 
+norwayLocationsCreated <- readRDS(system.file("createddata", "norwayLocations.RDS", package = "sykdomspuls"))
 #' List of municipalities and counties
 #' @export norwayLocations
-norwayLocationsCreated <- readRDS(system.file("createddata", "norwayLocations.RDS", package = "sykdomspuls"))
 norwayLocations <- function(){
   if (CONFIG$outOfDate[["norwayLocations"]]){
     return(GenNorwayLocations())
