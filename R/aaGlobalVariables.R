@@ -152,9 +152,9 @@ CONFIG$smallMunicips <- c(
 )
 
 CONFIG$outOfDate <- list()
-CONFIG$outOfDate[["pop"]] <- FALSE
-CONFIG$outOfDate[["norwayLocations"]] <- FALSE
-CONFIG$outOfDate[["norwayMunicipMerging"]] <- FALSE
+CONFIG$outOfDate[["pop"]] <- TRUE
+CONFIG$outOfDate[["norwayLocations"]] <- TRUE
+CONFIG$outOfDate[["norwayMunicipMerging"]] <- TRUE
 
 #' Global variables used for defining formats of data structures
 #'
@@ -238,10 +238,15 @@ VARS$REQ_RESULTS_FULL <- c(
   "file"
 )
 
-popCreated <- readRDS(system.file("createddata", "pop.RDS", package = "sykdomspuls"))
-if (max(popCreated[imputed==FALSE]$year) != RAWmisc::YearN(lubridate::today())) {
-  CONFIG$outOfDate[["pop"]] <- TRUE
+if(file.exists(system.file("createddata", "pop.RDS", package = "sykdomspuls"))){
+  popCreated <- readRDS(system.file("createddata", "pop.RDS", package = "sykdomspuls"))
+  if (max(popCreated[imputed==FALSE]$year) == RAWmisc::YearN(lubridate::today())) {
+    CONFIG$outOfDate[["pop"]] <- FALSE
+  }
+} else {
+  GenPopulation()
 }
+
 popSlow <- function() {
   if (CONFIG$outOfDate[["pop"]]) {
     return(GenPopulation())
@@ -253,11 +258,15 @@ popSlow <- function() {
 #' @export pop
 pop <- memoise::memoise(popSlow)
 
-
-norwayMunicipMergingCreated <- readRDS(system.file("createddata", "norwayMunicipMerging.RDS", package = "sykdomspuls"))
-if (max(norwayMunicipMergingCreated$year) != RAWmisc::YearN(lubridate::today())) {
-  CONFIG$outOfDate[["norwayMunicipMerging"]] <- TRUE
-  CONFIG$outOfDate[["norwayLocations"]] <- TRUE
+if(file.exists(system.file("createddata", "norwayMunicipMerging.RDS", package = "sykdomspuls"))){
+  norwayMunicipMergingCreated <- readRDS(system.file("createddata", "norwayMunicipMerging.RDS", package = "sykdomspuls"))
+  if (max(norwayMunicipMergingCreated$year) == RAWmisc::YearN(lubridate::today())) {
+    CONFIG$outOfDate[["norwayMunicipMerging"]] <- FALSE
+    CONFIG$outOfDate[["norwayLocations"]] <- FALSE
+  }
+} else {
+  GenNorwayMunicipMerging()
+  GenNorwayLocations()
 }
 
 norwayMunicipMergingSlow <- function() {
