@@ -4,7 +4,7 @@
 \alias{CleanData}
 \title{Format the raw data}
 \usage{
-CleanData(d, syndrome, population = pop(),
+CleanData(d, syndrome, population = norwayPopulation,
   hellidager = fread(system.file("extdata", "DatoerMedHelligdager.txt",
   package = "sykdomspuls"))[, c("Dato", "HelligdagIndikator"), with = FALSE],
   testIfHelligdagIndikatorFileIsOutdated = TRUE,

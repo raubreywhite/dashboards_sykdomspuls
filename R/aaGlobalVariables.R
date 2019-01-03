@@ -152,7 +152,7 @@ CONFIG$smallMunicips <- c(
 )
 
 CONFIG$outOfDate <- list()
-CONFIG$outOfDate[["pop"]] <- TRUE
+CONFIG$outOfDate[["norwayPopulation"]] <- TRUE
 CONFIG$outOfDate[["norwayLocations"]] <- TRUE
 CONFIG$outOfDate[["norwayMunicipMerging"]] <- TRUE
 
@@ -238,60 +238,46 @@ VARS$REQ_RESULTS_FULL <- c(
   "file"
 )
 
-if (file.exists(system.file("createddata", "pop.RDS", package = "sykdomspuls"))) {
-  popCreated <- readRDS(system.file("createddata", "pop.RDS", package = "sykdomspuls"))
-  if (max(popCreated[imputed == FALSE]$year) == RAWmisc::YearN(lubridate::today())) {
-    CONFIG$outOfDate[["pop"]] <- FALSE
-  }
-} else {
-  GenPopulation()
+# Create files if they dont exist
+if (!file.exists(system.file("createddata", "norwayPopulation.RDS", package = "sykdomspuls"))) {
+  GenNorwayPopulation()
 }
-
-popSlow <- function() {
-  if (CONFIG$outOfDate[["pop"]]) {
-    return(GenPopulation())
-  } else {
-    return(popCreated)
-  }
-}
-#' Population
-#' @export pop
-pop <- memoise::memoise(popSlow)
-
-if (file.exists(system.file("createddata", "norwayMunicipMerging.RDS", package = "sykdomspuls"))) {
-  norwayMunicipMergingCreated <- readRDS(system.file("createddata", "norwayMunicipMerging.RDS", package = "sykdomspuls"))
-  if (max(norwayMunicipMergingCreated$year) == RAWmisc::YearN(lubridate::today())) {
-    CONFIG$outOfDate[["norwayMunicipMerging"]] <- FALSE
-    CONFIG$outOfDate[["norwayLocations"]] <- FALSE
-  }
-} else {
+if (!file.exists(system.file("createddata", "norwayMunicipMerging.RDS", package = "sykdomspuls"))) {
   GenNorwayMunicipMerging()
   GenNorwayLocations()
 }
+if (!file.exists(system.file("createddata", "norwayLocations.RDS", package = "sykdomspuls"))) {
+  GenNorwayLocations()
+}
 
-norwayMunicipMergingSlow <- function() {
-  if (CONFIG$outOfDate[["norwayMunicipMerging"]]) {
-    return(GenNorwayMunicipMerging())
-  } else {
-    return(norwayMunicipMergingCreated)
-  }
+norwayPopulationCreated <- readRDS(system.file("createddata", "norwayPopulation.RDS", package = "sykdomspuls"))
+if (max(norwayPopulationCreated[imputed == FALSE]$year) == RAWmisc::YearN(lubridate::today())) {
+  CONFIG$outOfDate[["norwayPopulation"]] <- FALSE
+} else {
+  norwayPopulationCreated <- GenNorwayPopulation()
+}
+
+#' Population
+#' @export norwayPopulation
+norwayPopulation <- norwayPopulationCreated
+
+norwayMunicipMergingCreated <- readRDS(system.file("createddata", "norwayMunicipMerging.RDS", package = "sykdomspuls"))
+norwayLocationsCreated <- readRDS(system.file("createddata", "norwayLocations.RDS", package = "sykdomspuls"))
+if (max(norwayMunicipMergingCreated$year) == RAWmisc::YearN(lubridate::today())) {
+  CONFIG$outOfDate[["norwayMunicipMerging"]] <- FALSE
+  CONFIG$outOfDate[["norwayLocations"]] <- FALSE
+} else {
+  norwayMunicipMergingCreated <- GenNorwayMunicipMerging()
+  norwayLocationsCreated <- GenNorwayLocations()
 }
 
 #' List of municipality merging over time
 #' @export norwayMunicipMerging
-norwayMunicipMerging <- memoise::memoise(norwayMunicipMergingSlow)
+norwayMunicipMerging <- norwayMunicipMergingCreated
 
-norwayLocationsSlow <- function() {
-  if (CONFIG$outOfDate[["norwayLocations"]]) {
-    return(GenNorwayLocations())
-  } else {
-    return(norwayLocationsCreated)
-  }
-}
-norwayLocationsCreated <- readRDS(system.file("createddata", "norwayLocations.RDS", package = "sykdomspuls"))
 #' List of municipalities and counties
 #' @export norwayLocations
-norwayLocations <- memoise::memoise(norwayLocationsSlow)
+norwayLocations <- norwayLocationsCreated
 
 #' The last date for each isoweek
 #' @export displayDays
