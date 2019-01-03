@@ -6,6 +6,8 @@
   packageStartupMessage("Norwegian Institute of Public Health")
   packageStartupMessage("https://folkehelseinstituttet.github.io/dashboards_sykdomspuls/\n")
 
+  CheckOutOfDate()
+
   for (i in seq_along(CONFIG$outOfDate)) {
     if (CONFIG$outOfDate[[i]]) {
       packageStartupMessage(sprintf("\u2716 %s is out of date.", names(CONFIG$outOfDate)[i]))

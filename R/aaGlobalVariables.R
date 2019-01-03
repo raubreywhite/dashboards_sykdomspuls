@@ -14,8 +14,9 @@
 #' This environment holds a number of important variables for
 #' configuring the analyses that will be run.
 #'
-#' @format An environment containing 6 variables:
+#' @format An environment containing 7 variables:
 #' \describe{
+#'   \item{verbose}{Verbose?.}
 #'   \item{VERSION}{The version that we are currently running.}
 #'   \item{VERSIONS}{All available versions.}
 #'   \item{SYNDROMES}{A data.table of all the syndromes/analyses that will be run}
@@ -25,6 +26,7 @@
 #' }
 #' @export CONFIG
 CONFIG <- new.env(parent = emptyenv())
+CONFIG$verbose <- FALSE
 CONFIG$VERSION <- 1
 CONFIG$VERSIONS <- 1:2
 CONFIG$SYNDROMES <- data.table(
@@ -151,6 +153,7 @@ CONFIG$smallMunicips <- c(
   "municip1739"
 )
 
+CONFIG$checkedOutOfDate <- FALSE
 CONFIG$outOfDate <- list()
 CONFIG$outOfDate[["norwayPopulation"]] <- TRUE
 CONFIG$outOfDate[["norwayLocations"]] <- TRUE
@@ -229,55 +232,15 @@ VARS$REQ_RESULTS_BASIC <- c(
 VARS$REQ_RESULTS_FULL <- c(
   "tag",
   "type",
-  "county",
+  #"county",
   "location",
-  "locationName",
+  #"locationName",
   "age",
   "status",
   VARS$REQ_RESULTS_BASIC,
   "file"
 )
 
-# Create files if they dont exist
-if (!file.exists(system.file("createddata", "norwayPopulation.RDS", package = "sykdomspuls"))) {
-  GenNorwayPopulation()
-}
-if (!file.exists(system.file("createddata", "norwayMunicipMerging.RDS", package = "sykdomspuls"))) {
-  GenNorwayMunicipMerging()
-  GenNorwayLocations()
-}
-if (!file.exists(system.file("createddata", "norwayLocations.RDS", package = "sykdomspuls"))) {
-  GenNorwayLocations()
-}
-
-norwayPopulationCreated <- readRDS(system.file("createddata", "norwayPopulation.RDS", package = "sykdomspuls"))
-if (max(norwayPopulationCreated[imputed == FALSE]$year) == RAWmisc::YearN(lubridate::today())) {
-  CONFIG$outOfDate[["norwayPopulation"]] <- FALSE
-} else {
-  norwayPopulationCreated <- GenNorwayPopulation()
-}
-
-#' Population
-#' @export norwayPopulation
-norwayPopulation <- norwayPopulationCreated
-
-norwayMunicipMergingCreated <- readRDS(system.file("createddata", "norwayMunicipMerging.RDS", package = "sykdomspuls"))
-norwayLocationsCreated <- readRDS(system.file("createddata", "norwayLocations.RDS", package = "sykdomspuls"))
-if (max(norwayMunicipMergingCreated$year) == RAWmisc::YearN(lubridate::today())) {
-  CONFIG$outOfDate[["norwayMunicipMerging"]] <- FALSE
-  CONFIG$outOfDate[["norwayLocations"]] <- FALSE
-} else {
-  norwayMunicipMergingCreated <- GenNorwayMunicipMerging()
-  norwayLocationsCreated <- GenNorwayLocations()
-}
-
-#' List of municipality merging over time
-#' @export norwayMunicipMerging
-norwayMunicipMerging <- norwayMunicipMergingCreated
-
-#' List of municipalities and counties
-#' @export norwayLocations
-norwayLocations <- norwayLocationsCreated
 
 #' The last date for each isoweek
 #' @export displayDays
