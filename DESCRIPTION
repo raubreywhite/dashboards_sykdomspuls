@@ -1,14 +1,6 @@
 Package: sykdomspuls
 Title: Norwegian Syndromic Surveillance System - NorSySS
-<<<<<<< HEAD
-<<<<<<< HEAD
 Version: 2019.01.03
-=======
-Version: 2018.12.19
->>>>>>> parent of 55caa35... Travis CI update 101 [ci skip]
-=======
-Version: 2018.12.19
->>>>>>> parent of 55caa35... Travis CI update 101 [ci skip]
 Authors@R: person("Richard", "White", email = "w@rwhite.no", role = c("aut", "cre"))
 Author: Richard White
 Maintainer: Richard White <w@rwhite.no>
