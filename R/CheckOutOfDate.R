@@ -1,10 +1,10 @@
 #' CheckOutOfDate
 #' @export
-CheckOutOfDate <- function(){
-  if(CONFIG$verbose){
+CheckOutOfDate <- function() {
+  if (CONFIG$verbose) {
     fhi::DashboardMsg("\u2620\u2620Data files accessed (this is slow)!\u2620\u2620", syscallsDepth = 0)
   }
-  if(CONFIG$checkedOutOfDate){
+  if (CONFIG$checkedOutOfDate) {
     return(TRUE)
   }
 
@@ -46,13 +46,13 @@ CheckOutOfDate <- function(){
   # List of municipalities and counties
   VARS$norwayLocations <- norwayLocationsCreated
 
-  a <- data.table(location="Norge",locationName="Norge")
-  b <- VARS$norwayLocations[,c("municip","municipName")]
-  c <- VARS$norwayLocations[,c("county","countyName")]
-  setnames(b,c("location","locationName"))
-  setnames(c,c("location","locationName"))
+  a <- data.table(location = "Norge", locationName = "Norge")
+  b <- VARS$norwayLocations[, c("municip", "municipName")]
+  c <- VARS$norwayLocations[, c("county", "countyName")]
+  setnames(b, c("location", "locationName"))
+  setnames(c, c("location", "locationName"))
 
-  VARS$norwayLocationsLong <- unique(rbind(a,b,c))
+  VARS$norwayLocationsLong <- unique(rbind(a, b, c))
 
   fhi::DashboardMsg("\u2620\u2620Data files have been read!\u2620\u2620", syscallsDepth = 0)
   fhi::DashboardMsg("\u2620\u2620This is slow!\u2620\u2620", syscallsDepth = 0)
@@ -69,28 +69,28 @@ CheckOutOfDate <- function(){
 
 #' NorwayPopulation
 #' @export NorwayPopulation
-NorwayPopulation <- function(){
+NorwayPopulation <- function() {
   CheckOutOfDate()
   VARS$norwayPopulation
 }
 
 #' NorwayMunicipMerging
 #' @export NorwayMunicipMerging
-NorwayMunicipMerging <- function(){
+NorwayMunicipMerging <- function() {
   CheckOutOfDate()
   VARS$norwayMunicipMerging
 }
 
 #' NorwayLocations
 #' @export NorwayLocations
-NorwayLocations <- function(){
+NorwayLocations <- function() {
   CheckOutOfDate()
   VARS$norwayLocations
 }
 
 #' NorwayLocationsLong
 #' @export NorwayLocationsLong
-NorwayLocationsLong <- function(){
+NorwayLocationsLong <- function() {
   CheckOutOfDate()
   VARS$norwayLocationsLong
 }

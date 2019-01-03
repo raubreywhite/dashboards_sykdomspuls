@@ -232,9 +232,9 @@ VARS$REQ_RESULTS_BASIC <- c(
 VARS$REQ_RESULTS_FULL <- c(
   "tag",
   "type",
-  #"county",
+  # "county",
   "location",
-  #"locationName",
+  # "locationName",
   "age",
   "status",
   VARS$REQ_RESULTS_BASIC,

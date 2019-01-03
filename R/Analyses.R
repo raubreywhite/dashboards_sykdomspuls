@@ -25,7 +25,7 @@
 #' @return A list containing a sequence of training years and prediction years
 #' @examples
 #' sykdomspuls::CalculateTrainPredictYearPattern(2000, 2015, 1)
-#'
+#' 
 #' sykdomspuls::CalculateTrainPredictYearPattern(2000, 2015, 3)
 #' @export CalculateTrainPredictYearPattern
 CalculateTrainPredictYearPattern <- function(yearMin, yearMax, numPerYear1 = 1) {
@@ -203,7 +203,7 @@ RunOneAnalysis <- function(analysesStack, analysisData) {
   res[, type := analysesStack$tag]
   res[, tag := analysesStack$tag]
   res[, location := analysesStack$location]
-  #res[, locationName := GetLocationName(analysesStack$location, locationData = norwayLocations)]
+  # res[, locationName := GetLocationName(analysesStack$location, locationData = norwayLocations)]
   res[, file := analysesStack$file]
 
   # make threshold2 minimum of 2 and threshold4 minimum of 3
@@ -233,10 +233,9 @@ RunOneAnalysis <- function(analysesStack, analysisData) {
 #' @import data.table
 #' @export GetLocationName
 GetLocationName <- function(location, locationData = NorwayLocationsLong()) {
-
-  newD <- data.table(location=location)
-  res <- merge(newD,locationData,by="location", all.x=T)
-  res[is.na(locationName), locationName:=location]
+  newD <- data.table(location = location)
+  res <- merge(newD, locationData, by = "location", all.x = T)
+  res[is.na(locationName), locationName := location]
 
   return(res$locationName)
 }
@@ -253,9 +252,9 @@ GetLocationName <- function(location, locationData = NorwayLocationsLong()) {
 #' @import data.table
 #' @export GetCountyFromMunicip
 GetCountyFromMunicip <- function(location, locationData = NorwayLocations()) {
-  newD <- data.table(municip=location)
-  res <- merge(newD,locationData,by="municip", all.x=T)
-  res[is.na(municipName), municipName:=municip]
+  newD <- data.table(municip = location)
+  res <- merge(newD, locationData, by = "municip", all.x = T)
+  res[is.na(municipName), municipName := municip]
 
   return(res$municipName)
 }
@@ -271,7 +270,7 @@ GetCountyFromMunicip <- function(location, locationData = NorwayLocations()) {
 #' @import data.table
 #' @export
 AddLocationName <- function(data) {
-  data[, locationName := GetLocationName(location, locationData=NorwayLocationsLong())]
+  data[, locationName := GetLocationName(location, locationData = NorwayLocationsLong())]
 }
 
 
@@ -286,6 +285,5 @@ AddLocationName <- function(data) {
 #' @import data.table
 #' @export
 AddCounty <- function(data) {
-  data[, county:=GetCountyFromMunicip(location, locationData = NorwayLocations())]
-
+  data[, county := GetCountyFromMunicip(location, locationData = NorwayLocations())]
 }
