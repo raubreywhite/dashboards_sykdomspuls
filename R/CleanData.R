@@ -240,7 +240,7 @@ CleanData <- function(d,
 #' @param conf A row from \code{CONFIG$SYNDROMES}
 #' @param strataSize How many analyses should be sent to a node at once?
 #' @export StackAndEfficientDataForAnalysis
-StackAndEfficientDataForAnalysis <- function(conf, strataSize=1) {
+StackAndEfficientDataForAnalysis <- function(conf, strataSize = 1) {
   . <- NULL
   granularityGeo <- NULL
   weeklyDenominatorFunction <- NULL
@@ -306,18 +306,18 @@ StackAndEfficientDataForAnalysis <- function(conf, strataSize=1) {
 
   analyses <- rbind(analysesCounties, analysesMunicips, analysesComparison)
 
-  temp <- data.table(start=seq(1,nrow(analyses),by=1))
-  temp[,end:=shift(start,type = "lead")]
+  temp <- data.table(start = seq(1, nrow(analyses), by = 1))
+  temp[, end := shift(start, type = "lead")]
   temp <- na.omit(temp)
-  temp[1:(.N-1),end:=end-1]
+  temp[1:(.N - 1), end := end - 1]
 
-  analysesStrata <- vector("list", length=nrow(temp))
-  for(i in seq_along(analysesStrata)) analysesStrata[[i]] <- temp$start[i]:temp$end[i]
-  #if (fhi::DashboardIsDev()) {
+  analysesStrata <- vector("list", length = nrow(temp))
+  for (i in seq_along(analysesStrata)) analysesStrata[[i]] <- temp$start[i]:temp$end[i]
+  # if (fhi::DashboardIsDev()) {
   #  analyses[, id := 1:.N, by = .(file)]
   #  analyses <- analyses[id %in% 1:100 | location == "Norge"]
   #  analyses[, id := NULL]
-  #}
+  # }
 
   return(
     list(
