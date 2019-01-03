@@ -12,9 +12,9 @@ StackIterator <- function(stackStrata, stack, data, progressFunction) {
   nextEl <- function() {
     i <- iterators::nextElem(it)
     progressFunction()
-    run = stackStrata[[i]]
-    retval <- vector("list",length=length(run))
-    for(j in seq_along(run)){
+    run <- stackStrata[[i]]
+    retval <- vector("list", length = length(run))
+    for (j in seq_along(run)) {
       retval[[j]] <- list("stack" = stack[run[j]], "data" = data[.(stack$location[run[j]], stack$age[run[j]])])
     }
     retval

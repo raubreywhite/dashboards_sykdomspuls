@@ -30,7 +30,7 @@ for (i in 1:nrow(sykdomspuls::CONFIG$SYNDROMES)) {
   conf <- sykdomspuls::CONFIG$SYNDROMES[i]
   fhi::DashboardMsg(conf$tag)
 
-  stackAndData <- StackAndEfficientDataForAnalysis(conf = conf, strataSize=250)
+  stackAndData <- StackAndEfficientDataForAnalysis(conf = conf, strataSize = 250)
   stackStrata <- stackAndData$analysesStrata
   stack <- stackAndData$analyses
   data <- stackAndData$data
@@ -40,12 +40,15 @@ for (i in 1:nrow(sykdomspuls::CONFIG$SYNDROMES)) {
     PBInitialize(n = round(length(stackStrata) * nrow(sykdomspuls::CONFIG$SYNDROMES)))
   }
 
-  res <- foreach(analysisIter = StackIterator(stackStrata, stack, data, PBIncrement),
-                 .noexport = c("data"),
-                 .packages = c("data.table", "sykdomspuls")) %dopar% {
-
-    retval <- lapply(analysisIter,
-                     function(x) RunOneAnalysis(analysesStack = x$stack, analysisData = x$data))
+  res <- foreach(
+    analysisIter = StackIterator(stackStrata, stack, data, PBIncrement),
+    .noexport = c("data"),
+    .packages = c("data.table", "sykdomspuls")
+  ) %dopar% {
+    retval <- lapply(
+      analysisIter,
+      function(x) RunOneAnalysis(analysesStack = x$stack, analysisData = x$data)
+    )
 
     rbindlist(retval)
   }
