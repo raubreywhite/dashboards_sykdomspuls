@@ -29,7 +29,7 @@ for (i in 1:nrow(sykdomspuls::CONFIG$SYNDROMES)) {
   conf <- sykdomspuls::CONFIG$SYNDROMES[i]
   fhi::DashboardMsg(conf$tag)
 
-  stackAndData <- StackAndEfficientDataForAnalysis(conf = conf)
+  stackAndData <- sykdomspuls::StackAndEfficientDataForAnalysis(conf = conf)
   data <- stackAndData$data
   stack <- stackAndData$analyses
 
@@ -44,7 +44,6 @@ for (i in 1:nrow(sykdomspuls::CONFIG$SYNDROMES)) {
   res <- foreach(analysisIter = StackIterator(stack, data, PBIncrement), .noexport = c("data")) %dopar% {
     if (!fhi::DashboardIsDev()) {
       library(data.table)
-      library(sykdomspuls)
     }
 
     exceptionalFunction <- function(err) {
@@ -54,15 +53,22 @@ for (i in 1:nrow(sykdomspuls::CONFIG$SYNDROMES)) {
 
     analysesStack <- analysisIter$stack
     analysisData <- analysisIter$data
+    # x <- analysisIter$nextElem()
+    # analysesStack <- x$stack
+    # analysisData <- x$data
 
     retval <- tryCatch(
-      RunOneAnalysis(analysesStack = analysesStack, analysisData = analysisData),
+      sykdomspuls::RunOneAnalysis(analysesStack = analysesStack, analysisData = analysisData),
       error = exceptionalFunction
     )
 
     retval
   }
   res <- rbindlist(res)
+
+  # adding in extra information
+  AddLocationName(res)
+  AddCounty(res)
 
   # cleaning on small municipalities
   res[location %in% CONFIG$smallMunicips & age != "Totalt", n := 0 ]

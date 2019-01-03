@@ -4,7 +4,7 @@
 \alias{GetCountyFromMunicip}
 \title{Finds county from municipality}
 \usage{
-GetCountyFromMunicip(location, locationData = norwayLocations)
+GetCountyFromMunicip(location, locationData = NorwayLocations())
 }
 \arguments{
 \item{location}{A location (either a municipality or county)}

@@ -25,7 +25,7 @@
 #' @return A list containing a sequence of training years and prediction years
 #' @examples
 #' sykdomspuls::CalculateTrainPredictYearPattern(2000, 2015, 1)
-#' 
+#'
 #' sykdomspuls::CalculateTrainPredictYearPattern(2000, 2015, 3)
 #' @export CalculateTrainPredictYearPattern
 CalculateTrainPredictYearPattern <- function(yearMin, yearMax, numPerYear1 = 1) {
@@ -142,22 +142,6 @@ DetermineStatus <- function(data) {
   data[n > 1 & n > threshold4, status := "High"]
 }
 
-#' Adds county to dataset
-#'
-#' Takes a location (either a municipality or county).
-#' If the location is a county, nothing happens.
-#' If the location is a municipality, it searches for the encompassing county
-#' and adds this to the data.table \code{data} as a new variable \code{county}.
-#'
-#' @param data A data.table
-#' @param loc A location (either a municipality or county)
-#' @import data.table
-#' @export AddCounty
-AddCounty <- function(data, loc) {
-  county <- GetCountyFromMunicip(loc, locationData = norwayLocations)
-  data[, county := county]
-}
-
 #' Run one analysis according to the analysis stack
 #'
 #' This function receives a generic dataset and a selection from the analysis stack.
@@ -219,7 +203,7 @@ RunOneAnalysis <- function(analysesStack, analysisData) {
   res[, type := analysesStack$tag]
   res[, tag := analysesStack$tag]
   res[, location := analysesStack$location]
-  res[, locationName := GetLocationName(analysesStack$location, locationData = norwayLocations)]
+  #res[, locationName := GetLocationName(analysesStack$location, locationData = norwayLocations)]
   res[, file := analysesStack$file]
 
   # make threshold2 minimum of 2 and threshold4 minimum of 3
@@ -230,7 +214,7 @@ RunOneAnalysis <- function(analysesStack, analysisData) {
   DetermineStatus(res)
 
   # add county if this is a municipality
-  AddCounty(data = res, loc = analysesStack$location)
+  # AddCounty(data = res, loc = analysesStack$location)
 
   # validate data
   if (!ValidateResultsFull(res)) stop("Results in a bad format")
@@ -248,18 +232,13 @@ RunOneAnalysis <- function(analysesStack, analysisData) {
 #' @param locationData Dataset containing a map between location code and pretty location name
 #' @import data.table
 #' @export GetLocationName
-GetLocationName <- function(location, locationData = norwayLocations) {
-  locationName <- "Norge"
+GetLocationName <- function(location, locationData = NorwayLocationsLong()) {
 
-  if (location != "Norge") {
-    if (sum(locationData$municip == location) > 0) {
-      locationName <- as.character(locationData$municipName[locationData$municip == location])
-    } else if (sum(locationData$county == location) > 0) {
-      locationName <- as.character(locationData$countyName[locationData$county == location])
-    }
-  }
+  newD <- data.table(location=location)
+  res <- merge(newD,locationData,by="location", all.x=T)
+  res[is.na(locationName), locationName:=location]
 
-  return(locationName[1])
+  return(res$locationName)
 }
 
 #' Finds county from municipality
@@ -273,10 +252,40 @@ GetLocationName <- function(location, locationData = norwayLocations) {
 #' @param locationData Dataset containing a map between locatino code and pretty location name
 #' @import data.table
 #' @export GetCountyFromMunicip
-GetCountyFromMunicip <- function(location, locationData = norwayLocations) {
-  if (sum(locationData$municip == location) > 0) {
-    location <- as.character(locationData$county[locationData$municip == location])
-  }
+GetCountyFromMunicip <- function(location, locationData = NorwayLocations()) {
+  newD <- data.table(municip=location)
+  res <- merge(newD,locationData,by="municip", all.x=T)
+  res[is.na(municipName), municipName:=municip]
 
-  return(location)
+  return(res$municipName)
+}
+
+
+#' Adds LocationName to dataset
+#'
+#' Takes a location (either a municipality or county).
+#' Finds the pretty name and adds this to the data.table \code{data}
+#'  as a new variable \code{locationName}.
+#'
+#' @param data A data.table
+#' @import data.table
+#' @export
+AddLocationName <- function(data) {
+  data[, locationName := GetLocationName(location, locationData=NorwayLocationsLong())]
+}
+
+
+#' Adds county to dataset
+#'
+#' Takes a location (either a municipality or county).
+#' If the location is a county, nothing happens.
+#' If the location is a municipality, it searches for the encompassing county
+#' and adds this to the data.table \code{data} as a new variable \code{county}.
+#'
+#' @param data A data.table
+#' @import data.table
+#' @export
+AddCounty <- function(data) {
+  data[, county:=GetCountyFromMunicip(location, locationData = NorwayLocations())]
+
 }

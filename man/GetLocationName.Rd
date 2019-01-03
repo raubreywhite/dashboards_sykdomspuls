@@ -4,7 +4,7 @@
 \alias{GetLocationName}
 \title{Get location name from location code}
 \usage{
-GetLocationName(location, locationData = norwayLocations)
+GetLocationName(location, locationData = NorwayLocationsLong())
 }
 \arguments{
 \item{location}{Location code}

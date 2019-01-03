@@ -10,7 +10,7 @@
 #' @export CleanData
 CleanData <- function(d,
                       syndrome,
-                      population = norwayPopulation,
+                      population = NorwayPopulation(),
                       hellidager = fread(system.file("extdata", "DatoerMedHelligdager.txt", package = "sykdomspuls"))[, c("Dato", "HelligdagIndikator"), with = FALSE],
                       testIfHelligdagIndikatorFileIsOutdated = TRUE,
                       removeMunicipsWithoutConsults = FALSE) {
@@ -66,7 +66,7 @@ CleanData <- function(d,
     d[, total := NULL]
     skeleton <-
       data.table(expand.grid(
-        unique(norwayMunicipMerging[municipEnd %in% unique(d$municip) |
+        unique(NorwayMunicipMerging()[municipEnd %in% unique(d$municip) |
           municip %in% unique(d$municip)]$municip),
         unique(d$age),
         seq.Date(dateMin, dateMax, 1)
@@ -74,7 +74,7 @@ CleanData <- function(d,
   } else {
     skeleton <-
       data.table(expand.grid(
-        unique(norwayMunicipMerging$municip),
+        unique(NorwayMunicipMerging()$municip),
         unique(d$age),
         seq.Date(dateMin, dateMax, 1)
       ))
@@ -119,7 +119,7 @@ CleanData <- function(d,
   dim(data)
   data <-
     merge(data,
-      norwayMunicipMerging[, c("municip", "year", "municipEnd")],
+      NorwayMunicipMerging()[, c("municip", "year", "municipEnd")],
       by = c("municip", "year"),
       all.x = T
     )
@@ -144,7 +144,7 @@ CleanData <- function(d,
 
   # merging in municipalitiy-fylke names
   data <-
-    merge(data, norwayLocations[, c("municip", "county")], by = "municip")
+    merge(data, NorwayLocations()[, c("municip", "county")], by = "municip")
   for (i in syndromeAndConsult) {
     data[is.na(get(i)), (i) := 0]
   }

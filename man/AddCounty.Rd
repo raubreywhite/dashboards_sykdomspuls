@@ -4,12 +4,10 @@
 \alias{AddCounty}
 \title{Adds county to dataset}
 \usage{
-AddCounty(data, loc)
+AddCounty(data)
 }
 \arguments{
 \item{data}{A data.table}
-
-\item{loc}{A location (either a municipality or county)}
 }
 \description{
 Takes a location (either a municipality or county).

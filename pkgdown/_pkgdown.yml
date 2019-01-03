@@ -42,9 +42,6 @@ reference:
     They should be moved inside the environment `VARS`
   contents:
   - displayDays
-  - norwayLocations
-  - norwayMunicipMerging
-  - norwayPopulation
 - title: Fake Data and Validation
   desc: >
     These functions relate to fake data creation and data validation
@@ -62,8 +59,10 @@ reference:
     and saving of data files.
   contents:
   - AddCounty
+  - AddLocationName
   - AddWkyrAndDisplayDateToWeekly
   - AddXToWeekly
+  - CheckOutOfDate
   - CleanData
   - CreateLatestDoneFile
   - DeleteLatestDoneFile
@@ -80,6 +79,10 @@ reference:
   - IdentifyDatasets
   - LatestDatasets
   - LatestRawID
+  - NorwayLocations
+  - NorwayLocationsLong
+  - NorwayMunicipMerging
+  - NorwayPopulation
   - ResultsAggregateApply
   - ResultsAggregateStack
   - SaveRDS
