@@ -4,9 +4,11 @@
 \alias{StackIterator}
 \title{Stack Iterator}
 \usage{
-StackIterator(stack, data, progressFunction)
+StackIterator(stackStrata, stack, data, progressFunction)
 }
 \arguments{
+\item{stackStrata}{a}
+
 \item{stack}{a}
 
 \item{data}{a}

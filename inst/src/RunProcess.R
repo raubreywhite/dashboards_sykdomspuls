@@ -23,46 +23,31 @@ DeleteOldDatasets()
 fhi::DashboardMsg("Registering cluster", newLine = T)
 cl <- makeCluster(parallel::detectCores())
 registerDoSNOW(cl)
+
 # }
 
 for (i in 1:nrow(sykdomspuls::CONFIG$SYNDROMES)) {
   conf <- sykdomspuls::CONFIG$SYNDROMES[i]
   fhi::DashboardMsg(conf$tag)
 
-  stackAndData <- sykdomspuls::StackAndEfficientDataForAnalysis(conf = conf)
-  data <- stackAndData$data
+  stackAndData <- StackAndEfficientDataForAnalysis(conf = conf, strataSize=250)
+  stackStrata <- stackAndData$analysesStrata
   stack <- stackAndData$analyses
+  data <- stackAndData$data
 
   if (i == 1) {
     fhi::DashboardMsg("Initializing progress bar")
-    PBInitialize(n = nrow(stack) * nrow(sykdomspuls::CONFIG$SYNDROMES))
+    PBInitialize(n = round(length(stackStrata) * nrow(sykdomspuls::CONFIG$SYNDROMES)))
   }
 
-  fhi::DashboardMsg("Setting keys for binary search")
-  setkeyv(data, c("location", "age"))
+  res <- foreach(analysisIter = StackIterator(stackStrata, stack, data, PBIncrement),
+                 .noexport = c("data"),
+                 .packages = c("data.table", "sykdomspuls")) %dopar% {
 
-  res <- foreach(analysisIter = StackIterator(stack, data, PBIncrement), .noexport = c("data")) %dopar% {
-    if (!fhi::DashboardIsDev()) {
-      library(data.table)
-    }
+    retval <- lapply(analysisIter,
+                     function(x) RunOneAnalysis(analysesStack = x$stack, analysisData = x$data))
 
-    exceptionalFunction <- function(err) {
-      fhi::DashboardMsg(err, syscallsDepth = 10, newLine = T)
-      fhi::DashboardMsg(analysisIter$stack, newLine = T)
-    }
-
-    analysesStack <- analysisIter$stack
-    analysisData <- analysisIter$data
-    # x <- analysisIter$nextElem()
-    # analysesStack <- x$stack
-    # analysisData <- x$data
-
-    retval <- tryCatch(
-      sykdomspuls::RunOneAnalysis(analysesStack = analysesStack, analysisData = analysisData),
-      error = exceptionalFunction
-    )
-
-    retval
+    rbindlist(retval)
   }
   res <- rbindlist(res)
 

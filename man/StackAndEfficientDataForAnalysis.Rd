@@ -4,10 +4,12 @@
 \alias{StackAndEfficientDataForAnalysis}
 \title{Create analysis stack and datasets for a tag}
 \usage{
-StackAndEfficientDataForAnalysis(conf)
+StackAndEfficientDataForAnalysis(conf, strataSize = 1)
 }
 \arguments{
 \item{conf}{A row from \code{CONFIG$SYNDROMES}}
+
+\item{strataSize}{How many analyses should be sent to a node at once?}
 }
 \description{
 Given one row from \code{CONFIG$SYNDROMES} we need

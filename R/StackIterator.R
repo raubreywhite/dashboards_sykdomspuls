@@ -1,17 +1,23 @@
 #' Stack Iterator
+#' @param stackStrata a
 #' @param stack a
 #' @param data a
 #' @param progressFunction a
-#' @export StackIterator
-StackIterator <- function(stack, data, progressFunction) {
+#' @export
+StackIterator <- function(stackStrata, stack, data, progressFunction) {
   . <- NULL
 
-  it <- iterators::icount(nrow(stack))
+  it <- iterators::icount(length(stackStrata))
 
   nextEl <- function() {
     i <- iterators::nextElem(it)
     progressFunction()
-    list("stack" = stack[i], "data" = data[.(stack$location[i], stack$age[i])])
+    run = stackStrata[[i]]
+    retval <- vector("list",length=length(run))
+    for(j in seq_along(run)){
+      retval[[j]] <- list("stack" = stack[run[j]], "data" = data[.(stack$location[run[j]], stack$age[run[j]])])
+    }
+    retval
   }
 
   obj <- list(nextElem = nextEl)
