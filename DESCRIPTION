@@ -1,7 +1,11 @@
 Package: sykdomspuls
 Title: Norwegian Syndromic Surveillance System - NorSySS
 <<<<<<< HEAD
+<<<<<<< HEAD
 Version: 2019.01.03
+=======
+Version: 2018.12.19
+>>>>>>> parent of 55caa35... Travis CI update 101 [ci skip]
 =======
 Version: 2018.12.19
 >>>>>>> parent of 55caa35... Travis CI update 101 [ci skip]
