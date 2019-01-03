@@ -25,7 +25,7 @@
 #' @return A list containing a sequence of training years and prediction years
 #' @examples
 #' sykdomspuls::CalculateTrainPredictYearPattern(2000, 2015, 1)
-#' 
+#'
 #' sykdomspuls::CalculateTrainPredictYearPattern(2000, 2015, 3)
 #' @export CalculateTrainPredictYearPattern
 CalculateTrainPredictYearPattern <- function(yearMin, yearMax, numPerYear1 = 1) {
@@ -154,7 +154,7 @@ DetermineStatus <- function(data) {
 #' @import data.table
 #' @export AddCounty
 AddCounty <- function(data, loc) {
-  county <- GetCountyFromMunicip(loc, locationData = norwayLocations())
+  county <- GetCountyFromMunicip(loc, locationData = norwayLocations)
   data[, county := county]
 }
 
@@ -219,7 +219,7 @@ RunOneAnalysis <- function(analysesStack, analysisData) {
   res[, type := analysesStack$tag]
   res[, tag := analysesStack$tag]
   res[, location := analysesStack$location]
-  res[, locationName := GetLocationName(analysesStack$location, locationData = norwayLocations())]
+  res[, locationName := GetLocationName(analysesStack$location, locationData = norwayLocations)]
   res[, file := analysesStack$file]
 
   # make threshold2 minimum of 2 and threshold4 minimum of 3
@@ -248,7 +248,7 @@ RunOneAnalysis <- function(analysesStack, analysisData) {
 #' @param locationData Dataset containing a map between location code and pretty location name
 #' @import data.table
 #' @export GetLocationName
-GetLocationName <- function(location, locationData = norwayLocations()) {
+GetLocationName <- function(location, locationData = norwayLocations) {
   locationName <- "Norge"
 
   if (location != "Norge") {
@@ -273,7 +273,7 @@ GetLocationName <- function(location, locationData = norwayLocations()) {
 #' @param locationData Dataset containing a map between locatino code and pretty location name
 #' @import data.table
 #' @export GetCountyFromMunicip
-GetCountyFromMunicip <- function(location, locationData = norwayLocations()) {
+GetCountyFromMunicip <- function(location, locationData = norwayLocations) {
   if (sum(locationData$municip == location) > 0) {
     location <- as.character(locationData$county[locationData$municip == location])
   }

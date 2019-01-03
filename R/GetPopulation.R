@@ -3,8 +3,8 @@
 #' @import fhi
 #' @import data.table
 #' @importFrom lubridate today
-#' @export GenPopulation
-GenPopulation <- function() {
+#' @export GenNorwayPopulation
+GenNorwayPopulation <- function() {
   # variables used in data.table functions in this function
   . <- NULL
   value <- NULL
@@ -135,7 +135,7 @@ GenPopulation <- function() {
   }
 
   if (dir.exists(file.path("inst", "createddata"))) {
-    try(saveRDS(pop, file.path("inst", "createddata", "pop.RDS")), TRUE)
+    try(saveRDS(pop, file.path("inst", "createddata", "norwayPopulation.RDS")), TRUE)
   }
 
   return(invisible(pop))

@@ -23,11 +23,12 @@ knitr::opts_chunk$set(
 We create some fake data:
 
 ```{r}
+library(sykdomspuls)
 library(data.table)
 library(ggplot2)
 
 # Load raw data
-d <- sykdomspuls::GenFakeDataRaw()
+d <- GenFakeDataRaw()
 print(d)
 ```
 
@@ -35,7 +36,7 @@ We format the data into panel data:
 
 ```{r}
 # Format the data into panel data
-d <- sykdomspuls::CleanData(d,
+d <- CleanData(d,
     syndrome = "influensa",
     testIfHelligdagIndikatorFileIsOutdated = FALSE,
     removeMunicipsWithoutConsults = TRUE
