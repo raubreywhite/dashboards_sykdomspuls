@@ -57,6 +57,14 @@ CheckOutOfDate <- function(){
   fhi::DashboardMsg("\u2620\u2620Data files have been read!\u2620\u2620", syscallsDepth = 0)
   fhi::DashboardMsg("\u2620\u2620This is slow!\u2620\u2620", syscallsDepth = 0)
   CONFIG$checkedOutOfDate <- TRUE
+
+  for (i in seq_along(CONFIG$outOfDate)) {
+    if (CONFIG$outOfDate[[i]]) {
+      fhi::DashboardMsg(sprintf("\u2716 %s is out of date.", names(CONFIG$outOfDate)[i]), syscallsDepth = 0)
+    } else {
+      fhi::DashboardMsg(sprintf("\u2713 %s is up to date.", names(CONFIG$outOfDate)[i]), syscallsDepth = 0)
+    }
+  }
 }
 
 #' NorwayPopulation

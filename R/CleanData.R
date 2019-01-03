@@ -238,8 +238,9 @@ CleanData <- function(d,
 #' that can be directly sent to \code{QuasipoissonTrainPredictData}
 #' without additional formatting.
 #' @param conf A row from \code{CONFIG$SYNDROMES}
+#' @param strataSize How many analyses should be sent to a node at once?
 #' @export StackAndEfficientDataForAnalysis
-StackAndEfficientDataForAnalysis <- function(conf) {
+StackAndEfficientDataForAnalysis <- function(conf, strataSize=1) {
   . <- NULL
   granularityGeo <- NULL
   weeklyDenominatorFunction <- NULL
@@ -304,11 +305,19 @@ StackAndEfficientDataForAnalysis <- function(conf) {
   analysesComparison[, file := sprintf("%s_%s.RDS", "resComparisons", tag)]
 
   analyses <- rbind(analysesCounties, analysesMunicips, analysesComparison)
-  if (fhi::DashboardIsDev()) {
-    analyses[, id := 1:.N, by = .(file)]
-    analyses <- analyses[id %in% 1:100 | location == "Norge"]
-    analyses[, id := NULL]
-  }
+
+  temp <- data.table(start=seq(1,nrow(analyses),by=1))
+  temp[,end:=shift(start,type = "lead")]
+  temp <- na.omit(temp)
+  temp[1:(.N-1),end:=end-1]
+
+  analysesStrata <- vector("list", length=nrow(temp))
+  for(i in seq_along(analysesStrata)) analysesStrata[[i]] <- temp$start[i]:temp$end[i]
+  #if (fhi::DashboardIsDev()) {
+  #  analyses[, id := 1:.N, by = .(file)]
+  #  analyses <- analyses[id %in% 1:100 | location == "Norge"]
+  #  analyses[, id := NULL]
+  #}
 
   return(
     list(
@@ -318,6 +327,7 @@ StackAndEfficientDataForAnalysis <- function(conf) {
       municips = municips,
       locations = locations,
       ages = ages,
+      analysesStrata = analysesStrata,
       analyses = analyses,
       analysesCounties = analysesCounties,
       analysesMunicips = analysesMunicips,
