@@ -92,6 +92,7 @@ reference:
     These functions are related to the analysis portion of sykdomspuls.
   contents:
   - StackAndEfficientDataForAnalysis
+  - StackAndEfficientDataForAnalysisInList
   - CalculateTrainPredictYearPattern
   - QuasipoissonTrainPredictData
   - RunOneAnalysis

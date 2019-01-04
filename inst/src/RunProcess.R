@@ -1,9 +1,7 @@
 fhi::DashboardInitialiseOpinionated("sykdomspuls")
 
 suppressMessages(library(data.table))
-suppressMessages(library(foreach))
-suppressMessages(library(doSNOW))
-suppressMessages(library(iterators))
+suppressMessages(library(pbmcapply))
 
 if (!dir.exists(fhi::DashboardFolder("results", "externalapi"))) dir.create(fhi::DashboardFolder("results", "externalapi"))
 if (!dir.exists(fhi::DashboardFolder("results", LatestRawID()))) dir.create(fhi::DashboardFolder("results", LatestRawID()))
@@ -13,45 +11,25 @@ SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("results", "config.RDS"))
 SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("data_app", "config.RDS"))
 SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("results", "externalapi/config.RDS"))
 
+fhi::Log("cleanBefore")
 if (!UpdateData()) {
   fhi::DashboardMsg("Have not run analyses and exiting")
   q(save = "no", status = 21)
 }
 DeleteOldDatasets()
+fhi::Log("cleanAfter")
 
-# if (!fhi::DashboardIsDev()) {
-fhi::DashboardMsg("Registering cluster", newLine = T)
-cl <- makeCluster(parallel::detectCores())
-registerDoSNOW(cl)
-
-# }
-
-for (i in 1:nrow(sykdomspuls::CONFIG$SYNDROMES)) {
+fhi::Log("analyse1Before")
+for (i in seq_along(sykdomspuls::CONFIG$SYNDROMES)) {
   conf <- sykdomspuls::CONFIG$SYNDROMES[i]
   fhi::DashboardMsg(conf$tag)
 
-  stackAndData <- StackAndEfficientDataForAnalysis(conf = conf, strataSize = 10)
-  stackStrata <- stackAndData$analysesStrata
-  stack <- stackAndData$analyses
-  data <- stackAndData$data
+  stackAndData <- StackAndEfficientDataForAnalysisInList(conf = conf)
 
-  if (i == 1) {
-    fhi::DashboardMsg("Initializing progress bar")
-    PBInitialize(n = round(length(stackStrata) * nrow(sykdomspuls::CONFIG$SYNDROMES)))
-  }
+  res <- pbmclapply(stackAndData,
+                    function(x) RunOneAnalysis(analysesStack = x$stack, analysisData = x$data),
+                    mc.cores = parallel::detectCores())
 
-  res <- foreach(
-    analysisIter = StackIterator(stackStrata, stack, data, PBIncrement),
-    .noexport = c("data"),
-    .packages = c("data.table", "sykdomspuls")
-  ) %dopar% {
-    retval <- lapply(
-      analysisIter,
-      function(x) RunOneAnalysis(analysesStack = x$stack, analysisData = x$data)
-    )
-
-    rbindlist(retval)
-  }
   res <- rbindlist(res)
 
   # adding in extra information
@@ -69,28 +47,40 @@ for (i in 1:nrow(sykdomspuls::CONFIG$SYNDROMES)) {
     saveRDS(res[file == f], file = fhi::DashboardFolder("results", sprintf("%s/%s", LatestRawID(), f)))
   }
 
-  rm("res", "data", "stackAndData")
-}
+  rm("res", "stackAndData")
 
-# if (!fhi::DashboardIsDev()) {
-fhi::DashboardMsg("Stopping cluster", newLine = T)
-stopCluster(cl)
-# }
+  # displaying timing information
+  timeElapsed <- as.numeric(difftime(Sys.time(),fhi::LogGet()$analyse1Before,units="min"))
+  timeTotal <- (timeElapsed/i)*nrow(sykdomspuls::CONFIG$SYNDROMES)
+  timeRemaining <- timeTotal*(nrow(sykdomspuls::CONFIG$SYNDROMES)-i)/nrow(sykdomspuls::CONFIG$SYNDROMES)
+  fhi::DashboardMsg(sprintf("%s min total, %s min elapsed, %s min remaining",
+                            round(timeTotal),
+                            round(timeElapsed),
+                            round(timeRemaining)))
+}
+fhi::Log("analyse1After")
+
 
 # Append all the syndromes together
+fhi::Log("save1Before")
 ResultsAggregateApply()
+fhi::Log("save1After")
 
 ## GENERATE LIST OF OUTBREAKS
 fhi::DashboardMsg("Generate list of outbreaks")
+fhi::Log("analyse2Before")
 GenerateOutbreakListInternal()
 GenerateOutbreakListInternal(
   saveFiles = fhi::DashboardFolder("results", "externalapi/outbreaks.RDS"),
   useType = TRUE
 )
 GenerateOutbreakListExternal()
+fhi::Log("analyse2After")
 
 fhi::DashboardMsg("Send data to DB")
+fhi::Log("save2Before")
 SaveShinyAppDataToDB()
+fhi::Log("save2After")
 
 # Done with analyses
 fhi::DashboardMsg("Done with all analyses")
@@ -100,6 +90,15 @@ cat("done", file = "/data_app/sykdomspuls/done.txt")
 
 ## SENDING OUT EMAILS
 EmailNotificationOfNewResults()
+
+## Saving log
+if(file.exists(fhi::DashboardFolder("results","log.RDS"))){
+  log <- readRDS(fhi::DashboardFolder("results","log.RDS"))
+} else {
+  log <- vector("list")
+}
+log[[length(log)+1]] <- fhi::LogGet()
+saveRDS(log,fhi::DashboardFolder("results","log.RDS"))
 
 fhi::DashboardMsg("Finished analyses and exiting")
 if (!fhi::DashboardIsDev()) quit(save = "no", status = 0)
