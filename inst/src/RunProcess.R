@@ -30,7 +30,7 @@ for (i in 1:nrow(sykdomspuls::CONFIG$SYNDROMES)) {
   conf <- sykdomspuls::CONFIG$SYNDROMES[i]
   fhi::DashboardMsg(conf$tag)
 
-  stackAndData <- StackAndEfficientDataForAnalysis(conf = conf, strataSize = 250)
+  stackAndData <- StackAndEfficientDataForAnalysis(conf = conf, strataSize = 10)
   stackStrata <- stackAndData$analysesStrata
   stack <- stackAndData$analyses
   data <- stackAndData$data
