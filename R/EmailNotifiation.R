@@ -389,10 +389,10 @@ EmailNorMOMOInfluensa <- function() {
   nor[, location := sprintf("county%s", stringr::str_extract(x, "[0-9][0-9]"))]
   nor[location == "countyNA", location := "Norge"]
   nor[, x := NULL]
-  setnames(nor, "zscore", "zscore_inf")
+  setnames(nor, "zscore", "zscore_death")
 
   inf <- readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine_influensa.RDS", LatestRawID())))[age == "Totalt"]
-  setnames(inf, "zscore", "zscore_death")
+  setnames(inf, "zscore", "zscore_inf")
 
   nrow(inf)
   inf <- merge(inf, nor, by.x = c("location", "wkyr"), by.y = c("location", "wk2"))
