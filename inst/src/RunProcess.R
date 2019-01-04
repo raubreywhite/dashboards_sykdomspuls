@@ -27,8 +27,9 @@ for (i in seq_along(sykdomspuls::CONFIG$SYNDROMES)) {
   stackAndData <- StackAndEfficientDataForAnalysisInList(conf = conf)
 
   res <- pbmclapply(stackAndData,
-                    function(x) RunOneAnalysis(analysesStack = x$stack, analysisData = x$data),
-                    mc.cores = parallel::detectCores())
+    function(x) RunOneAnalysis(analysesStack = x$stack, analysisData = x$data),
+    mc.cores = parallel::detectCores()
+  )
 
   res <- rbindlist(res)
 
@@ -50,13 +51,15 @@ for (i in seq_along(sykdomspuls::CONFIG$SYNDROMES)) {
   rm("res", "stackAndData")
 
   # displaying timing information
-  timeElapsed <- as.numeric(difftime(Sys.time(),fhi::LogGet()$analyse1Before,units="min"))
-  timeTotal <- (timeElapsed/i)*nrow(sykdomspuls::CONFIG$SYNDROMES)
-  timeRemaining <- timeTotal*(nrow(sykdomspuls::CONFIG$SYNDROMES)-i)/nrow(sykdomspuls::CONFIG$SYNDROMES)
-  fhi::DashboardMsg(sprintf("%s min total, %s min elapsed, %s min remaining",
-                            round(timeTotal),
-                            round(timeElapsed),
-                            round(timeRemaining)))
+  timeElapsed <- as.numeric(difftime(Sys.time(), fhi::LogGet()$analyse1Before, units = "min"))
+  timeTotal <- (timeElapsed / i) * nrow(sykdomspuls::CONFIG$SYNDROMES)
+  timeRemaining <- timeTotal * (nrow(sykdomspuls::CONFIG$SYNDROMES) - i) / nrow(sykdomspuls::CONFIG$SYNDROMES)
+  fhi::DashboardMsg(sprintf(
+    "%s min total, %s min elapsed, %s min remaining",
+    round(timeTotal),
+    round(timeElapsed),
+    round(timeRemaining)
+  ))
 }
 fhi::Log("analyse1After")
 
@@ -92,13 +95,13 @@ cat("done", file = "/data_app/sykdomspuls/done.txt")
 EmailNotificationOfNewResults()
 
 ## Saving log
-if(file.exists(fhi::DashboardFolder("results","log.RDS"))){
-  log <- readRDS(fhi::DashboardFolder("results","log.RDS"))
+if (file.exists(fhi::DashboardFolder("results", "log.RDS"))) {
+  log <- readRDS(fhi::DashboardFolder("results", "log.RDS"))
 } else {
   log <- vector("list")
 }
-log[[length(log)+1]] <- fhi::LogGet()
-saveRDS(log,fhi::DashboardFolder("results","log.RDS"))
+log[[length(log) + 1]] <- fhi::LogGet()
+saveRDS(log, fhi::DashboardFolder("results", "log.RDS"))
 
 fhi::DashboardMsg("Finished analyses and exiting")
 if (!fhi::DashboardIsDev()) quit(save = "no", status = 0)

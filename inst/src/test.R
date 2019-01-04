@@ -21,11 +21,12 @@ stackStrata <- stackAndData$analysesStrata
 stack <- stackAndData$analyses
 data <- stackAndData$data
 
-a0 <-Sys.time()
+a0 <- Sys.time()
 res <- pbmclapply(retval[1:500],
-                  function(x) RunOneAnalysis(analysesStack = x$stack, analysisData = x$data),
-                  mc.cores = parallel::detectCores())
-a1 <-Sys.time()
+  function(x) RunOneAnalysis(analysesStack = x$stack, analysisData = x$data),
+  mc.cores = parallel::detectCores()
+)
+a1 <- Sys.time()
 a1 - a0
 
 
@@ -51,5 +52,5 @@ res <- foreach(
 }
 b1 <- Sys.time()
 
-a1 - a0 #49
-b1 -b0
+a1 - a0 # 49
+b1 - b0
