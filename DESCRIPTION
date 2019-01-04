@@ -25,6 +25,8 @@ Imports:
   RMariaDB,
   plumber,
   memoise,
+  parallel,
+  pbmcapply,
   RAWmisc
 Suggests: testthat,
     knitr,
