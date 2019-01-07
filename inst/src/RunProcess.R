@@ -20,7 +20,7 @@ DeleteOldDatasets()
 fhi::Log("cleanAfter")
 
 fhi::Log("analyse1Before")
-for (i in seq_along(sykdomspuls::CONFIG$SYNDROMES)) {
+for (i in 1:nrow(sykdomspuls::CONFIG$SYNDROMES)) {
   conf <- sykdomspuls::CONFIG$SYNDROMES[i]
   fhi::DashboardMsg(conf$tag)
 
