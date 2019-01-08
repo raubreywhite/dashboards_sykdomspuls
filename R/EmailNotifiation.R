@@ -401,7 +401,7 @@ EmailNorMOMOInfluensa <- function() {
   inf[week >= 30, season := sprintf("%s/%s", year, year + 1)]
 
   breaks <- unique(inf[season == max(season), c("wkyr", "x")])
-  breaks <- breaks[seq(1, .N, 2)]
+  breaks <- breaks[seq(.N, 1, -2)]
 
   q <- ggplot(inf[season == max(season)], aes(x = x))
   q <- q + geom_ribbon(ymin = -Inf, ymax = 2, fill = "#91bfdb", alpha = 0.4)
