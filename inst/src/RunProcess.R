@@ -1,6 +1,7 @@
 fhi::DashboardInitialiseOpinionated("sykdomspuls")
 
 suppressMessages(library(data.table))
+suppressMessages(library(ggplot2))
 suppressMessages(library(pbmcapply))
 
 if (!dir.exists(fhi::DashboardFolder("results", "externalapi"))) dir.create(fhi::DashboardFolder("results", "externalapi"))

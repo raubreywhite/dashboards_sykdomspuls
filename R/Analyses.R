@@ -25,7 +25,7 @@
 #' @return A list containing a sequence of training years and prediction years
 #' @examples
 #' sykdomspuls::CalculateTrainPredictYearPattern(2000, 2015, 1)
-#' 
+#'
 #' sykdomspuls::CalculateTrainPredictYearPattern(2000, 2015, 3)
 #' @export CalculateTrainPredictYearPattern
 CalculateTrainPredictYearPattern <- function(yearMin, yearMax, numPerYear1 = 1) {
@@ -234,8 +234,11 @@ RunOneAnalysis <- function(analysesStack, analysisData) {
 #' @export GetLocationName
 GetLocationName <- function(location, locationData = NorwayLocationsLong()) {
   newD <- data.table(location = location)
+  newD[,order:=1:.N]
   res <- merge(newD, locationData, by = "location", all.x = T)
   res[is.na(locationName), locationName := location]
+  setorder(res,order)
+  res[,order:=NULL]
 
   return(res$locationName)
 }
@@ -253,8 +256,11 @@ GetLocationName <- function(location, locationData = NorwayLocationsLong()) {
 #' @export GetCountyFromMunicip
 GetCountyFromMunicip <- function(location, locationData = NorwayLocations()) {
   newD <- data.table(municip = location)
+  newD[,order:=1:.N]
   res <- merge(newD, locationData, by = "municip", all.x = T)
   res[is.na(municipName), municipName := municip]
+  setorder(res,order)
+  res[,order:=NULL]
 
   return(res$municipName)
 }
