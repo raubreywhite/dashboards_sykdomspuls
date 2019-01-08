@@ -5,16 +5,16 @@ RunShiny <- function() {
   options(shiny.host = "0.0.0.0")
 
   file <- system.file("shiny",
-                      "sykdomspuls",
-                      "global.R",
-                      package = "sykdomspuls"
+    "sykdomspuls",
+    "global.R",
+    package = "sykdomspuls"
   )
   source(file)
 
   file <- system.file("shiny",
-                      "sykdomspuls",
-                      "flexdashboard.Rmd",
-                      package = "sykdomspuls"
+    "sykdomspuls",
+    "flexdashboard.Rmd",
+    package = "sykdomspuls"
   )
 
   rmarkdown::run(file, shiny_args = list(port = 4989))
