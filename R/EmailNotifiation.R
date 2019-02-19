@@ -273,7 +273,8 @@ EmailExternal <- function(
 
 
   emailNoOutbreak <-
-    "Pilotprosjektet Sykdomspulsen til kommunehelsetjenesten er oppdatert med nye tall.<br>
+    "Vi hadde et teknisk problem med Sykdomspulsen Tirsdag 18. februar der dataene ikke ble oppdatert p\u00E5 riktig m\u00E5te. Derfor blir det n\u00E5 sendt ut et nytt OBS varsel, denne gang med riktige data. Beklager ulempene dette m\u00E5tte medf\u00F8re.<br><br>
+  Pilotprosjektet Sykdomspulsen til kommunehelsetjenesten er oppdatert med nye tall.<br>
   Nye resultater vises p\u00E5 websiden om ca. 10 min.<br><br>
   Innlogging<br>
   Webadresse: <a href='http://sykdomspulsen.fhi.no/lege123/'>http://sykdomspulsen.fhi.no/lege123/</a><br>
@@ -301,7 +302,8 @@ Sykdomspulsen kan i noen tilfeller generere et OBS varsel selv om det bare er en
   "
 
   emailYesOutbreak <-
-    "Dette er et OBS varsel fra Sykdomspulsen.<br><br>
+    "Vi hadde et teknisk problem med Sykdomspulsen Tirsdag 18. februar der dataene ikke ble oppdatert p\u00E5 riktig m\u00E5te. Derfor blir det n\u00E5 sendt ut et nytt OBS varsel, denne gang med riktige data. Beklager ulempene dette m\u00E5tte medf\u00F8re.<br><br>
+  Dette er et OBS varsel fra Sykdomspulsen.<br><br>
   OBS varselet inneb\u00E6rer at alle dere som deltar i pilotprosjektet <b>Sykdomspulsen til kommunehelsetjenesten</b> f\u00E5r et varsel p\u00E5 e-post dersom deres kommune eller et fylke har flere konsultasjoner enn forventet av henholdsvis mage-tarminfeksjoner eller luftveisinfeksjoner sist uke.<br><br>
   Tabellen under viser informasjon om stedet der det er mer enn forventet antall konsultasjoner og aldersgruppe, antallet konsultasjoner som er over forventet verdi (excess) og en verdi som viser hvor ekstremt signalet er (z-score). Hvis z-scoret er mellom 2 og 4 er antallet konsultasjoner sist uke h\u00F8yere enn forventet og man vil se at det ligger i gul sone p\u00E5 Sykdomspulsen websiden. Dersom z-scoret er over 4 er antallet konsultasjoner sist uke betydelig h\u00F8yere enn forventet og man vil se at det ligger i r\u00F8d sone p\u00E5 Sykdomspulsen websiden.<br><br>
   I tabellen under er det en link til stedet der du kan se OBS varselet i Sykdomspulsen. Denne virker ikke dersom den \u00E5pnes i Internet explorer. Dersom du har problemer med linken kan du h\u00F8yreklikke p\u00E5 koblingen og kopiere den for deretter \u00E5 lime den inn i for eksempel Google chrome eller en annen nettleser. Du kan ogs\u00E5 logge deg inn p\u00E5 Sykdomspulsen p\u00E5 vanlig m\u00E5te (<a href='http://sykdomspulsen.fhi.no/lege123/'>http://sykdomspulsen.fhi.no/lege123/</a>) og selv finne aktuell kommune eller fylke.<br><br>
