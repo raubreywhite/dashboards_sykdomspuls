@@ -2,10 +2,12 @@
 % Please edit documentation in R/AnalysesSecondary.R
 \name{AnalyseLog}
 \alias{AnalyseLog}
-\title{AnalyseLog}
+\title{AnalyseLog dfdf
+dfd}
 \usage{
 AnalyseLog()
 }
 \description{
-AnalyseLog
+AnalyseLog dfdf
+dfd
 }
