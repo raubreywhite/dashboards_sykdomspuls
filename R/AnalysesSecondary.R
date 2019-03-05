@@ -1,5 +1,6 @@
-#' AnalyseLog
-#' @export
+#' AnalyseLog dfdf
+#' dfd
+#' @export AnalyseLog
 AnalyseLog <- function(){
   log <- LogGet()
   if(length(log)==0) return()

@@ -79,7 +79,7 @@ reference:
   - ResultsAggregateStack
   - SaveRDS
   - UpdateData
-- title: Analysis Functions
+- title: Analysis Functions I
   desc: >
     These functions are related to the analysis portion of sykdomspuls.
   contents:
@@ -91,6 +91,13 @@ reference:
   - FarringtonSEinGammaSpace
   - FarringtonThreshold
   - FarringtonZscore
+- title: Analysis Functions II
+  desc: >
+    These functions are related to the secondary analysis portion of sykdomspuls.
+  contents:
+  - AnalyseLog
+  - AnalyseStats1
+  - AnalysesSecondary
 - title: Email Functions
   desc: >
     These functions are related to the emails that are produced by sykdomspuls.
@@ -104,6 +111,9 @@ reference:
   - EmailNotificationOfNewResults
   - EmailTechnicalNewResults
   - EmailNorMOMOInfluensa
+  - EmailEmerg
+  - EmailSkabb
+  - EmailStats
 - title: Shiny Functions
   desc: >
     These functions are related to the shiny dashboard
@@ -118,3 +128,4 @@ reference:
   - StackIterator
   - PBIncrement
   - PBInitialize
+  - LogGet
