@@ -73,28 +73,6 @@ x <- process$kill()
 library(sykdomspuls)
 fhi::DashboardInitialiseOpinionated("sykdomspuls")
 
-
-# check internal email works
-res <- tryCatch(
-  EmailInternal(),
-  warning = function(war) {
-    print(war)
-    return(-1)
-  },
-  error = function(err) {
-    print(err)
-    return(-1)
-  }
-)
-if (res == 0) {
-  cat("\n**PASS 5**\n")
-  a$add_result("sykdomspuls", "EmailInternal", testthat::expectation("success", "Pass"))
-} else {
-  cat("\n**FAIL 5**\n")
-  a$add_result("sykdomspuls", "EmailInternal", testthat::expectation("error", "Fail"))
-}
-
-
 res <- tryCatch(
   EmailExternal(
     alerts = sykdomspuls::GetAlertsEmails(),
