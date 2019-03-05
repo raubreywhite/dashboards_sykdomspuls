@@ -6,11 +6,17 @@ suppressMessages(library(pbmcapply))
 
 if (!dir.exists(fhi::DashboardFolder("results", "externalapi"))) dir.create(fhi::DashboardFolder("results", "externalapi"))
 if (!dir.exists(fhi::DashboardFolder("results", LatestRawID()))) dir.create(fhi::DashboardFolder("results", LatestRawID()))
+if (!dir.exists(fhi::DashboardFolder("results", file.path(LatestRawID(),"stats")))) dir.create(fhi::DashboardFolder("results", file.path(LatestRawID(),"stats")))
+if (!dir.exists(fhi::DashboardFolder("results", file.path(LatestRawID(),"skabb")))) dir.create(fhi::DashboardFolder("results", file.path(LatestRawID(),"skabb")))
 if (!dir.exists(fhi::DashboardFolder("data_raw", "normomo"))) dir.create(fhi::DashboardFolder("data_raw", "normomo"))
 
 SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("results", "config.RDS"))
 SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("data_app", "config.RDS"))
 SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("results", "externalapi/config.RDS"))
+
+fhi::Log("numTags",nrow(CONFIG$SYNDROMES))
+fhi::Log("version", CONFIG$VERSION)
+
 
 fhi::Log("cleanBefore")
 if (!UpdateData()) {
@@ -79,6 +85,7 @@ GenerateOutbreakListInternal(
   useType = TRUE
 )
 GenerateOutbreakListExternal()
+AnalysesSecondary()
 fhi::Log("analyse2After")
 
 fhi::DashboardMsg("Send data to DB")
@@ -96,11 +103,7 @@ cat("done", file = "/data_app/sykdomspuls/done.txt")
 EmailNotificationOfNewResults()
 
 ## Saving log
-if (file.exists(fhi::DashboardFolder("results", "log.RDS"))) {
-  log <- readRDS(fhi::DashboardFolder("results", "log.RDS"))
-} else {
-  log <- vector("list")
-}
+log <- LogGet()
 log[[length(log) + 1]] <- fhi::LogGet()
 saveRDS(log, fhi::DashboardFolder("results", "log.RDS"))
 

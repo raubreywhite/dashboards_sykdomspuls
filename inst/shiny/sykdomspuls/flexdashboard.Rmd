@@ -39,15 +39,17 @@ GetLocationName <- function(location) {
 }
 
 
-GetCols <- reactive({
+GetCols <- function(){
   retval <- c('#fc8d59','#ffffbf','#91cf60')
-  if(!is.null(input$colourBlind)){
-    if(input$colourBlind){
-      retval <- c('#fc8d59','#ffffbf','#91bfdb')
-    } 
-  }
+  #if(!is.null(input$colourBlind)){
+  #  if(input$colourBlind){
+  #    retval <- c('#fc8d59','#ffffbf','#91bfdb')
+  #  } 
+  #}
   return(retval)
-})
+}
+
+
 
 GetCols5 <- reactive({
   retval <- c('#e41a1c','#377eb8','#4daf4a','#984ea3','#ff7f00')
@@ -74,7 +76,7 @@ GetStepGraph <- reactive({
 Nyheter {.storyboard}
 =========================================
 
-### Fra august 2016 er det en \u00F8kning i antall konsultasjoner i aldersgruppen 15-19 \u00E5r grunnet behov for sykemelding ved frav\u00E6r i den videreg\u00E5ende skole
+### Fra august 2016 er det en økning i antall konsultasjoner i aldersgruppen 15-19 år grunnet behov for sykemelding ved fravær i den videregående skole
 
 ```{r, include=FALSE}
 pd <- pool %>% tbl("resYearLine") %>%
@@ -86,7 +88,7 @@ print(pd)
 
 output$storyboard1 <- renderPlot({
   q <- MakeLineThresholdPlot(pd,x="displayDay",dataVal="n",L1="bottom",L2="threshold2",L3="threshold4",L4="top",allPoints = FALSE, title="\u00D8vre-luftvei diagnose i 15-19 \u00E5ringer i Norge", pointShift = -3.5, weekNumbers=TRUE, step=FALSE, GetCols=GetCols)
-  q <- q + geom_rect(data=pd[1,],aes(xmin=as.Date("2016-08-01"),xmax=as.Date("2090-08-01"),ymin=-Inf,ymax=Inf),fill="black",alpha=0.4)
+  q <- q + geom_rect(data=pd[1,],aes(xmin=as.Date("2016-08-01"),xmax=as.Date("2090-08-01"),ymin=-Inf,ymax=Inf),fill="black",alpha=0.2)
   q
 })
 ```
@@ -97,7 +99,7 @@ output$storyboard1 <- renderPlot({
 
 *** 
 
-Some commentary about Frame 1.
+Fra august 2016 er det en økning i antall konsultasjoner i aldersgruppen 15-19 år grunnet behov for sykemelding ved fravær i den videregående skole
 
 ### Lansering av Sykdomspulsen
 

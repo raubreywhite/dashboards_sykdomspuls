@@ -1,0 +1,132 @@
+---
+title: "Statistics"
+output:
+  tufte::tufte_handout:
+    toc: TRUE
+    keep_tex: TRUE
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+  - \usepackage{threeparttablex}
+  - \usepackage[normalem]{ulem}
+  - \usepackage{makecell}
+  - \usepackage{xcolor}
+  - \makeatletter\renewcommand*{\fps@figure}{H}\makeatother
+params:
+  dev: TRUE
+  package_dir: "."
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+fhi::DashboardInitialiseOpinionated("sykdomspuls",
+                                    PACKAGE_DIR=params$package_dir,
+                                    FORCE_DEV_PACKAGE_LOAD = params$dev,
+                                    SILENT=TRUE)
+
+suppressMessages(library(data.table))
+suppressMessages(library(ggplot2))
+suppressMessages(library(kableExtra))
+
+pd <- AnalyseStats1()
+
+NorwayScale <- function(x, ...){
+  arguments <- list(...)
+  for (i in seq_along(arguments)) {
+    if(names(arguments)[[i]]=="nsmall"){
+      x <- round(x,arguments[[i]])
+    }
+  }
+    
+  retval <- format(x, ..., big.mark = ".", decimal.mark = 
+",", scientific = FALSE) 
+  retval <- stringr::str_replace_all(retval," ","")
+  retval <- stringr::str_replace_all(retval,"NaN","")
+  #retval <- paste0(" ",retval)
+  return(retval)
+}
+
+```
+
+\newpage
+
+# Time taken
+
+`r tufte::margin_note(glue::glue('
+                                    We monitor the number of time taken to ensure that \
+                                    there are no issues.
+                                    '))`
+
+```{r echo=FALSE, fig.height=11.69*0.6, message=FALSE, warning=FALSE}
+  q <- AnalyseLog()
+  print(q)
+```
+
+\newpage
+
+# Number of alerts
+
+```{r echo=FALSE, fig.fullwidth=TRUE, fig.height=11.69*0.65, fig.width=8.27*0.9, message=FALSE, warning=FALSE, paged.print=FALSE, results='asis'}
+for(xtag in unique(pd$tag)){
+  cat("  \n  \n ")
+  cat("## ",xtag,"  \n")
+  
+  cat(tufte::margin_note(glue::glue('
+                                    We compare the number of alerts ("\\# Alerts"), \
+                                    number of cases ("\\# Cases"), and number of cases \
+                                    greater than expected ("Cases>Expected") under two \
+                                    different alert designations: a) Z-score>2, and b) Z-score>4
+                                    ')))
+  
+  tabd <- pd[tag==xtag]
+  tabd <- dcast.data.table(tabd, age+type~variable, value.var = c("meanAlertsN","meanCases","meanCasesOverT0"))
+  setcolorder(tabd,
+              c("age",
+                "type",
+                "meanAlertsN_x_alerts2_ge5cases",
+                "meanAlertsN_x_alerts4_ge5cases",
+                "meanCases_x_alerts2_ge5cases",
+                "meanCases_x_alerts4_ge5cases",
+                "meanCasesOverT0_x_alerts2_ge5cases",
+                "meanCasesOverT0_x_alerts4_ge5cases"
+                ))
+  
+  tabd[,meanAlertsN_x_alerts2_ge5cases:=NorwayScale(meanAlertsN_x_alerts2_ge5cases, nsmall=1)]
+  tabd[,meanAlertsN_x_alerts4_ge5cases:=NorwayScale(meanAlertsN_x_alerts4_ge5cases, nsmall=1)]
+  tabd[,meanCases_x_alerts2_ge5cases:=NorwayScale(meanCases_x_alerts2_ge5cases, nsmall=0)]
+  tabd[,meanCases_x_alerts4_ge5cases:=NorwayScale(meanCases_x_alerts4_ge5cases, nsmall=0)]
+  tabd[,meanCasesOverT0_x_alerts2_ge5cases:=NorwayScale(meanCasesOverT0_x_alerts2_ge5cases, nsmall=0)]
+  tabd[,meanCasesOverT0_x_alerts4_ge5cases:=NorwayScale(meanCasesOverT0_x_alerts4_ge5cases, nsmall=0)]
+  
+  setnames(tabd,c(
+    "Age","Geo",
+    "Z>2","Z>4",
+    "Z>2","Z>4",
+    "Z>2","Z>4"
+  ))
+  
+  k <- knitr::kable(tabd, "latex",
+                    booktabs = T,
+                    align = "c",
+                    linesep = ""
+                    ) %>%
+    kableExtra::collapse_rows(1, latex_hline = "major", valign="top") %>%
+    kableExtra::add_header_above(c(" " = 2, "# Alerts" = 2, "# Cases" = 2, "Cases>Expected"=2))
+
+  print(k)
+  
+
+  cat(" \\newpage ")
+}
+
+```
+

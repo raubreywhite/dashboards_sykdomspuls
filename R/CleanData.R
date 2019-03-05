@@ -10,7 +10,7 @@
 #' @export CleanData
 CleanData <- function(d,
                       syndrome,
-                      population = NorwayPopulation(),
+                      population = fhi::NorwayPopulation(),
                       hellidager = fread(system.file("extdata", "DatoerMedHelligdager.txt", package = "sykdomspuls"))[, c("Dato", "HelligdagIndikator"), with = FALSE],
                       testIfHelligdagIndikatorFileIsOutdated = TRUE,
                       removeMunicipsWithoutConsults = FALSE) {
@@ -33,6 +33,29 @@ CleanData <- function(d,
   county <- NULL
   location <- NULL
   # end
+
+  # fix population age categories
+  for (i in which(names(CONFIG$AGES) != "Totalt")) {
+    population[age %in% CONFIG$AGES[[i]], agex := names(CONFIG$AGES)[i]]
+  }
+  population[,age:=NULL]
+  setnames(population, "agex", "age")
+
+  population <- population[, .(
+    pop = sum(pop)
+  ), keyby = .(
+    municip, age, year
+  )]
+
+  total <- population[, .(
+    pop = sum(pop)
+  ), keyby = .(
+    municip, year
+  )]
+  total[, age := "Totalt"]
+
+  population <- rbind(population, total)
+  # end population fix
 
   if (!ValidateDataRaw(d)) {
     fhi::DashboardMsg("RAW data not validated", type = "err")
@@ -66,7 +89,7 @@ CleanData <- function(d,
     d[, total := NULL]
     skeleton <-
       data.table(expand.grid(
-        unique(NorwayMunicipMerging()[municipEnd %in% unique(d$municip) |
+        unique(fhi::NorwayMunicipMerging()[municipEnd %in% unique(d$municip) |
           municip %in% unique(d$municip)]$municip),
         unique(d$age),
         seq.Date(dateMin, dateMax, 1)
@@ -74,7 +97,7 @@ CleanData <- function(d,
   } else {
     skeleton <-
       data.table(expand.grid(
-        unique(NorwayMunicipMerging()$municip),
+        unique(fhi::NorwayMunicipMerging()$municip),
         unique(d$age),
         seq.Date(dateMin, dateMax, 1)
       ))
@@ -115,17 +138,25 @@ CleanData <- function(d,
   data <- merge(data, dates, by = "date")
 
   # KOMMUNE MERGING
-
   dim(data)
   data <-
     merge(data,
-      NorwayMunicipMerging()[, c("municip", "year", "municipEnd")],
+      fhi::NorwayMunicipMerging()[, c("municip", "year", "municipEnd")],
       by = c("municip", "year"),
       all.x = T
     )
   dim(data)
   data <- data[!is.na(municipEnd)]
 
+  data <- data[!is.na(municipEnd),
+    lapply(.SD, sum),
+    keyby = .(municipEnd, year, age, date),
+    .SDcols = c(syndromeAndConsult)
+  ]
+  dim(data)
+  setnames(data, "municipEnd", "municip")
+
+  # merge in population
   n1 <- nrow(data)
   data <- merge(data, population, by = c("municip", "age", "year"))
   n2 <- nrow(data)
@@ -134,17 +165,9 @@ CleanData <- function(d,
     fhi::DashboardMsg("Population file not merging correctly", type = "err")
   }
 
-  data <- data[!is.na(municipEnd),
-    lapply(.SD, sum),
-    keyby = .(municipEnd, year, age, date),
-    .SDcols = c(syndromeAndConsult, "pop")
-  ]
-  dim(data)
-  setnames(data, "municipEnd", "municip")
-
   # merging in municipalitiy-fylke names
   data <-
-    merge(data, NorwayLocations()[, c("municip", "county")], by = "municip")
+    merge(data, fhi::NorwayLocations()[, c("municip", "county")], by = "municip")
   for (i in syndromeAndConsult) {
     data[is.na(get(i)), (i) := 0]
   }
