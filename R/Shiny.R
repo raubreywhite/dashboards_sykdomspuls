@@ -9,7 +9,7 @@ RunShiny <- function() {
     "global.R",
     package = "sykdomspuls"
   )
-  source(file)
+  source(file, .GlobalEnv)
 
   file <- system.file("shiny",
     "sykdomspuls",

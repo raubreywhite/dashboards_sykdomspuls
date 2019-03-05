@@ -17,7 +17,7 @@ SaveShinyAppDataToDB <- function() {
 
   GLOBAL <- new.env(parent = emptyenv())
   CONFIG_OLD <- ConvertConfigForAPI()
-  GLOBAL$weeklyTypes <- GLOBAL$dailyTypes <- CONFIG_OLD$SYNDROMES[CONFIG_OLD$SYNDROMES %in% CONFIG_OLD$SYNDROMES_ALERT_INTERNAL]
+  GLOBAL$weeklyTypes <- GLOBAL$dailyTypes <- CONFIG_OLD$SYNDROMES[CONFIG_OLD$SYNDROMES %in% CONFIG$SYNDROMES[websiteInternal==TRUE]$tag]
   GLOBAL$weeklyAges <- GLOBAL$dailyAges <- CONFIG_OLD$AGES
 
   resYearLine <- readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine.RDS", LatestRawID())))[type %in% GLOBAL$weeklyTypes]

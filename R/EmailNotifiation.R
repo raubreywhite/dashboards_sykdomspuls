@@ -440,6 +440,85 @@ To add or remove people to/from this notification list, send their details to ri
   return(0)
 }
 
+#' Email emergency pdf
+#' @import ggplot2
+#' @export EmailEmerg
+EmailEmerg <- function() {
+
+  emailText <- sprintf("
+                       <html><body>
+                       Please find attached a pdf<br><br>
+                       ------------------------
+                       <br>
+                       DO NOT REPLY TO THIS EMAIL! This email address is not checked by anyone!
+                       <br>
+                       To add or remove people to/from this notification list, send their details to richardaubrey.white@fhi.no
+                       </body></html>")
+
+  fhi::DashboardEmail(
+    "sykdomspuls_emerg",
+    emailSubject = "A NorSySS PDF - Emerg",
+    emailText,
+    emailAttachFiles = fhi::DashboardFolder("results", sprintf("%s/emerg/emerg.pdf", LatestRawID())),
+    emailFooter = FALSE,
+    BCC = FALSE
+  )
+  return(0)
+}
+
+#' Email emergency pdf
+#' @import ggplot2
+#' @export EmailStats
+EmailStats <- function() {
+
+  emailText <- sprintf("
+                       <html><body>
+                       Please find attached a pdf<br><br>
+                       ------------------------
+                       <br>
+                       DO NOT REPLY TO THIS EMAIL! This email address is not checked by anyone!
+                       <br>
+                       To add or remove people to/from this notification list, send their details to richardaubrey.white@fhi.no
+                       </body></html>")
+
+  fhi::DashboardEmail(
+    "sykdomspuls_stats",
+    emailSubject = "A NorSySS PDF - Stats",
+    emailText,
+    emailAttachFiles = fhi::DashboardFolder("results", sprintf("%s/stats/stats.pdf", LatestRawID())),
+    emailFooter = FALSE,
+    BCC = FALSE
+  )
+  return(0)
+}
+
+
+#' Email emergency pdf
+#' @import ggplot2
+#' @export EmailSkabb
+EmailSkabb <- function() {
+
+  emailText <- sprintf("
+                       <html><body>
+                       Please find attached a pdf<br><br>
+                       ------------------------
+                       <br>
+                       DO NOT REPLY TO THIS EMAIL! This email address is not checked by anyone!
+                       <br>
+                       To add or remove people to/from this notification list, send their details to richardaubrey.white@fhi.no
+                       </body></html>")
+
+  fhi::DashboardEmail(
+    "sykdomspuls_skabb",
+    emailSubject = "A NorSySS PDF - skabb",
+    emailText,
+    emailAttachFiles = fhi::DashboardFolder("results", sprintf("%s/skabb/skabb.pdf", LatestRawID())),
+    emailFooter = FALSE,
+    BCC = FALSE
+  )
+  return(0)
+}
+
 #' Email notification of new results
 #' @param lastEmailedUtbruddFile File containing the last week that emails were sent out
 #' @import fhi
@@ -457,8 +536,12 @@ EmailNotificationOfNewResults <- function(lastEmailedUtbruddFile = fhi::Dashboar
   }
 
   try(EmailTechnicalNewResults(), TRUE)
+  try(EmailEmerg(), TRUE)
+  try(EmailStats(), TRUE)
+  try(EmailSkabb(), TRUE)
+
   if (sendEmail) {
-    try(EmailInternal(), TRUE)
+    #try(EmailInternal(), TRUE)
     try(EmailExternal(), TRUE)
     try(EmailNorMOMOInfluensa(), TRUE)
   }

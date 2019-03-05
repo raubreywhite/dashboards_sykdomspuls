@@ -1,0 +1,58 @@
+---
+title: "Skabb"
+output:
+  tufte::tufte_handout:
+    toc: TRUE
+    keep_tex: TRUE
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+  - \usepackage{threeparttablex}
+  - \usepackage[normalem]{ulem}
+  - \usepackage{makecell}
+  - \usepackage{xcolor}
+  - \makeatletter\renewcommand*{\fps@figure}{H}\makeatother
+params:
+  dev: TRUE
+  package_dir: "."
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+fhi::DashboardInitialiseOpinionated("sykdomspuls",
+                                    PACKAGE_DIR=params$package_dir,
+                                    FORCE_DEV_PACKAGE_LOAD = params$dev,
+                                    SILENT=TRUE)
+
+suppressMessages(library(data.table))
+suppressMessages(library(ggplot2))
+suppressMessages(library(kableExtra))
+
+d <- readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine_skabb.RDS", LatestRawID())))
+d[,age:=factor(age,levels=names(CONFIG$AGES))]
+
+```
+
+\newpage
+
+# Norway
+
+`r tufte::margin_note(glue::glue('
+                                  Skabb at the national level.
+                                  '))`
+
+```{r echo=FALSE, fig.height=11.69*0.6, message=FALSE, warning=FALSE}
+q <- ggplot(d[location=="Norge"], aes(x=date,y=n))
+q <- q + geom_line()
+q <- q + facet_wrap(~age,ncol=1)
+q
+```

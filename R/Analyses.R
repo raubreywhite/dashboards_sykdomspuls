@@ -25,7 +25,7 @@
 #' @return A list containing a sequence of training years and prediction years
 #' @examples
 #' sykdomspuls::CalculateTrainPredictYearPattern(2000, 2015, 1)
-#' 
+#'
 #' sykdomspuls::CalculateTrainPredictYearPattern(2000, 2015, 3)
 #' @export CalculateTrainPredictYearPattern
 CalculateTrainPredictYearPattern <- function(yearMin, yearMax, numPerYear1 = 1) {
@@ -232,7 +232,7 @@ RunOneAnalysis <- function(analysesStack, analysisData) {
 #' @param locationData Dataset containing a map between location code and pretty location name
 #' @import data.table
 #' @export GetLocationName
-GetLocationName <- function(location, locationData = NorwayLocationsLong()) {
+GetLocationName <- function(location, locationData = fhi::NorwayLocationsLong()) {
   newD <- data.table(location = location)
   newD[, order := 1:.N]
   res <- merge(newD, locationData, by = "location", all.x = T)
@@ -276,7 +276,7 @@ GetCountyFromMunicip <- function(location, locationData = NorwayLocations()) {
 #' @import data.table
 #' @export
 AddLocationName <- function(data) {
-  data[, locationName := GetLocationName(location, locationData = NorwayLocationsLong())]
+  data[, locationName := GetLocationName(location, locationData = fhi::NorwayLocationsLong())]
 }
 
 
