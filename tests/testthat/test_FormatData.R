@@ -14,6 +14,12 @@ test_that("Basic Oslo", {
       respiratoryexternal = c(100),
       lungebetennelse = c(100),
       bronkitt = c(100),
+      skabb = c(100),
+      emerg1 = c(100),
+      emerg2 = c(100),
+      emerg3 = c(100),
+      emerg4 = c(100),
+      emerg5 = c(100),
       consult = c(500),
       municip = c("municip0301")
     )
@@ -26,8 +32,8 @@ test_that("Basic Oslo", {
   population <- data.table(
     year = 2006,
     municip = "municip0301",
-    age = c("0-4", "5-14", "15-19", "20-29", "30-64", "65+", "Totalt"),
-    pop = c(100, 100, 100, 100, 100, 100, 600)
+    age = c(0, 5, 15, 20, 30, 65),
+    pop = c(100, 100, 100, 100, 100, 100)
   )
 
   hellidager <- data.table(
