@@ -43,7 +43,7 @@ CONFIG$SYNDROMES <- rbind(
     weeklyDenominatorFunction = sum,
     namesLong = "Influensa",
     namesShort = "Influensa"
-    ),
+  ),
   data.table(
     tag = "gastro",
     syndrome = "gastro",

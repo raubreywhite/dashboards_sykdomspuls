@@ -1,6 +1,6 @@
 #' Get Log
 #' @export
-LogGet <- function(){
+LogGet <- function() {
   if (file.exists(fhi::DashboardFolder("results", "log.RDS"))) {
     log <- readRDS(fhi::DashboardFolder("results", "log.RDS"))
   } else {

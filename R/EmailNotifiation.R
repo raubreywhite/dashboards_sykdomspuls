@@ -444,7 +444,6 @@ To add or remove people to/from this notification list, send their details to ri
 #' @import ggplot2
 #' @export EmailEmerg
 EmailEmerg <- function() {
-
   emailText <- sprintf("
                        <html><body>
                        Please find attached a pdf<br><br>
@@ -470,7 +469,6 @@ EmailEmerg <- function() {
 #' @import ggplot2
 #' @export EmailStats
 EmailStats <- function() {
-
   emailText <- sprintf("
                        <html><body>
                        Please find attached a pdf<br><br>
@@ -497,7 +495,6 @@ EmailStats <- function() {
 #' @import ggplot2
 #' @export EmailSkabb
 EmailSkabb <- function() {
-
   emailText <- sprintf("
                        <html><body>
                        Please find attached a pdf<br><br>
@@ -541,7 +538,7 @@ EmailNotificationOfNewResults <- function(lastEmailedUtbruddFile = fhi::Dashboar
   try(EmailSkabb(), TRUE)
 
   if (sendEmail) {
-    #try(EmailInternal(), TRUE)
+    # try(EmailInternal(), TRUE)
     try(EmailExternal(), TRUE)
     try(EmailNorMOMOInfluensa(), TRUE)
   }

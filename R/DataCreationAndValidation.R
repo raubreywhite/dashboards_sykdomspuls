@@ -10,7 +10,7 @@ GenFakeDataRaw <- function(xmunicipEnd = "municip5054") {
   age <- NULL
 
   m <- copy(fhi::NorwayMunicipMerging())
-  skeleton <- unique(m[municipEnd == xmunicipEnd & year<=lubridate::year(lubridate::today()), c("municip", "year")])
+  skeleton <- unique(m[municipEnd == xmunicipEnd & year <= lubridate::year(lubridate::today()), c("municip", "year")])
 
   data <- vector("list", length = nrow(skeleton))
   for (i in 1:length(data)) {

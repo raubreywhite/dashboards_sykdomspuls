@@ -38,7 +38,7 @@ CleanData <- function(d,
   for (i in which(names(CONFIG$AGES) != "Totalt")) {
     population[age %in% CONFIG$AGES[[i]], agex := names(CONFIG$AGES)[i]]
   }
-  population[,age:=NULL]
+  population[, age := NULL]
   setnames(population, "agex", "age")
 
   population <- population[, .(
