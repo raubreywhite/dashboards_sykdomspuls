@@ -6,7 +6,14 @@ AnalyseLog <- function() {
   if (length(log) == 0) return()
 
   log <- rbindlist(log, fill = T)
-  log[is.na(version), version := 1]
+
+  if(!"versionAlgorithm" %in% names(log)) log[,versionAlgorithm:=1]
+  log[is.na(versionAlgorithm), versionAlgorithm := 1]
+
+  if(!"versionPackage" %in% names(log)) log[,versionPackage:="Unknown"]
+  log[is.na(versionPackage), versionPackage := "Unknown"]
+
+  if(!"numTags" %in% names(log)) log[,numTags:=8]
   log[is.na(numTags), numTags := 8]
   log[, date := as.Date(format.Date(initialiseBefore, "%Y-%m-%d"))]
 
