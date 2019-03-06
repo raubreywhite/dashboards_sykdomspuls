@@ -146,7 +146,7 @@ AnalyseStats1 <- function(
 AnalyseEmerg <- function() {
   fhi::RenderExternally(
     input = system.file("extdata/emerg.Rmd", package = "sykdomspuls"),
-    output_file = "stats.pdf",
+    output_file = "emerg.pdf",
     output_dir = fhi::DashboardFolder("results", file.path(LatestRawID(), "emerg")),
     params = sprintf(
       "dev=%s,package_dir=\"%s\"",
@@ -172,7 +172,7 @@ AnalyseStats <- function() {
 AnalyseSkabb <- function() {
   fhi::RenderExternally(
     input = system.file("extdata/skabb.Rmd", package = "sykdomspuls"),
-    output_file = "stats.pdf",
+    output_file = "skabb.pdf",
     output_dir = fhi::DashboardFolder("results", file.path(LatestRawID(), "skabb")),
     params = sprintf(
       "dev=%s,package_dir=\"%s\"",

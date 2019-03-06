@@ -6,6 +6,7 @@ suppressMessages(library(pbmcapply))
 
 if (!dir.exists(fhi::DashboardFolder("results", "externalapi"))) dir.create(fhi::DashboardFolder("results", "externalapi"))
 if (!dir.exists(fhi::DashboardFolder("results", LatestRawID()))) dir.create(fhi::DashboardFolder("results", LatestRawID()))
+if (!dir.exists(fhi::DashboardFolder("results", file.path(LatestRawID(), "emerg")))) dir.create(fhi::DashboardFolder("results", file.path(LatestRawID(), "emerg")))
 if (!dir.exists(fhi::DashboardFolder("results", file.path(LatestRawID(), "stats")))) dir.create(fhi::DashboardFolder("results", file.path(LatestRawID(), "stats")))
 if (!dir.exists(fhi::DashboardFolder("results", file.path(LatestRawID(), "skabb")))) dir.create(fhi::DashboardFolder("results", file.path(LatestRawID(), "skabb")))
 if (!dir.exists(fhi::DashboardFolder("data_raw", "normomo"))) dir.create(fhi::DashboardFolder("data_raw", "normomo"))
