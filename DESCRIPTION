@@ -27,7 +27,8 @@ Imports:
   memoise,
   parallel,
   pbmcapply,
-  RAWmisc
+  RAWmisc,
+  cowplot
 Suggests: testthat,
     knitr,
     rmarkdown
