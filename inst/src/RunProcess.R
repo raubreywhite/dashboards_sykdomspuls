@@ -17,7 +17,7 @@ SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("results", "externalapi/conf
 
 fhi::Log("numTags", nrow(CONFIG$SYNDROMES))
 fhi::Log("versionAlgorithm", CONFIG$VERSION)
-fhi::Log("versionPackage", packageDescription("sykdomspuls")$Version )
+fhi::Log("versionPackage", packageDescription("sykdomspuls")$Version)
 
 
 fhi::Log("cleanBefore")
