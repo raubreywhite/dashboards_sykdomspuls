@@ -7,8 +7,13 @@
 #' @export GetAlertsEmails
 GetAlertsEmails <- function() {
   if (fhi::DashboardIsProduction()) {
-    return(readxl::read_excel(file.path("/etc", "gmailr", "emails_sykdomspuls_alert.xlsx")))
+    retval <- readxl::read_excel(file.path("/etc", "gmailr", "emails_sykdomspuls_alert.xlsx"))
   } else {
-    return(readxl::read_excel(file.path("/etc", "gmailr", "emails_sykdomspuls_alert_test.xlsx")))
+    retval <- readxl::read_excel(file.path("/etc", "gmailr", "emails_sykdomspuls_alert_test.xlsx"))
   }
+
+  setDT(retval)
+  retval[,statuses:=rep(list(c("High","Medium")),.N)]
+  retval[level=="high",statuses:=rep(list(c("High")),.N)]
+  return(retval)
 }

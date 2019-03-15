@@ -181,8 +181,8 @@ GenerateOutbreakListExternal <- function(df = readRDS(fhi::DashboardFolder("resu
 
   resultsk <- resultsf <- list()
   for (i in 1:nrow(alerts)) {
-    resultsf[[i]] <- df[status != "Normal" & stringr::str_detect(location, alerts$location[i])]
-    resultsk[[i]] <- dk[status != "Normal" & stringr::str_detect(location, alerts$location[i])]
+    resultsf[[i]] <- df[status %in% alerts$statuses[[i]] & stringr::str_detect(location, alerts$location[i])]
+    resultsk[[i]] <- dk[status %in% alerts$statuses[[i]] & stringr::str_detect(location, alerts$location[i])]
 
     resultsf[[i]][, email := alerts$email[i]]
     resultsk[[i]][, email := alerts$email[i]]
