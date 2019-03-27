@@ -4,8 +4,8 @@
 \alias{CreateLatestDoneFile}
 \title{Create the latest done file}
 \usage{
-CreateLatestDoneFile(file = fhi::DashboardFolder("data_clean", paste0("done_",
-  LatestRawID(), ".txt")))
+CreateLatestDoneFile(file = fhi::DashboardFolder("data_clean",
+  paste0("done_", LatestRawID(), ".txt")))
 }
 \arguments{
 \item{file}{Location of the latest done file (according to latest raw data file)}

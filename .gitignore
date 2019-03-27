@@ -9,3 +9,4 @@ inst/doc
 *.Rcheck*
 .DS_Store
 inst/extdata/stats.pdf
+*.log

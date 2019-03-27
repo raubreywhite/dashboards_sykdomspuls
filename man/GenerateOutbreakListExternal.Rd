@@ -4,7 +4,8 @@
 \alias{GenerateOutbreakListExternal}
 \title{Generates the external outbreak list}
 \usage{
-GenerateOutbreakListExternal(df = readRDS(fhi::DashboardFolder("results",
+
+  GenerateOutbreakListExternal(df = readRDS(fhi::DashboardFolder("results",
   sprintf("\%s/resYearLine.RDS", LatestRawID()))),
   dk = readRDS(fhi::DashboardFolder("results",
   sprintf("\%s/resYearLineMunicip.RDS", LatestRawID()))),

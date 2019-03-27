@@ -6,8 +6,8 @@
 \usage{
 CleanData(d, syndrome, population = fhi::NorwayPopulation(),
   hellidager = fread(system.file("extdata", "DatoerMedHelligdager.txt",
-  package = "sykdomspuls"))[, c("Dato", "HelligdagIndikator"), with = FALSE],
-  testIfHelligdagIndikatorFileIsOutdated = TRUE,
+  package = "sykdomspuls"))[, c("Dato", "HelligdagIndikator"), with =
+  FALSE], testIfHelligdagIndikatorFileIsOutdated = TRUE,
   removeMunicipsWithoutConsults = FALSE)
 }
 \arguments{
