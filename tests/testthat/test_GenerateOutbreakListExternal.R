@@ -12,9 +12,10 @@ test_that("Basic example", {
   dk[.N, status := "Medium"]
 
   emails <- data.table(
-    email = c("a@fhi.no","b@fhi.no"),
-    location = c("municip0301","municip0301"),
-    level = c("medium","high"))
+    email = c("a@fhi.no", "b@fhi.no"),
+    location = c("municip0301", "municip0301"),
+    level = c("medium", "high")
+  )
   alerts <- AlertsEmailConverter(emails)
 
   res <- GenerateOutbreakListExternal(

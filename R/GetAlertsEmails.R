@@ -1,8 +1,8 @@
-AlertsEmailConverter <- function(emails){
+AlertsEmailConverter <- function(emails) {
   setDT(emails)
-  emails[,statuses:=vector("list",length=.N)]
-  emails[,statuses:=rep(list(c("High","Medium")),.N)]
-  emails[level=="high",statuses:=rep(list(c("High")),.N)]
+  emails[, statuses := vector("list", length = .N)]
+  emails[, statuses := rep(list(c("High", "Medium")), .N)]
+  emails[level == "high", statuses := rep(list(c("High")), .N)]
 
   return(emails)
 }

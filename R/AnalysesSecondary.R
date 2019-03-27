@@ -46,7 +46,7 @@ AnalyseLog <- function() {
     "minTotal",
     "minTotalPerTag"
   )],
-  id.vars = c("date","versionPackage"),
+  id.vars = c("date", "versionPackage"),
   variable.factor = FALSE
   )
 
@@ -62,8 +62,8 @@ AnalyseLog <- function() {
     "minAnalyse2",
     "minSave1",
     "minSave2"
-    )]
-  pd[,variable:=factor(variable,levels=c(
+  )]
+  pd[, variable := factor(variable, levels = c(
     "minSave2",
     "minSave1",
     "minAnalyse2",
@@ -78,26 +78,26 @@ AnalyseLog <- function() {
     "Cleaning"
   )
 
-  q <- ggplot(pd, aes(x = date, y = value, fill=variable))
-  q <- q + geom_area(alpha=0.7)
-  q <- q + scale_fill_brewer("",palette="Set1", guide = guide_legend(nrow = 1, byrow = T, reverse = T))
+  q <- ggplot(pd, aes(x = date, y = value, fill = variable))
+  q <- q + geom_area(alpha = 0.7)
+  q <- q + scale_fill_brewer("", palette = "Set1", guide = guide_legend(nrow = 1, byrow = T, reverse = T))
   q <- q + scale_x_date("")
-  q <- q + theme(legend.position="bottom")
+  q <- q + theme(legend.position = "bottom")
   q2a <- q + scale_y_continuous("Number of minutes")
 
   legend <- cowplot::get_legend(q2a)
 
-  q <- ggplot(pd[date==max(date)], aes(x = date, y = value, fill=variable))
-  q <- q + geom_col(alpha=0.7)
-  q <- q + scale_fill_brewer("",palette="Set1", guide = guide_legend(nrow = 1, byrow = T, reverse = T))
+  q <- ggplot(pd[date == max(date)], aes(x = date, y = value, fill = variable))
+  q <- q + geom_col(alpha = 0.7)
+  q <- q + scale_fill_brewer("", palette = "Set1", guide = guide_legend(nrow = 1, byrow = T, reverse = T))
   q <- q + scale_x_date("")
-  q <- q + theme(legend.position="bottom")
+  q <- q + theme(legend.position = "bottom")
   q2b <- q + scale_y_continuous("Number of minutes")
 
-  q2Top <- cowplot::plot_grid(q2a+theme(legend.position="none"), q2b+theme(legend.position="none"), align = "h", nrow = 1, rel_widths = c(0.8, 0.2))
+  q2Top <- cowplot::plot_grid(q2a + theme(legend.position = "none"), q2b + theme(legend.position = "none"), align = "h", nrow = 1, rel_widths = c(0.8, 0.2))
   q2 <- cowplot::plot_grid(q2Top, legend, align = "v", ncol = 1, rel_heights = c(0.85, 0.15))
 
-  return(list("overview"=q1,"details"=q2))
+  return(list("overview" = q1, "details" = q2))
   # q <- q + expand_limits(y=0)
   # RAWmisc::saveA4(q,fhi::DashboardFolder("results", file.path(LatestRawID(),"stats","time.png")),landscape=F)
   # fhi::DashboardFolder("results", file.path(LatestRawID(),"stats"))
