@@ -35,7 +35,7 @@ Suggests: testthat,
 License: GPL-3
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.0.1
+RoxygenNote: 6.1.1
 Additional_repositories: https://folkehelseinstituttet.github.io/drat/, https://raubreywhite.github.io/drat/
 VignetteBuilder: knitr
 ByteCompile: true

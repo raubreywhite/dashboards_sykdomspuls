@@ -4,12 +4,13 @@
 \alias{GenerateOutbreakListInternal}
 \title{Generates the internal outbreak list}
 \usage{
-GenerateOutbreakListInternal(df = readRDS(fhi::DashboardFolder("results",
+
+  GenerateOutbreakListInternal(df = readRDS(fhi::DashboardFolder("results",
   sprintf("\%s/resYearLine.RDS", LatestRawID()))),
   dk = readRDS(fhi::DashboardFolder("results",
   sprintf("\%s/resYearLineMunicip.RDS", LatestRawID()))),
-  saveFiles = c(fhi::DashboardFolder("results", sprintf("\%s/outbreaks.RDS",
-  LatestRawID()))), useType = FALSE)
+  saveFiles = c(fhi::DashboardFolder("results",
+  sprintf("\%s/outbreaks.RDS", LatestRawID()))), useType = FALSE)
 }
 \arguments{
 \item{df}{Data inside resYearLine.RDS}
