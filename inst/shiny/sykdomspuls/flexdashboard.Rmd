@@ -94,7 +94,7 @@ output$storyboard1 <- renderPlot({
 ```
 
 ```{r}
-#plotOutput("storyboard1")
+plotOutput("storyboard1")
 ```
 
 *** 
@@ -258,6 +258,19 @@ output$weeklyBarometerPlot <- renderPlot({
   
 ``` 
 
+Instillinger {.sidebar}
+-----------------------------------------------------------------------
+
+```{r, echo = F}
+
+selectInput("weeklyBarometerType", "Sykdom/Symptom", as.list(GLOBAL$weeklyTypes), selected = GLOBAL$weeklyTypes[1])
+
+selectInput("weeklyBarometerAge", "Alder", as.list(GLOBAL$weeklyAges), selected = "Totalt")
+
+selectInput("weeklyBarometerCounty", "Fylke", as.list(GLOBAL$weeklyCounties), selected = GLOBAL$weeklyCounties[1])
+
+```
+
 Row {data-height=800 .tabset}
 -----------------------------------------------------------------------
 
@@ -271,13 +284,6 @@ plotOutput("weeklyBarometerPlot")
 
 Tabellen viser en oversikt over forekomsten av sykdom/symptom i et valgt tidsrom. 
 
-Valg av tidsrom gj\u00F8res p\u00E5 tidslinje nederst p\u00E5 siden. Valg av sykdom/symptom gj\u00F8res p\u00E5 venstre side. P\u00E5 venstre side kan man ogs\u00E5 velge Norge eller et fylke i Norge. Hvis man velger Norge vil hvert fylke f\u00E5 en rad i tabellen. Hvis man velger et fylke vil alle kommunene i valgte fylke f\u00E5 en rad i tabellen. 
-
-Dersom ruten for en gitt uke er farget med gr\u00F8nn farge betyr det at antall konsultasjoner i den gitte kommunen eller fylket er som forventet denne uken. En gul farge en gitt uke betyr at antall konsultasjoner i den gitte kommunen eller fylket er h\u00F8yere enn forventet denne uken. En r\u00F8d farge en gitt uke betyr at antall konsultasjoner i den gitte kommunen eller fylket er betydelig h\u00F8yere enn forventet denne uken. Fargene er laget ut fra beregninger fra de foreg\u00E5ende 5 \u00E5rene i fylke eller kommunen.
-
-Se fanen *Om Sykdomspulsen* \u00F8verst for mer utfyllende informasjon om dataene og beregninger.
-              
-Det er mulig \u00E5 bytte farger dersom man er fargeblind, se avkryssningsruten for *Fargeblind* \u00F8verst til h\u00F8yre.
 
 
 Row {data-height=200}
@@ -289,18 +295,6 @@ Row {data-height=200}
 plotOutput("weeklyBarometerPlotBrush", brush = brushOpts("weeklyBarometerBrush", direction="x", opacity=0.4))
 ```  
 
-Instillinger {.sidebar}
------------------------------------------------------------------------
-
-```{r, echo = F}
-
-selectInput("weeklyBarometerType", "Sykdom/Symptom", as.list(GLOBAL$weeklyTypes), selected = GLOBAL$weeklyTypes[1])
-
-selectInput("weeklyBarometerAge", "Alder", as.list(GLOBAL$weeklyAges), selected = "Totalt")
-
-selectInput("weeklyBarometerCounty", "Fylke", as.list(GLOBAL$weeklyCounties), selected = GLOBAL$weeklyCounties[1])
-
-```
 
 Signaler (ukentlig)
 ===================================== 
@@ -374,13 +368,6 @@ striped=TRUE)
 
 Tabellen viser en oversikt over forekomsten av sykdom/symptom i et valgt tidsrom. 
 
-Valg av tidsrom gj\u00F8res p\u00E5 bunnefiguren. Valg av sykdom/symptom gj\u00F8res p\u00E5 venstre side. P\u00E5 venstre side kan man ogs\u00E5 velge Norge eller et fylke i Norge. Hvis man velger Norge vil hvert fylke f\u00E5 en rad i tabellen. Hvis man velger et fylke vil alle kommunene f\u00E5 en rad i tabellen. 
-
-Dersom ruten for en gitt uke er farget med gr\u00F8nn farge betyr det at antall konsultasjoner i den gitte kommunen eller fylket er som forventet denne uken. En gul farge en gitt uke betyr at antall konsultasjoner i den gitte kommunen eller fylket er h\u00F8yere enn forventet denne uken. En r\u00F8d farge en gitt uke betyr at antall konsultasjoner i den gitte kommunen eller fylket er betydelig h\u00F8yere enn forventet denne uken. Fargene er laget ut fra beregninger fra de foreg\u00E5ende 5 \u00E5rene.
-
-Se punktet *Om Sykdomspulsen* p\u00E5 venstre side for mer utfyllende informasjon om dataene og beregninger.
-              
-Det er mulig \u00E5 bytte farger dersom du er fargeblind, se punktet *Fargeblind* p\u00E5 venstre side.
 
 Instillinger {.sidebar}
 -----------------------------------------------------------------------
@@ -504,11 +491,6 @@ plotOutput("weeklyNumberPlot")
 
 ### Info
 
-Grafen viser antall konsultasjoner per uke med en indikasjon om antallet er som forventet eller ikke. Valg av sykdom/symptom, sted og tidsrom gj\u00F8res p\u00E5 venstre side. Den svarte streken med rundingene viser antallet faktiske konsultasjoner. Bakgrunnsfargen er laget ut fra beregninger fra de foreg\u00E5ende 5 \u00E5rene i samme geografiske omr\u00E5de. N\u00E5r den svarte streken ligger i den gr\u00F8nne bakgrunnsfargen er antallet konsultasjoner som forventet og rundingen vises med svart. N\u00E5r den svarte streken ligger i det gule feltet er antall konsultasjoner h\u00F8yere enn forventet og fyllet i rundingen blir gult. Dersom den svarte streken ligger i det r\u00F8de feltet er antall konsultasjoner betydelig h\u00F8yere enn forventet og fyllet i rundingen blir r\u00F8dt.
-
-Se fanen *Om Sykdomspulsen* \u00F8verst for mer utfyllende informasjon om dataene og beregninger.
-
-Det er mulig \u00E5 bytte farger dersom du er fargeblind, se punktet *Fargeblind* p\u00E5 venstre side.
 
 Row {data-height=200}
 -----------------------------------------------------------------------
@@ -647,11 +629,6 @@ plotOutput("dailyNumberPlot")
 
 ### Info
 
-Grafen viser antall konsultasjoner per dag med en indikasjon om antallet er som forventet eller ikke. Valg av sykdom/symptom, sted og tidsrom gj\u00F8res p\u00E5 h\u00F8yre side. Den svarte streken med rundingene viser antallet faktiske konsultasjoner. Bakgrunnsfargen er laget ut fra beregninger fra de foreg\u00E5ende 5 \u00E5rene. N\u00E5r den svarte streken ligger i den gr\u00F8nne bakgrunnsfargen er antallet konsultasjoner som forventet og rundingen vises med svart. N\u00E5r den svarte streken ligger i det gule feltet er antall konsultasjoner h\u00F8yere enn forventet og fyllet i rundingen blir gult. Dersom den svarte streken ligger i det r\u00F8de feltet er antall konsultasjoner betydelig h\u00F8yere enn forventet og fyllet i rundingen blir r\u00F8dt.
-
-Se fanen *Om Sykdomspulsen* \u00F8verst for mer utfyllende informasjon om dataene og beregninger.
-              
-Det er mulig \u00E5 bytte farger dersom man er fargeblind, se avkryssningsruten for *Fargeblind* \u00F8verst til h\u00F8yre.
 
 Row {data-height=200}
 -----------------------------------------------------------------------
@@ -684,16 +661,6 @@ Row
 
 ### 
 
-Sykdomspulsen er et overv\u00E5kningssystem basert p\u00E5 diagnosekoder (ICPC-2 koder) satt p\u00E5 legekontorer og legevakter i hele Norge. Form\u00E5let med Sykdomspulsen er \u00E5 se trender og udbredelse av smittsomme sykdommer slik at utbrudd oppdages s\u00E5 tidlig som mulig. I tillegg kan overv\u00E5kningen brukes til \u00E5 iverksette folkehelsetiltak og se effekt av tiltak.
-
-Diagnosekoder som registreres hos lege eller legevakt sendes til Helsedirektoratet som en del av legenes refusjonskrav (KUHR-systemet*). Folkehelseinstituttet mottar daglig oppdatert KUHR-data til Sykdomspulsen. Dataene er anonyme uten pasientidentifikasjon, men med informasjon om kj\u00F8nn, aldersgruppe, konsultasjonsdato og sted for konsultasjon. Dataene blir bearbeidet og quasiposson regresjon blir brukt for \u00E5 detektere forh\u00F8yet forekomst av et spesifikt syndrom. Dette er basert p\u00E5 de foreg\u00E5ende 5 \u00E5rene i det samme geografiske omr\u00E5det. P\u00E5 denne m\u00E5ten kan antall faktiske konsultasjoner bli identifisert som forventet, h\u00F8yere enn forventet eller mye h\u00F8yere enn forventet. Selv om dataene noen ganger viser seg \u00E5 ligge i omr\u00E5det h\u00F8yere enn forventet eller mye h\u00F8yere enn forventet trenger dette ikke \u00E5 v\u00E6re noen grunn til bekymring. Resultatene blir unders\u00F8kt av leger og epidemiologer p\u00E5 Folkehelseinstituttet og i kommunene.
-
-Dersom du \u00F8nsker mer informasjon om Sykdosmspulsen kan du kontakte Gry M Gr\u00F8neng eller Richard White p\u00E5 mailadressene: GryMarysol.Groneng@fhi.no og Richard.White@fhi.no.
-
-Det er mulig \u00E5 bytte farger dersom man er fargeblind, se avkryssningsruten for *Fargeblind* \u00F8verst til h\u00F8yre.
-
-
-*KUHR-systemet: Regninger for all behandling som utf\u00F8res utenfor sykehus sendes til HELFO for utbetaling og kontroll (legenes refusjonskrav).
 
 
 
