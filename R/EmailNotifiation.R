@@ -267,7 +267,7 @@ EmailExternal <- function(
   if (fhi::DashboardIsProduction()) {
     if (forceNoOutbreak | forceYesOutbreak) stop("forceNoOutbreak/forceYesOutbreak set when not testing")
   } else {
-    if (length(unique(alerts$email)) != 3) stop("THIS IS NOT A TEST EMAIL DATASET")
+    if (!"test@rwhite.no" %in% unique(alerts$email)) stop("THIS IS NOT A TEST EMAIL DATASET")
     if (forceNoOutbreak & forceYesOutbreak) stop("both forceNoOutbreak/forceYesOutbreak set")
   }
 
