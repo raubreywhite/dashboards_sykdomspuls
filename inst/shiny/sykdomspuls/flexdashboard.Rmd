@@ -87,7 +87,7 @@ suppressWarnings(pd[, bottom := 0])
 print(pd)
 
 output$storyboard1 <- renderPlot({
-  q <- MakeLineThresholdPlot(pd,x="displayDay",dataVal="n",L1="bottom",L2="threshold2",L3="threshold4",L4="top",allPoints = FALSE, title="\u00D8vre-luftvei diagnose i 15-19 \u00E5ringer i Norge", pointShift = -3.5, weekNumbers=TRUE, step=FALSE, GetCols=GetCols)
+  q <- MakeLineThresholdPlot(pd,x="displayDay",dataVal="n",L1="bottom",L2="threshold2",L3="threshold4",L4="top",allPoints = FALSE, title="Øvre-luftvei diagnose i 15-19 åringer i Norge", pointShift = -3.5, weekNumbers=TRUE, step=FALSE, GetCols=GetCols)
   q <- q + geom_rect(data=pd[1,],aes(xmin=as.Date("2016-08-01"),xmax=as.Date("2090-08-01"),ymin=-Inf,ymax=Inf),fill="black",alpha=0.2)
   q
 })
@@ -116,10 +116,13 @@ Oversikt (ukentlig)
 
 
 weeklyBarometerPlotBrushData <- reactive({
+  x_tag <- input$weeklyBarometerType
+  x_location <- input$weeklyBarometerCounty
+  x_age <- input$weeklyBarometerAge
   retData <- pool %>% tbl("resYearLine") %>%
-        filter(tag == input$weeklyBarometerType & 
-               location==input$weeklyBarometerCounty &
-               age==input$weeklyBarometerAge) %>% collect()
+        filter(tag == x_tag & 
+               location== x_location &
+               age== x_age) %>% collect()
   setDT(retData)
   return(retData)
 })
@@ -141,18 +144,31 @@ output$weeklyBarometerPlotBrush <- renderPlot({
 
 weeklyBarometerPlotData <- reactive({
   if (is.null(input$weeklyBarometerCounty)) {
-    retData <- pool %>% tbl("resYearLine") %>%
-        filter(tag == GLOBAL$weeklyTypes[1] & 
-               age==GLOBAL$weeklyAges[1]) %>% collect()
+    x_table <- "resYearLine"
+    x_tag <- GLOBAL$weeklyTypes[1]
+    x_age <- GLOBAL$weeklyAges[1]
+    
+    retData <- pool %>% tbl(x_table) %>%
+        filter(tag == x_tag & 
+               age==x_age) %>% collect()
   } else if(input$weeklyBarometerCounty=="Norge"){
-    retData <- pool %>% tbl("resYearLine") %>%
-        filter(tag == input$weeklyBarometerType & 
-               age==input$weeklyBarometerAge) %>% collect()
+    x_table <- "resYearLine"
+    x_tag <- input$weeklyBarometerType
+    x_age <- input$weeklyBarometerAge
+    
+    retData <- pool %>% tbl(x_table) %>%
+        filter(tag == x_tag & 
+               age==x_age) %>% collect()
   } else {
-    retData <- pool %>% tbl("resYearLineMunicip") %>%
-        filter(tag == input$weeklyBarometerType & 
-               age==input$weeklyBarometerAge &
-               county==input$weeklyBarometerCounty) %>% collect()
+    x_table <- "resYearLineMunicip"
+    x_tag <- input$weeklyBarometerType
+    x_age <- input$weeklyBarometerAge
+    x_county <- input$weeklyBarometerCounty
+    
+    retData <- pool %>% tbl(x_table) %>%
+        filter(tag == x_tag & 
+               age==x_age &
+               county==x_county) %>% collect()
   }
   setDT(retData)
   if (nrow(retData) == 0) retData <- NULL
@@ -224,8 +240,8 @@ MakeBarometerPlot <- function(pd, title, GetCols){
   q <- q + scale_x_date("", breaks = breaksDF$displayDay,  labels = breaksDF$printLabel)
   q <- q + scale_y_discrete("")
   q <- q + scale_fill_manual(values=GetCols(),labels=c(
-    "Betydelig h\u00F8yere enn forventet",
-    "H\u00F8yere enn forventet",
+    "Betydelig høyere enn forventet",
+    "Høyere enn forventet",
     "Forventet"))
   q <- q + coord_cartesian(xlim=limits,expand = FALSE)
   q <- q + labs(title=title)
@@ -284,7 +300,11 @@ plotOutput("weeklyBarometerPlot")
 
 Tabellen viser en oversikt over forekomsten av sykdom/symptom i et valgt tidsrom. 
 
+Valg av tidsrom gjøres på tidslinje nederst på siden. Valg av sykdom/symptom gjøres på venstre side. På venstre side kan man også velge Norge eller et fylke i Norge. Hvis man velger Norge vil hvert fylke få en rad i tabellen. Hvis man velger et fylke vil alle kommunene i valgte fylke få en rad i tabellen. 		
 
+Dersom ruten for en gitt uke er farget med grønn farge betyr det at antall konsultasjoner i den gitte kommunen eller fylket er som forventet denne uken. En gul farge en gitt uke betyr at antall konsultasjoner i den gitte kommunen eller fylket er høyere enn forventet denne uken. En rød farge en gitt uke betyr at antall konsultasjoner i den gitte kommunen eller fylket er betydelig høyere enn forventet denne uken. Fargene er laget ut fra beregninger fra de foregående 5 årene i fylke eller kommunen.		
+
+Se fanen *Om Sykdomspulsen* øverst for mer utfyllende informasjon om dataene og beregninger.		
 
 Row {data-height=200}
 -----------------------------------------------------------------------
@@ -307,9 +327,10 @@ Row {data-height=800 .tabset}
 ```{r}
 #tableOutput("weeklySignalTableDF")
 renderTable({
+  x_wkyr <- input$weeklyOutbreakWeek
   data <- pool %>% tbl("outbreaksDF") %>%
         filter(tag != "influensa" & 
-               wkyr==input$weeklyOutbreakWeek) %>% collect()
+               wkyr==x_wkyr) %>% collect()
   setDT(data)
   
   if(input$weeklyOutbreakHideEmpty){
@@ -338,9 +359,10 @@ striped=TRUE)
 ```{r}
 #tableOutput("weeklySignalTableDF")
 renderTable({
+  x_wkyr <- input$weeklyOutbreakWeek
   data <- pool %>% tbl("outbreaksDK") %>%
         filter(tag != "influensa" & 
-               wkyr==input$weeklyOutbreakWeek) %>% collect()
+               wkyr==x_wkyr) %>% collect()
   setDT(data)
   
   if(input$weeklyOutbreakHideEmpty){
@@ -368,6 +390,11 @@ striped=TRUE)
 
 Tabellen viser en oversikt over forekomsten av sykdom/symptom i et valgt tidsrom. 
 
+Valg av tidsrom gjøres på bunnefiguren. Valg av sykdom/symptom gjøres på venstre side. På venstre side kan man også velge Norge eller et fylke i Norge. Hvis man velger Norge vil hvert fylke få en rad i tabellen. Hvis man velger et fylke vil alle kommunene få en rad i tabellen. 		
+
+ Dersom ruten for en gitt uke er farget med grønn farge betyr det at antall konsultasjoner i den gitte kommunen eller fylket er som forventet denne uken. En gul farge en gitt uke betyr at antall konsultasjoner i den gitte kommunen eller fylket er høyere enn forventet denne uken. En rød farge en gitt uke betyr at antall konsultasjoner i den gitte kommunen eller fylket er betydelig høyere enn forventet denne uken. Fargene er laget ut fra beregninger fra de foregående 5 årene.		
+
+ Se punktet *Om Sykdomspulsen* på venstre side for mer utfyllende informasjon om dataene og beregninger.
 
 Instillinger {.sidebar}
 -----------------------------------------------------------------------
@@ -391,21 +418,25 @@ Antall (ukentlig)
 ## weekly
 weeklyPlotData <- reactive({
   if (is.null(input$weeklyCounty) | is.null(input$weeklyMunicip)) {
-    retData <- pool %>% tbl("resYearLine") %>%
-        filter(tag == GLOBAL$weeklyTypes[1] & 
-               location=="Norge" &
-               age=="Totalt") %>% collect()
+    x_tbl <- "resYearLine"
+    x_tag <- GLOBAL$weeklyTypes[1]
+    x_location <- "Norge"
+    x_age <- "Totalt"
   } else if (input$weeklyMunicip %in% c("Norge", "Fylke")) {
-    retData <- pool %>% tbl("resYearLine") %>%
-        filter(tag == input$weeklyType & 
-               location==input$weeklyCounty &
-               age==input$weeklyAge) %>% collect()
+    x_tbl <- "resYearLine"
+    x_tag <- input$weeklyType
+    x_location <- input$weeklyCounty
+    x_age <- input$weeklyAge
   } else {
-    retData <- pool %>% tbl("resYearLineMunicip") %>%
-        filter(tag == input$weeklyType & 
-               location==input$weeklyMunicip &
-               age==input$weeklyAge) %>% collect()
-    }
+    x_tbl <- "resYearLineMunicip"
+    x_tag <- input$weeklyType
+    x_location <- input$weeklyMunicip
+    x_age <- input$weeklyAge
+  }
+  retData <- pool %>% tbl(x_tbl) %>%
+        filter(tag == x_tag & 
+               location== x_location &
+               age== x_age) %>% collect()
   setDT(retData)
   
   if(!is.null(retData)){
@@ -491,6 +522,9 @@ plotOutput("weeklyNumberPlot")
 
 ### Info
 
+Grafen viser antall konsultasjoner per uke med en indikasjon om antallet er som forventet eller ikke. Valg av sykdom/symptom, sted og tidsrom gjøres på venstre side. Den svarte streken med rundingene viser antallet faktiske konsultasjoner. Bakgrunnsfargen er laget ut fra beregninger fra de foregående 5 årene i samme geografiske område. Når den svarte streken ligger i den grønne bakgrunnsfargen er antallet konsultasjoner som forventet og rundingen vises med svart. Når den svarte streken ligger i det gule feltet er antall konsultasjoner høyere enn forventet og fyllet i rundingen blir gult. Dersom den svarte streken ligger i det røde feltet er antall konsultasjoner betydelig høyere enn forventet og fyllet i rundingen blir rødt.
+
+Se fanen *Om Sykdomspulsen* øverst for mer utfyllende informasjon om dataene og beregninger.
 
 Row {data-height=200}
 -----------------------------------------------------------------------
@@ -538,11 +572,15 @@ Antall (daglige)
 ```{r, include=FALSE}
 
 dailyPlotBrushData <- reactive({
+  x_tag <- input$dailyType
+  x_location <- input$dailyCounty
+  x_age <- input$dailyAge
+  
   retData <- pool %>%
     tbl("resYearLine") %>%
-    filter(tag == input$dailyType &
-             location == input$dailyCounty &
-             age == input$dailyAge) %>%
+    filter(tag == x_tag &
+             location == x_location &
+             age == x_age) %>%
     collect()
   setDT(retData)
   retData <- retData[retData$displayDay >= GLOBAL$dateMinRestrictedRecent,]
@@ -566,11 +604,15 @@ output$dailyPlotBrush <- renderPlot({
 })
 
 dailyPlotData <- reactive({
+  x_tag <- input$dailyType
+  x_location <- input$dailyCounty
+  x_age <- input$dailyAge
+  
   retData <- pool %>%
     tbl("resRecentLine") %>%
-    filter(tag == input$dailyType &
-             location == input$dailyCounty &
-             age == input$dailyAge) %>%
+    filter(tag == x_tag &
+             location == x_location &
+             age == x_age) %>%
     collect()
   setDT(retData)
   
@@ -629,6 +671,9 @@ plotOutput("dailyNumberPlot")
 
 ### Info
 
+Grafen viser antall konsultasjoner per dag med en indikasjon om antallet er som forventet eller ikke. Valg av sykdom/symptom, sted og tidsrom gjøres på høyre side. Den svarte streken med rundingene viser antallet faktiske konsultasjoner. Bakgrunnsfargen er laget ut fra beregninger fra de foregående 5 årene. Når den svarte streken ligger i den grønne bakgrunnsfargen er antallet konsultasjoner som forventet og rundingen vises med svart. Når den svarte streken ligger i det gule feltet er antall konsultasjoner høyere enn forventet og fyllet i rundingen blir gult. Dersom den svarte streken ligger i det røde feltet er antall konsultasjoner betydelig høyere enn forventet og fyllet i rundingen blir rødt.
+
+ Se fanen *Om Sykdomspulsen* øverst for mer utfyllende informasjon om dataene og beregninger.
 
 Row {data-height=200}
 -----------------------------------------------------------------------
@@ -661,6 +706,12 @@ Row
 
 ### 
 
+Sykdomspulsen er et overvåkningssystem basert på diagnosekoder (ICPC-2 koder) satt på legekontorer og legevakter i hele Norge. Formålet med Sykdomspulsen er å se trender og udbredelse av smittsomme sykdommer slik at utbrudd oppdages så tidlig som mulig. I tillegg kan overvåkningen brukes til å iverksette folkehelsetiltak og se effekt av tiltak.		
 
+ Diagnosekoder som registreres hos lege eller legevakt sendes til Helsedirektoratet som en del av legenes refusjonskrav (KUHR-systemet*). Folkehelseinstituttet mottar daglig oppdatert KUHR-data til Sykdomspulsen. Dataene er anonyme uten pasientidentifikasjon, men med informasjon om kjønn, aldersgruppe, konsultasjonsdato og sted for konsultasjon. Dataene blir bearbeidet og quasiposson regresjon blir brukt for å detektere forhøyet forekomst av et spesifikt syndrom. Dette er basert på de foregående 5 årene i det samme geografiske området. På denne måten kan antall faktiske konsultasjoner bli identifisert som forventet, høyere enn forventet eller mye høyere enn forventet. Selv om dataene noen ganger viser seg å ligge i området høyere enn forventet eller mye høyere enn forventet trenger dette ikke å være noen grunn til bekymring. Resultatene blir undersøkt av leger og epidemiologer på Folkehelseinstituttet og i kommunene.		
+
+Dersom du ønsker mer informasjon om Sykdosmspulsen kan du kontakte Gry M Grøneng, Gunnar Rø, eller Richard White på mailadressene: GryMarysol.Groneng@fhi.no, GunnarOyvindIsaksson.Ro@fhi.no, og RichardAubrey.White@fhi.no.
+
+*KUHR-systemet: Regninger for all behandling som utføres utenfor sykehus sendes til HELFO for utbetaling og kontroll (legenes refusjonskrav).
 
 
