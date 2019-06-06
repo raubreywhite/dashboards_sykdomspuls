@@ -1,12 +1,12 @@
 ---
-title: "Signals"
+title: "Overview"
 author: "Richard White"
 date: "2018-10-12"
 output:
   rmarkdown::html_vignette:
     self_contained: TRUE
 vignette: >
-  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteIndexEntry{Overview}
   %\VignetteEncoding{UTF-8}
   %\VignetteEngine{knitr::rmarkdown}
 editor_options: 
