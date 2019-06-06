@@ -714,4 +714,6 @@ Dersom du ønsker mer informasjon om Sykdosmspulsen kan du kontakte Gry M Grøne
 
 *KUHR-systemet: Regninger for all behandling som utføres utenfor sykehus sendes til HELFO for utbetaling og kontroll (legenes refusjonskrav).
 
+R pakke versjon: `r packageVersion("sykdomspuls")`
+
 
