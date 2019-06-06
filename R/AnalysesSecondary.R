@@ -3,7 +3,9 @@
 #' @export AnalyseLog
 AnalyseLog <- function() {
   log <- LogGet()
-  if (length(log) == 0) return()
+  if (length(log) == 0) {
+    return()
+  }
 
   log <- rbindlist(log, fill = T)
 
