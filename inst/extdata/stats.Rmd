@@ -19,6 +19,8 @@ header-includes:
   - \usepackage[normalem]{ulem}
   - \usepackage{makecell}
   - \usepackage{xcolor}
+  - \usepackage{float}
+  - \floatplacement{figure}{H}
   - \makeatletter\renewcommand*{\fps@figure}{H}\makeatother
 params:
   dev: TRUE
@@ -26,6 +28,7 @@ params:
 editor_options: 
   chunk_output_type: console
 ---
+
 
 ```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
 fhi::DashboardInitialiseOpinionated("sykdomspuls",
@@ -35,9 +38,17 @@ fhi::DashboardInitialiseOpinionated("sykdomspuls",
 
 suppressMessages(library(data.table))
 suppressMessages(library(ggplot2))
+suppressMessages(library(lubridate))
 suppressMessages(library(kableExtra))
+suppressMessages(library(fhiplot))
 
-pd <- AnalyseStats1()
+data <- AnalyseStats1()
+pd <- data[["alert_summary"]]
+resYearLine <- data[["resYearLine"]]
+resYearLineMunicip <- data[["resYearLineMunicip"]]
+
+
+
 
 NorwayScale <- function(x, ...){
   arguments <- list(...)
@@ -55,6 +66,41 @@ NorwayScale <- function(x, ...){
   return(retval)
 }
 
+
+alertChartByYear <- function(alerts){
+
+
+
+  return (
+   ggplot(alerts[!grepl("emerg", tag, fixed=TRUE),.N, by=.(floor_date(date, unit="year"), tag)]) +
+     geom_col(aes(x=floor_date,y=N, fill=tag)) +
+     theme_fhi_lines() +
+     xlab("Year") +
+     scale_fill_brewer(palette="Spectral")
+  )
+}
+
+
+plotZscore <- function(data){
+  return ( 
+    ggplot(data) +
+      geom_histogram(aes(x=zscore, y=..density..,
+                         fill="Z-scores from data", colour="Z-scores from data")) +
+      stat_function(fun = dnorm, n = 1001, args = list(mean = 0, sd = 1), 
+                    aes(fill="Standard Normal Distribution",
+                        colour="Standard Normal Distribution"),size=1) + 
+      xlim(-7, 7) + 
+      scale_fill_manual("Legend", values=c(fhiplot::vals$cols$primary[["B2"]],
+                                           fhiplot::vals$cols$primary[["B1"]])) +
+      scale_colour_manual("Legend", values=c(fhiplot::vals$cols$primary[["B2"]],
+                                             fhiplot::vals$cols$primary[["B1"]]), guide="none") +
+     theme_fhi_lines()
+  )
+
+}
+
+
+
 ```
 
 \newpage
@@ -69,7 +115,7 @@ NorwayScale <- function(x, ...){
 ## Overview
 
 `r tufte::margin_note(glue::glue('
-                                    We monitor the number of time taken to ensure that \
+                                    We monitor the amount of time taken to ensure that \
                                     there are no issues.
                                     '))`
 
@@ -84,6 +130,143 @@ NorwayScale <- function(x, ...){
 ```{r echo=FALSE,  fig.fullwidth=TRUE, fig.height=11.69*0.6, fig.width=8.27*0.9, message=FALSE, warning=FALSE}
   print(qs[["details"]])
 ```
+\newpage
+# Statistical properties
+```{r echo=FALSE, results='asis', paged.print=TRUE }
+
+cat("Regression analysis failed for ", nrow(resYearLine[failed == TRUE]) + nrow(resYearLineMunicip[failed == TRUE]), "weeks")
+cat("  \n \\medskip  \n ")
+
+ if(nrow(resYearLine[failed == TRUE]) > 0){
+
+    cat('<div class = "row">\n <div class = "col-md-6"> \n')
+    table <- resYearLine[failed == TRUE, .N, by=.(location)][data.table(fhi::NorwayLocations()), on=.(location=county), nomatch=0]
+    cat('\\begin{minipage}[t]{0.5\\textwidth}')
+    cat("Weeks when regression failed by county \n")
+    k <- knitr::kable(table[order(-N), .(countyName, N)], "latex",
+                      booktabs = T,
+                      align = "c",
+                      linesep = ""
+                      )
+    print(k)
+    cat('\\end{minipage} \n \\begin{minipage}[t]{0.5\\textwidth}')
+    cat("Weeks when regression failed by condition \n")
+    k <- knitr::kable(resYearLine[failed == TRUE, .N, by=.(tag)][order(-N)], "latex",
+                      booktabs = T,
+                      align = "c",
+                      linesep = ""
+                      )
+   print(k)
+   cat('\\end{minipage}')
+ }
+ if(nrow(resYearLineMunicip[failed == TRUE]) > 0){
+    table <- resYearLineMunicip[failed == TRUE, .N, by=.(location)][data.table(fhi::NorwayLocations()), on=.(location=municip), nomatch=0]
+
+
+
+    n_rows <- nrow(table)
+    if(n_rows > 35){
+       n_rows <- 35
+    }
+    cat('\\begin{minipage}[t]{0.5\\textwidth}')
+    cat("Weeks when regression failed by muncipality")
+    if(n_rows == 35){
+       cat("(top 35)\n")
+    }
+    k <- knitr::kable(table[order(-N), .(municipName, N)][1:n_rows], "latex",
+                      booktabs = T,
+                      align = "c",
+                      linesep = ""
+                      )
+    print(k)
+
+    cat('\\end{minipage} \n \\begin{minipage}[t]{0.5\\textwidth}')
+    cat("Weeks when regression failed by condition \n")
+    k <- knitr::kable(resYearLineMunicip[failed == TRUE, .N, by=.(tag)][order(-N)], "latex",
+                      booktabs = T,
+                      align = "c",
+                      linesep = ""
+                      )
+   print(k)
+   cat('\\end{minipage}')
+
+ }
+
+
+```
+\newpage
+
+## Z-scores from regional Level
+```{r echo=FALSE, fig.fullwidth=TRUE, fig.height=11.69*0.35, fig.width=8.27*0.7, message=FALSE, warning=FALSE, paged.print=FALSE, results='asis'}
+cat(tufte::margin_note(glue::glue('Comparing the observed z-scores from the regression model with a standard normal for counties')))
+cat("\\medskip")
+plotZscore(resYearLine)
+
+n_tot = nrow(resYearLine)
+
+cat("Observed ", nrow(resYearLine[zscore >=2]), " alerts with z>2 compared to  an expected ", round((1 - pnorm(2, 0, 1)) * n_tot, 0)," and we observed " , nrow(resYearLine[zscore >=4]), " alerts with z>4 compared to an expected" , round((1 - pnorm(4, 0, 1)) * n_tot,0), ".")
+
+```
+\newpage
+
+## Z-scores from municipal level
+```{r echo=FALSE, fig.fullwidth=TRUE, fig.height=11.69*0.35, fig.width=8.27*0.7, message=FALSE, warning=FALSE, paged.print=FALSE, results='asis'}
+cat(tufte::margin_note(glue::glue('Comparing the observed z-scores from the regression model with a standard normal for municipalties')))
+cat("\\medskip")
+plotZscore(resYearLineMunicip)
+
+n_tot = nrow(resYearLineMunicip)
+cat("Observed ", nrow(resYearLineMunicip[zscore >=2]), " alerts with z>2 compared to  an expected ", round((1 - pnorm(2, 0, 1)) * n_tot, 0)," and we observed " , nrow(resYearLineMunicip[zscore >=4]), " alerts with z>4 compared to an expected" , round((1 - pnorm(4, 0, 1)) * n_tot,0), ".")
+```
+\newpage
+
+# Alerts by year (z > 2)
+
+## Alerts on a national level
+```{r echo=FALSE, fig.fullwidth=TRUE, fig.height=11.69*0.35, fig.width=8.27*0.7, message=FALSE, warning=FALSE, paged.print=FALSE, results='asis'}
+cat(tufte::margin_note(glue::glue('Number of alerts (z>2) by type for the whole of Norway by year. ')))
+ 
+alertChartByYear(resYearLine[x_alerts2 == TRUE & location == "Norge"])
+
+```
+\newpage
+
+## Alerts on regional level
+```{r echo=FALSE, fig.fullwidth=TRUE, fig.height=11.69*0.35, fig.width=8.27*0.7, message=FALSE, warning=FALSE, paged.print=FALSE, results='asis'}
+ cat(tufte::margin_note(glue::glue('Number of alerts (z>2) by type and region in Norway by year.' )))
+alertChartByYear(resYearLine[x_alerts2 == TRUE & location != "Norge"])
+```
+\newpage
+## Alerts on municipal level
+```{r echo=FALSE, fig.fullwidth=TRUE, fig.height=11.69*0.35, fig.width=8.27*0.7, message=FALSE, warning=FALSE, paged.print=FALSE, results='asis'}
+ cat(tufte::margin_note(glue::glue('Number of alerts (z>2) by type and muncipaltiy in Norway by year.' ))) 
+alertChartByYear(resYearLineMunicip[x_alerts2 == TRUE])
+```
+\newpage
+
+# Alerts by year (z > 4)
+
+## Alerts on a national level
+```{r echo=FALSE, fig.fullwidth=TRUE, fig.height=11.69*0.35, fig.width=8.27*0.7, message=FALSE, warning=FALSE, paged.print=FALSE, results='asis'}
+ cat(tufte::margin_note(glue::glue('Number of alerts (z>4) by type for the whole of Norway by year. ')))
+alertChartByYear(resYearLine[x_alerts4 == TRUE & location == "Norge"])
+
+```
+\newpage
+
+## Alerts on regional level
+```{r echo=FALSE, fig.fullwidth=TRUE, fig.height=11.69*0.35, fig.width=8.27*0.7, message=FALSE, warning=FALSE, paged.print=FALSE, results='asis'}
+ cat(tufte::margin_note(glue::glue('Number of alerts (z>4) by type and region in Norway by year.' )))
+alertChartByYear(resYearLine[x_alerts4 == TRUE & location != "Norge"])
+```
+
+\newpage
+## Alerts on municipal level
+```{r echo=FALSE, fig.fullwidth=TRUE, fig.height=11.69*0.35, fig.width=8.27*0.7, message=FALSE, warning=FALSE, paged.print=FALSE, results='asis'}
+ cat(tufte::margin_note(glue::glue('Number of alerts (z>4) by type and muncipaltiy in Norway by year.' )))
+alertChartByYear(resYearLineMunicip[x_alerts4 == TRUE])
+```
+
 
 \newpage
 

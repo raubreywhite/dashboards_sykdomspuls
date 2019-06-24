@@ -1,3 +1,4 @@
+
 #' AnalyseLog dfdf
 #' dfd
 #' @export AnalyseLog
@@ -103,25 +104,18 @@ AnalyseLog <- function() {
   # fhi::DashboardFolder("results", file.path(LatestRawID(),"stats"))
 }
 
-#' AnalyseStats1
-#' @param resYearLine a
-#' @param resYearLineMunicip a
-#' @export
-AnalyseStats1 <- function(
-                          resYearLine = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine.RDS", LatestRawID()))),
-                          resYearLineMunicip = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLineMunicip.RDS", LatestRawID())))) {
-  # variables used in data.table functions in this function
+#' AddThresholds
+#' @param data a
 
-  resYearLine[, x_alerts2 := n > threshold2]
-  resYearLine[, x_alerts4 := n > threshold4]
-  resYearLine[, x_alerts2_ge5cases := n > threshold2 & n >= 5]
-  resYearLine[, x_alerts4_ge5cases := n > threshold4 & n >= 5]
+addThresholds <- function (data){
+  data[, x_alerts2 := n > threshold2]
+  data[, x_alerts4 := n > threshold4]
+  data[, x_alerts2_ge5cases := n > threshold2 & n >= 5]
+  data[, x_alerts4_ge5cases := n > threshold4 & n >= 5]
+  return(data)
+}
 
-  resYearLineMunicip[, x_alerts2 := n > threshold2]
-  resYearLineMunicip[, x_alerts4 := n > threshold4]
-  resYearLineMunicip[, x_alerts2_ge5cases := n > threshold2 & n >= 5]
-  resYearLineMunicip[, x_alerts4_ge5cases := n > threshold4 & n >= 5]
-
+AggregateAlertsCases <- function(resYearLine, resYearLineMunicip){
   stack <- expand.grid(
     data = c("resYearLine", "resYearLineMunicip"),
     xtag = unique(resYearLine$tag),
@@ -129,15 +123,14 @@ AnalyseStats1 <- function(
     xage = unique(resYearLine$age),
     stringsAsFactors = F
   )
-
   res <- vector("list", length = nrow(stack))
   for (i in 1:nrow(stack)) {
     s <- stack[i, ]
     x <- melt.data.table(get(s$data)[tag == s$xtag & year == s$xyear & age == s$xage],
-      id.vars = c("tag", "location", "year", "age", "n", "threshold0", "threshold2", "threshold4"),
-      measure.vars = patterns("^x_alerts"),
-      variable.factor = F
-    )
+                         id.vars = c("tag", "location", "year", "age", "n", "threshold0", "threshold2", "threshold4"),
+                         measure.vars = patterns("^x_alerts"),
+                         variable.factor = F
+                         )
     x[, type := location]
     x[stringr::str_detect(location, "county"), type := "Fylke"]
     x[stringr::str_detect(location, "municip"), type := "Kommune"]
@@ -145,7 +138,6 @@ AnalyseStats1 <- function(
     x[, casesOverT0 := n - threshold0]
     x[, casesOverT2 := n - threshold2]
     x[, casesOverT4 := n - threshold4]
-
     x[, casesOverT := casesOverT4]
     x[stringr::str_detect(variable, "alerts2"), casesOverT := casesOverT2]
 
@@ -156,17 +148,18 @@ AnalyseStats1 <- function(
       meanCasesOverT0 = mean(casesOverT0[value == T]),
       meanCasesOverT = mean(casesOverT[value == T])
     ), keyby = .(
-      tag,
-      location,
-      year,
-      age,
-      variable,
-      type
-    )]
+         tag,
+         location,
+         year,
+         age,
+         variable,
+         type
+       )
+    ]
+
     res[[i]] <- x
   }
   res <- rbindlist(res)
-
   pd <- res[, .(
     meanAlertsN = mean(alertsN, na.rm = T),
     meanAlertsProp = mean(alertsProp, na.rm = T),
@@ -174,14 +167,32 @@ AnalyseStats1 <- function(
     meanCasesOverT0 = mean(meanCasesOverT0, na.rm = T),
     meanCasesOverT = mean(meanCasesOverT, na.rm = T)
   ), keyby = .(
-    tag,
-    variable,
-    type,
-    age
-  )]
+       tag,
+       variable,
+       type,
+       age
+     )]
 
   pd[, age := factor(age, levels = names(CONFIG$AGES))]
   pd[, type := factor(type, levels = c("Norge", "Fylke", "Kommune"))]
+  return(pd)
+}
+
+
+#' AnalyseStats1
+#' @param resYearLine a
+#' @param resYearLineMunicip a
+#' @export
+AnalyseStats1 <- function(
+                          resYearLine = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine.RDS", LatestRawID()))),
+                          resYearLineMunicip = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLineMunicip.RDS", LatestRawID())))) {
+  # variables used in data.table functions in this function
+
+  
+  resYearLine <- addThresholds(resYearLine)
+  resYearLineMunicip <- addThresholds(resYearLineMunicip)
+
+  pd <- AggregateAlertsCases(resYearLine, resYearLineMunicip)
 
   pd[, prettyVar := variable]
   pd[variable == "x_alerts2", prettyVar := "ZScore>2"]
@@ -191,9 +202,37 @@ AnalyseStats1 <- function(
 
   pd <- pd[stringr::str_detect(prettyVar, "Cases>=5")]
 
-  return(pd)
+
+  return(list("alert_summary"=pd, "resYearLine"=resYearLine,
+    "resYearLineMunicip"=resYearLineMunicip))
 }
 
+AnalyseEmergLineList <- function() {
+  fhi::RenderExternally(
+
+    input = system.file("extdata/emerg_linelist.Rmd", package = "sykdomspuls"),
+    output_file = "emerg_linelist.pdf",
+    output_dir = fhi::DashboardFolder("results", file.path(LatestRawID(), "emerg")),
+    params = sprintf(
+      "dev=%s,package_dir=\"%s\"",
+      fhi::DashboardIsDev(),
+      getwd()
+    )
+  )                                                                                                                        
+}
+
+AnalyseEmergLineListMult <- function() {
+  fhi::RenderExternally(
+    input = system.file("extdata/emerg_linelist_mult.Rmd", package = "sykdomspuls"),
+    output_file = "emerg_linelist_mult.pdf",
+    output_dir = fhi::DashboardFolder("results", file.path(LatestRawID(), "emerg")),
+    params = sprintf(
+      "dev=%s,package_dir=\"%s\"",
+      fhi::DashboardIsDev(),
+      getwd()
+    )
+  )
+}
 AnalyseEmerg <- function() {
   fhi::RenderExternally(
     input = system.file("extdata/emerg.Rmd", package = "sykdomspuls"),
@@ -203,6 +242,7 @@ AnalyseEmerg <- function() {
       "dev=%s,package_dir=\"%s\"",
       fhi::DashboardIsDev(),
       getwd()
+      
     )
   )
 }
@@ -232,6 +272,9 @@ AnalyseSkabb <- function() {
     )
   )
 }
+
+
+
 
 #' AnalysesSecondary
 #' @export

@@ -36,23 +36,75 @@ fhi::DashboardInitialiseOpinionated("sykdomspuls",
 suppressMessages(library(data.table))
 suppressMessages(library(ggplot2))
 suppressMessages(library(kableExtra))
+suppressMessages(library(fhiplot))
+suppressMessages(library(lubridate))
+suppressMessages(library(fhidata))
+county <- readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine_emerg1.RDS", LatestRawID())))
+municip <- readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLineMunicip_emerg1.RDS", LatestRawID())))
+county[,age:=factor(age,levels=names(CONFIG$AGES))]
 
-d <- readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine_emerg1.RDS", LatestRawID())))
-d[,age:=factor(age,levels=names(CONFIG$AGES))]
+start_date = ymd("2019-01-01")
+
+county_year = county[date >=start_date]
+municip_year = municip[date >=start_date]
+
+
 
 ```
 
 \newpage
 
-# Norway
+# Epi-curve
 
-`r tufte::margin_note(glue::glue('
-                                  emerg1 at the national level.
-                                  '))`
-
-```{r echo=FALSE, fig.height=11.69*0.6, message=FALSE, warning=FALSE}
-q <- ggplot(d[location=="Norge"], aes(x=date,y=n))
-q <- q + geom_line()
-q <- q + facet_wrap(~age,ncol=1)
+```{r echo=FALSE, fig.height=11.69*0.3, message=FALSE, warning=FALSE}
+q <- ggplot(county_year[location=="Norge" & age == "Totalt"]) +
+     geom_col(aes(x=date, y=n)) +
+     theme_fhi_lines() +
+     ylab("") +
+     theme_fhi_lines()
 q
+```
+
+# County Map
+
+```{r echo=FALSE, fig.height=11.69*0.3, message=FALSE, warning=FALSE}
+
+pd <- fhidata::norway_map_counties
+
+plot_data <- data.table(pd)[county_year[, .(N=sum(n)), by=.(location)], on=.(location_code=location), nomatch=0]
+
+q <- ggplot()
+q <- q + geom_polygon(data = plot_data, aes( x = long, y = lat, group = group, fill=N), color="black")
+q <- q + theme_void()
+q <- q + coord_quickmap() 
+q
+
+```
+
+# Muncipalities with the most cases
+
+```{r echo=FALSE, results='asis', paged.print=TRUE }
+
+pop <- fhidata::norway_population_current
+
+pop <- data.table(pop)[, .(pop=sum(pop)), by=.(location_code)]
+
+municip_cases <- municip_year[,  .(N=sum(n)), by=.(location)][pop, on=.(location=location_code), nomatch=0]
+
+municip_cases <- municip_cases[, .(location, N,  incidence = round(N / pop * 1000, 1))][data.table(fhi::NorwayLocations()), on=.(location=municip), nomatch=0]
+
+
+table <- municip_cases[order(-N), .(municipName, N, incidence)][1:35]
+ setnames(table,c(
+    "Municipality","Cases","Incidence per 1000 inhabitants")
+
+  )
+
+  k <- knitr::kable(table, "latex",
+                      booktabs = T,
+                      align = "c",
+                      linesep = "")
+   print(k)
+
+
 ```
