@@ -40,7 +40,7 @@ CONFIG$SYNDROMES <- rbind(
     contactType = list("Legekontakt"),
     syndromeOrConsult = "syndrome",
     denominator = "consultWithInfluensa",
-    weeklyDenominatorFunction = sum,
+    weeklyDenominatorFunction = "sum",
     namesLong = "Influensa",
     namesShort = "Influensa"
   ),
@@ -53,7 +53,7 @@ CONFIG$SYNDROMES <- rbind(
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
     denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    weeklyDenominatorFunction = "sum",
     namesLong = "Mage-tarm diagnose",
     namesShort = "Mage-tarm"
   ),
@@ -66,7 +66,7 @@ CONFIG$SYNDROMES <- rbind(
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
     denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    weeklyDenominatorFunction = "sum",
     namesLong = "\u00D8vre-luftvei diagnose",
     namesShort = "Luftvei"
   ),
@@ -79,7 +79,7 @@ CONFIG$SYNDROMES <- rbind(
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
     denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    weeklyDenominatorFunction = "sum",
     namesLong = "\u00D8vre-luftvei diagnose",
     namesShort = "Luftvei"
   ),
@@ -92,7 +92,7 @@ CONFIG$SYNDROMES <- rbind(
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
     denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    weeklyDenominatorFunction = "sum",
     namesLong = "Lungebetennelse diagnose",
     namesShort = "Lungebet"
   ),
@@ -105,7 +105,7 @@ CONFIG$SYNDROMES <- rbind(
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
     denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    weeklyDenominatorFunction = "sum",
     namesLong = "Bronkitt diagnose",
     namesShort = "Bronkitt"
   ),
@@ -118,7 +118,7 @@ CONFIG$SYNDROMES <- rbind(
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "consult",
     denominator = "pop",
-    weeklyDenominatorFunction = mean,
+    weeklyDenominatorFunction = "mean",
     namesLong = "consultWithInfluensa",
     namesShort = "ConsWithInf"
   ),
@@ -131,7 +131,7 @@ CONFIG$SYNDROMES <- rbind(
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "consult",
     denominator = "pop",
-    weeklyDenominatorFunction = mean,
+    weeklyDenominatorFunction = "mean",
     namesLong = "consultWithoutInfluensa",
     namesShort = "ConsWOInf"
   ),
@@ -144,7 +144,7 @@ CONFIG$SYNDROMES <- rbind(
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
     denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    weeklyDenominatorFunction = "sum",
     namesLong = "Skabb diagnose",
     namesShort = "Skabb"
   ),
@@ -157,7 +157,7 @@ CONFIG$SYNDROMES <- rbind(
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
     denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    weeklyDenominatorFunction = "sum",
     namesLong = "emerg1 diagnose",
     namesShort = "emerg1"
   ),
@@ -170,7 +170,7 @@ CONFIG$SYNDROMES <- rbind(
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
     denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    weeklyDenominatorFunction = "sum",
     namesLong = "emerg2 diagnose",
     namesShort = "emerg2"
   ),
@@ -183,7 +183,7 @@ CONFIG$SYNDROMES <- rbind(
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
     denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    weeklyDenominatorFunction = "sum",
     namesLong = "emerg3 diagnose",
     namesShort = "emerg3"
   ),
@@ -196,7 +196,7 @@ CONFIG$SYNDROMES <- rbind(
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
     denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    weeklyDenominatorFunction = "sum",
     namesLong = "emerg4 diagnose",
     namesShort = "emerg4"
   ),
@@ -209,7 +209,7 @@ CONFIG$SYNDROMES <- rbind(
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
     denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    weeklyDenominatorFunction = "sum",
     namesLong = "emerg5 diagnose",
     namesShort = "emerg5"
   )

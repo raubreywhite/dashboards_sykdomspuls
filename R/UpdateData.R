@@ -155,7 +155,8 @@ UpdateData <- function() {
     fhi::DashboardMsg(sprintf("Processing %s/%s: %s", i, nrow(CONFIG$SYNDROMES), conf$tag))
 
 
-    res <- CleanData(copy(d[Kontaktype %in% conf$contactType[[1]]]),
+    res <- CleanData(
+      d = copy(d[Kontaktype %in% conf$contactType[[1]]]),
       syndrome = conf$syndrome
     )
     saveRDS(res, file = fhi::DashboardFolder(

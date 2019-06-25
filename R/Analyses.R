@@ -29,9 +29,16 @@
 #' sykdomspuls::CalculateTrainPredictYearPattern(2000, 2015, 3)
 #' @export CalculateTrainPredictYearPattern
 CalculateTrainPredictYearPattern <- function(yearMin, yearMax, numPerYear1 = 1) {
+  if(numPerYear1 > yearMax-yearMin-5) numPerYear1 <- yearMax-yearMin-5
   perYear1 <- seq(yearMax - numPerYear1 + 1, yearMax, by = 1)
   perYear2 <- c((yearMin + 6):(yearMax - numPerYear1))
+  perYear2 <- perYear2[!perYear2 %in% perYear1]
+
   perFixed <- c(yearMin:(yearMin + 5))
+
+  perYear2 <- perYear2[!perYear2 %in% perFixed]
+  perYear1 <- perYear1[!perYear1 %in% perFixed]
+
   if (length(perYear2) %% 2 == 1) {
     perYear1 <- c(max(perYear2), perYear1)
     perYear2 <- perYear2[-length(perYear2)]
@@ -45,7 +52,7 @@ CalculateTrainPredictYearPattern <- function(yearMin, yearMax, numPerYear1 = 1) 
     yearPredictMax = max(perFixed)
   )
   index <- 2
-  for (i in 1:length(perYear2)) {
+  for (i in seq_along(perYear2)) {
     if (i %% 2 == 0) next
     years[[index]] <- list(
       yearTrainMin = perYear2[i] - 5,
@@ -55,7 +62,7 @@ CalculateTrainPredictYearPattern <- function(yearMin, yearMax, numPerYear1 = 1) 
     )
     index <- index + 1
   }
-  for (i in 1:length(perYear1)) {
+  for (i in seq_along(perYear1)) {
     years[[index]] <- list(
       yearTrainMin = perYear1[i] - 5,
       yearTrainMax = perYear1[i] - 1,
@@ -167,36 +174,28 @@ RunOneAnalysis <- function(analysesStack, analysisData) {
   tag <- NULL
   # end
 
-  analysisData[, denominator := get(analysesStack$denominator)]
-
-  yearMax <- as.numeric(format.Date(max(analysisData$date), "%G"))
-  yearMin <- as.numeric(format.Date(min(analysisData$date), "%G"))
-
   dataset <- copy(analysisData)
+  dataset[, denominator := get(analysesStack$denominator)]
 
   dates <- dataset[, "date"]
   dates[, year := RAWmisc::YearN(date)]
   dates[, week := RAWmisc::WeekN(date)]
 
-  years <- CalculateTrainPredictYearPattern(yearMin = yearMin, yearMax = yearMax, numPerYear1 = 1)
-  res <- vector("list", length = length(years))
+  dateTrainMin <- min(dates[year == analysesStack$year_train_min]$date)
+  dateTrainMax <- max(dates[year == analysesStack$year_train_max]$date)
 
-  for (i in 1:length(years)) {
-    dateTrainMin <- min(dates[year == years[[i]]$yearTrainMin]$date)
-    dateTrainMax <- max(dates[year == years[[i]]$yearTrainMax]$date)
+  datePredictMin <- min(dates[year == analysesStack$year_predict_min]$date)
+  datePredictMax <- max(dates[year == analysesStack$year_predict_max]$date)
 
-    datePredictMin <- min(dates[year == years[[i]]$yearPredictMin]$date)
-    datePredictMax <- max(dates[year == years[[i]]$yearPredictMax]$date)
-
-    res[[i]] <- QuasipoissonTrainPredictData(
+  res <- QuasipoissonTrainPredictData(
       datasetTrain = dataset[date >= dateTrainMin & date <= dateTrainMax],
       datasetPredict = dataset[date >= datePredictMin & date <= datePredictMax],
       isDaily = analysesStack$granularity == "Daily",
       v = v,
-      weeklyDenominatorFunction = analysesStack$weeklyDenominatorFunction[[1]]
+      weeklyDenominatorFunction = ifelse(analysesStack$weeklyDenominatorFunction=="sum",sum,mean)
     )
-  }
-  res <- rbindlist(res)
+
+  #res <- rbindlist(res)
   res <- res[!is.na(threshold2)]
 
   res[, age := analysesStack$age]

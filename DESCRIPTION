@@ -28,7 +28,8 @@ Imports:
   parallel,
   pbmcapply,
   RAWmisc,
-  cowplot
+  cowplot,
+  fhidata
 Suggests: testthat,
     knitr,
     rmarkdown

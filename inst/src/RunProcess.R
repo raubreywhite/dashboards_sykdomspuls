@@ -28,15 +28,35 @@ if (!UpdateData()) {
 DeleteOldDatasets()
 fhi::Log("cleanAfter")
 
+db <- DBI::dbConnect(RMariaDB::MariaDB(),
+                     host = "db",
+                     port = 3306,
+                     user = "root",
+                     password = "example"
+)
+
+a <- DBI::dbGetQuery(db, "SHOW DATABASES LIKE 'sykdomspuls';")
+if (nrow(a) == 0) {
+  a <- DBI::dbExecute(db, "CREATE DATABASE sykdomspuls;")
+}
+DBI::dbExecute(db, "USE sykdomspuls")
+
 fhi::Log("analyse1Before")
 for (i in 1:nrow(sykdomspuls::CONFIG$SYNDROMES)) {
   conf <- sykdomspuls::CONFIG$SYNDROMES[i]
   fhi::DashboardMsg(conf$tag)
 
   stackAndData <- StackAndEfficientDataForAnalysisInList(conf = conf)
+  schema <- schema_and_data(conf = conf)
 
-  res <- pbmclapply(stackAndData,
-    function(x) RunOneAnalysis(analysesStack = x$stack, analysisData = x$data),
+  to_run <- split(
+    schema$schema_analyses$get_data_dt(),
+    seq(nrow(schema$schema_analyses$get_data_dt()))
+    )
+
+  #y <- list(to_run[[1]],to_run[[2]])
+  res <- pbmclapply(to_run,
+    function(x) RunOneAnalysis(analysesStack = x, analysisData = schema$data[.(x$location, x$age)]),
     mc.cores = parallel::detectCores()
   )
 
