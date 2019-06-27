@@ -1,4 +1,6 @@
-library(R6)
+#' Model classes
+#'
+#' @import R6 
 
 QuasiPoission <-  R6Class(
   "QuasiPoission",

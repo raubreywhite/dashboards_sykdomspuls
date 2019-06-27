@@ -1,6 +1,8 @@
-suppressMessages(library(data.table))
-suppressMessages(library(lubridate))
-suppressMessages(library(mem))
+#' Model classes
+#'
+#' @import data.table
+#' @import lubridate
+#' @import mem
 
 run_all <- function(conf){
 
