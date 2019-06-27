@@ -6,7 +6,8 @@
 \usage{
 QuasipoissonTrainPredictData(datasetTrain, datasetPredict, reweights = 1,
   remove.pandemic.year = F, remove.highcounts = 0, sign.level = 0.05,
-  isDaily = TRUE, v = 1, weeklyDenominatorFunction = sum)
+  isDaily = TRUE, v = 1, weeklyDenominatorFunction = sum,
+  denominator_string = NULL)
 }
 \arguments{
 \item{datasetTrain}{Training data.table}
@@ -26,6 +27,8 @@ QuasipoissonTrainPredictData(datasetTrain, datasetPredict, reweights = 1,
 \item{v}{Version (Not in use)}
 
 \item{weeklyDenominatorFunction}{sum or mean - should the denominator be summed or meaned over time}
+
+\item{denominator_string}{If not NULL then denominator variable is made from this}
 }
 \description{
 This is the core algorithm of sykdomspulsen.

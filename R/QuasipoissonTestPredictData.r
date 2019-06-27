@@ -69,6 +69,7 @@ FormatDatasetWeekly <- function(data, weeklyDenominatorFunction = sum) {
 #' @param isDaily Is it daily data or weekly data?
 #' @param v Version (Not in use)
 #' @param weeklyDenominatorFunction sum or mean - should the denominator be summed or meaned over time
+#' @param denominator_string If not NULL then denominator variable is made from this
 #' @importFrom glm2 glm2
 #' @import data.table
 #' @import stringr
@@ -83,7 +84,8 @@ QuasipoissonTrainPredictData <- function(
                                          sign.level = 0.05,
                                          isDaily = TRUE,
                                          v = 1,
-                                         weeklyDenominatorFunction = sum) {
+                                         weeklyDenominatorFunction = sum,
+                                         denominator_string = NULL) {
   # variables used in data.table functions in this function
   consult <- NULL
   n <- NULL
@@ -102,6 +104,11 @@ QuasipoissonTrainPredictData <- function(
   denominator <- NULL
   displayDay <- NULL
   # end
+
+  if(!is.null(denominator_string)){
+    datasetTrain[,denominator:=get(denominator_string)]
+    datasetPredict[,denominator:=get(denominator_string)]
+  }
 
   # FUNCTION quasipoisson.algorithm
   #

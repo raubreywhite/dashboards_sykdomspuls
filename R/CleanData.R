@@ -264,8 +264,9 @@ CleanData <- function(d,
 #' that can be directly sent to \code{QuasipoissonTrainPredictData}
 #' without additional formatting.
 #' @param conf A row from \code{CONFIG$SYNDROMES}
-#' @export StackAndEfficientDataForAnalysis
-StackAndEfficientDataForAnalysis <- function(conf) {
+#' @param data a dataset
+#' @export load_stack_schema
+load_stack_schema <- function(conf, data) {
   . <- NULL
   granularityGeo <- NULL
   weeklyDenominatorFunction <- NULL
@@ -274,11 +275,6 @@ StackAndEfficientDataForAnalysis <- function(conf) {
   granularity <- NULL
   location <- NULL
   id <- NULL
-
-  data <- readRDS(file = fhi::DashboardFolder(
-    "data_clean",
-    sprintf("%s_%s_cleaned.RDS", LatestRawID(), conf$tag)
-  ))
 
   counties <- unique(data[granularityGeo == "municip"]$county)
   municips <- unique(data[granularityGeo == "municip"]$location)
@@ -301,14 +297,15 @@ StackAndEfficientDataForAnalysis <- function(conf) {
       location = c("Norge", counties),
       age = ages,
       year_index = 1:length(years),
-      granularity = c("Daily", "Weekly"),
+      granularity_time = c("daily", "weekly"),
       stringsAsFactors = FALSE
     )
   )
-  analysesCounties[, weeklyDenominatorFunction := list(conf$weeklyDenominatorFunction)]
+  analysesCounties[, weeklyDenominatorFunction := conf$weeklyDenominatorFunction]
   analysesCounties[, v := sykdomspuls::CONFIG$VERSION]
+  analysesCounties[, purpose := "production"]
   analysesCounties[, file := sprintf("%s_%s.RDS", "resRecentLine", tag)]
-  analysesCounties[granularity == "Weekly", file := sprintf("%s_%s.RDS", "resYearLine", tag)]
+  analysesCounties[granularity_time == "weekly", file := sprintf("%s_%s.RDS", "resYearLine", tag)]
 
   # setting control stack for municipalities
   analysesMunicips <- data.table(
@@ -318,12 +315,13 @@ StackAndEfficientDataForAnalysis <- function(conf) {
       location = municips,
       age = ages,
       year_index = 1:length(years),
-      granularity = c("Weekly"),
+      granularity_time = c("weekly"),
       stringsAsFactors = FALSE
     )
   )
-  analysesMunicips[, weeklyDenominatorFunction := list(conf$weeklyDenominatorFunction)]
+  analysesMunicips[, weeklyDenominatorFunction := conf$weeklyDenominatorFunction]
   analysesMunicips[, v := sykdomspuls::CONFIG$VERSION]
+  analysesMunicips[, purpose := "production"]
   analysesMunicips[, file := sprintf("%s_%s.RDS", "resYearLineMunicip", tag)]
 
   # control stack for comparison of models
@@ -331,12 +329,13 @@ StackAndEfficientDataForAnalysis <- function(conf) {
     vector("list", length(sykdomspuls::CONFIG$VERSIONS))
   for (vx in sykdomspuls::CONFIG$VERSIONS) {
     temp <-
-      analysesCounties[location == "Norge" & granularity == "Weekly"]
+      analysesCounties[location == "Norge" & granularity_time == "weekly"]
     temp[, v := vx]
     analysesComparison[[vx]] <- copy(temp)
   }
   analysesComparison <- rbindlist(analysesComparison)
   analysesComparison[, file := sprintf("%s_%s.RDS", "resComparisons", tag)]
+  analysesComparison[, purpose := "comparison"]
 
   analyses <- rbind(analysesCounties, analysesMunicips, analysesComparison)
   for(i in seq_along(years)){
@@ -345,21 +344,28 @@ StackAndEfficientDataForAnalysis <- function(conf) {
     analyses[year_index==i,year_predict_min:=years[[i]]$yearPredictMin]
     analyses[year_index==i,year_predict_max:=years[[i]]$yearPredictMax]
   }
+  analyses[,uuid:=replicate(.N, uuid::UUIDgenerate(F))]
+  analyses[,year_index:=NULL]
 
-  return(
-    list(
-      conf = conf,
-      data = data,
-      counties = counties,
-      municips = municips,
-      locations = locations,
-      ages = ages,
-      analyses = analyses,
-      analysesCounties = analysesCounties,
-      analysesMunicips = analysesMunicips,
-      analysesComparison = analysesComparison
-    )
-  )
+  dates <- data[, "date"]
+  dates[, year := RAWmisc::YearN(date)]
+  dates[, date_min := min(date), by=year]
+  dates[, date_max := max(date), by=year]
+  dates <- unique(dates[,c("year","date_min","date_max")])
+
+  analyses[dates, on="year_train_min==year", date_train_min:=date_min]
+  analyses[dates, on="year_train_max==year", date_train_max:=date_max]
+
+  analyses[dates, on="year_predict_min==year", date_predict_min:=date_min]
+  analyses[dates, on="year_predict_max==year", date_predict_max:=date_max]
+
+  # fix schema
+
+  schema$dt <- analyses
+
+  schema$identify_dt_that_exists_in_db()
+  schema$get_data_dt()[year_predict_max>=max(year_predict_max)-1,exists_in_db:=FALSE]
+
 }
 
 #' Create analysis stack and datasets for a tag inside a list
@@ -399,22 +405,13 @@ schema_and_data <- function(conf){
   stack <- stackAndData$analyses
   data <- stackAndData$data
 
-  stack[,weeklyDenominatorFunction:="sum"]
+  #fd:::get_field_types(conn, stack)
 
-  schema_analyses <- fd::schema(
-    dt = stack,
-    db = db,
-    db_table = "analyses",
-    keys = c("tag","location","age","granularity","v","year_train_min","year_train_max","year_predict_min","year_predict_max")
-  )
+  schema$stack_x$dt <- stack
 
-  schema_analyses$identify_dt_that_exists_in_db()
-  schema_analyses$get_data_dt()
-  schema_analyses$get_data_dt()[year_predict_max>=max(year_predict_max)-1,exists_in_db:=FALSE]
+  schema$stack_x$identify_dt_that_exists_in_db()
+  schema$stack_x$get_data_dt()[year_predict_max>=max(year_predict_max)-1,exists_in_db:=FALSE]
 
-  return(list(
-    schema_analyses=schema_analyses,
-    data=data,
-  ))
+  return(data)
 
 }

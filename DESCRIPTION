@@ -29,7 +29,8 @@ Imports:
   pbmcapply,
   RAWmisc,
   cowplot,
-  fhidata
+  fhidata,
+  fd
 Suggests: testthat,
     knitr,
     rmarkdown

@@ -130,24 +130,7 @@ AddWkyrAndDisplayDateToWeekly <- function(data) {
 #' and then creates a new variable called \code{status} with the values
 #' Normal/Medium/High.
 #'
-#' Normal <= threshold2
-#' threshold2 < Medium <= threshold4
-#' threshold4 < High
-#'
-#' @param data A data.table containing the variables \code{n}, \code{threshold2}, and \code{threshold4}
-#' @import data.table
-#' @export DetermineStatus
-DetermineStatus <- function(data) {
-  status <- NULL
-  n <- NULL
-  threshold2 <- NULL
-  threshold4 <- NULL
 
-  # create "normal", "medium", "high" categories
-  data[, status := "Normal"]
-  data[n > 1 & n > threshold2, status := "Medium"]
-  data[n > 1 & n > threshold4, status := "High"]
-}
 
 #' Run one analysis according to the analysis stack
 #'
@@ -190,7 +173,7 @@ RunOneAnalysis <- function(analysesStack, analysisData) {
   res <- QuasipoissonTrainPredictData(
       datasetTrain = dataset[date >= dateTrainMin & date <= dateTrainMax],
       datasetPredict = dataset[date >= datePredictMin & date <= datePredictMax],
-      isDaily = analysesStack$granularity == "Daily",
+      isDaily = analysesStack$granularity_time == "daily",
       v = v,
       weeklyDenominatorFunction = ifelse(analysesStack$weeklyDenominatorFunction=="sum",sum,mean)
     )
@@ -204,6 +187,10 @@ RunOneAnalysis <- function(analysesStack, analysisData) {
   res[, location := analysesStack$location]
   # res[, locationName := GetLocationName(analysesStack$location, locationData = norwayLocations)]
   res[, file := analysesStack$file]
+  res[, purpose := analysesStack$purpose]
+  res[, granularity_time := analysesStack$granularity_time]
+  res[, uuid := analysesStack$uuid]
+  res[, v := analysesStack$v]
 
   # make threshold2 minimum of 2 and threshold4 minimum of 3
   res[threshold2 < 2, threshold2 := 2]
@@ -275,7 +262,8 @@ GetCountyFromMunicip <- function(location, locationData = NorwayLocations()) {
 #' @import data.table
 #' @export
 AddLocationName <- function(data) {
-  data[, locationName := GetLocationName(location, locationData = fhi::NorwayLocationsLong())]
+  data[fhidata::norway_locations_long_current,on="location==location_code", locationName:=location_code]
+  data[is.na(locationName),locationName:="Norge"]
 }
 
 
@@ -290,5 +278,7 @@ AddLocationName <- function(data) {
 #' @import data.table
 #' @export
 AddCounty <- function(data) {
-  data[, county := GetCountyFromMunicip(location, locationData = NorwayLocations())]
+  data[, county:= location]
+  data[fhidata::norway_locations_current,on="location==municip_code", county:=county_code]
+
 }

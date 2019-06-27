@@ -2,7 +2,7 @@
 % Please edit documentation in R/Analyses.R
 \name{RunOneAnalysis}
 \alias{RunOneAnalysis}
-\title{Run one analysis according to the analysis stack}
+\title{Convert n and thresholds to Normal/Medium/High}
 \usage{
 RunOneAnalysis(analysesStack, analysisData)
 }
@@ -12,6 +12,13 @@ RunOneAnalysis(analysesStack, analysisData)
 \item{analysisData}{The generic dataset. TODO: Validate}
 }
 \description{
+Takes a data.table with the variables \code{n}, \code{threshold2}, and \code{threshold4}
+and then creates a new variable called \code{status} with the values
+Normal/Medium/High.
+}
+\details{
+Run one analysis according to the analysis stack
+
 This function receives a generic dataset and a selection from the analysis stack.
 The data is then reformatted according to the analysis stack and sent to the
 appropriate analysis function.

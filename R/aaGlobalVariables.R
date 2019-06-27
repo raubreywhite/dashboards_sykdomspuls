@@ -313,6 +313,9 @@ VARS$REQ_RESULTS_BASIC <- c(
 )
 
 VARS$REQ_RESULTS_FULL <- c(
+  "purpose",
+  "v",
+  "granularity_time",
   "tag",
   "type",
   # "county",
@@ -321,7 +324,8 @@ VARS$REQ_RESULTS_FULL <- c(
   "age",
   "status",
   VARS$REQ_RESULTS_BASIC,
-  "file"
+  "file",
+  "uuid"
 )
 
 
@@ -337,3 +341,102 @@ setkey(displayDays, wkyr)
 PB <- new.env(parent = emptyenv())
 PB$i <- 0
 PB$pb <- RAWmisc::ProgressBarCreate(max = 1)
+
+#' sch
+#' @export sch
+sch <- new.env()
+
+### STACK
+sch$stack_field_types <- c(
+  "purpose"="TEXT",
+  "granularity_time"="TEXT",
+  "tag"="TEXT",
+  "denominator"="TEXT",
+  "location"="TEXT",
+  "age"="TEXT",
+  "weeklyDenominatorFunction"="TEXT",
+  "v"="INTEGER",
+  "file"="TEXT",
+  "year_train_min"="INTEGER",
+  "year_train_max"="INTEGER",
+  "year_predict_min"="INTEGER",
+  "year_predict_max"="INTEGER",
+
+  "date_train_min"="DATE",
+  "date_train_max"="DATE",
+  "date_predict_min"="DATE",
+  "date_predict_max"="DATE",
+
+  "uuid"="TEXT"
+)
+
+sch$stack_keys <- c(
+  "purpose",
+  "granularity_time",
+  "tag",
+  "location",
+  "age",
+  "v",
+  "year_train_min",
+  "year_train_max",
+  "year_predict_min",
+  "year_predict_max"
+)
+
+sch$stack_x <- fd::schema$new(
+  db_table = "stack",
+  db_field_types = sch$stack_field_types,
+  db_load_file = "/xtmp/123.csv",
+  keys = sch$stack_keys
+)
+
+### sykdomspuls
+sch$results_field_types <- c(
+  "purpose"="TEXT",
+  "v"="INTEGER",
+  "granularity_time"="TEXT",
+  "tag"="TEXT",
+  "location"="TEXT",
+  "age"="TEXT",
+  "status"="TEXT",
+  "wkyr"="TEXT",
+  "year"="DOUBLE",
+  "week"="DOUBLE",
+  "x"="DOUBLE",
+  "date"="DATE",
+  "displayDay"="DATE",
+  "n"="INTEGER",
+  "denominator"="INTEGER",
+  "threshold0"="DOUBLE",
+  "threshold2"="DOUBLE",
+  "threshold4"="DOUBLE",
+  "threshold6"="DOUBLE",
+  "zscore"="DOUBLE",
+  "cumE1"="DOUBLE",
+  "cumL1"="DOUBLE",
+  "cumU1"="DOUBLE",
+  "failed"="TINYINT",
+  "uuid"="TEXT",
+  "locationName"="TEXT",
+  "county"="TEXT"
+)
+
+sch$results_keys <- c(
+  "purpose",
+  "v",
+  "granularity_time",
+  "tag",
+  "location",
+  "age",
+  "year",
+  "week",
+  "date"
+)
+
+sch$results_x <- fd::schema$new(
+  db_table = "results",
+  db_field_types = sch$results_field_types,
+  db_load_file = "/xtmp/123.csv",
+  keys = sch$results_keys
+)
+
