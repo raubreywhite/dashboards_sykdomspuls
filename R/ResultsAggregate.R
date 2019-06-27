@@ -7,7 +7,7 @@ ResultsAggregateStack <- function() {
   fileNameOutput1 <- NULL
   fileNameOutput2 <- NULL
   variable <- NULL
-
+fhi::Log("save1Before")
   files <- data.table(expand.grid(
     "fileType" = c("resComparisons", "resRecentLine", "resYearLine", "resYearLineMunicip"),
     "tag" = sykdomspuls::CONFIG$SYNDROMES$tag,

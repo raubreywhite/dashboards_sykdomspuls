@@ -30,7 +30,10 @@ CONFIG$verbose <- FALSE
 CONFIG$VERSION <- 1
 CONFIG$VERSIONS <- 1:2
 
-CONFIG$SYNDROMES <- rbind(
+
+
+
+CONFIG$MEM <- rbind(
   data.table(
     tag = "influensa",
     syndrome = "influensa",
@@ -43,177 +46,231 @@ CONFIG$SYNDROMES <- rbind(
     weeklyDenominatorFunction = sum,
     namesLong = "Influensa",
     namesShort = "Influensa"
-  ),
-  data.table(
-    tag = "gastro",
-    syndrome = "gastro",
-    alertInternal = TRUE,
-    alertExternal = TRUE,
-    websiteInternal = TRUE,
-    contactType = list(c("Legekontakt", "Telefonkontakt")),
-    syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
-    namesLong = "Mage-tarm diagnose",
-    namesShort = "Mage-tarm"
-  ),
-  data.table(
-    tag = "respiratoryinternal",
-    syndrome = "respiratoryinternal",
-    alertInternal = TRUE,
-    alertExternal = FALSE,
-    websiteInternal = TRUE,
-    contactType = list(c("Legekontakt", "Telefonkontakt")),
-    syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
-    namesLong = "\u00D8vre-luftvei diagnose",
-    namesShort = "Luftvei"
-  ),
-  data.table(
-    tag = "respiratoryexternal",
-    syndrome = "respiratoryexternal",
-    alertInternal = FALSE,
-    alertExternal = TRUE,
-    websiteInternal = FALSE,
-    contactType = list(c("Legekontakt", "Telefonkontakt")),
-    syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
-    namesLong = "\u00D8vre-luftvei diagnose",
-    namesShort = "Luftvei"
-  ),
-  data.table(
-    tag = "lungebetennelse",
-    syndrome = "lungebetennelse",
-    alertInternal = TRUE,
-    alertExternal = FALSE,
-    websiteInternal = TRUE,
-    contactType = list(c("Legekontakt", "Telefonkontakt")),
-    syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
-    namesLong = "Lungebetennelse diagnose",
-    namesShort = "Lungebet"
-  ),
-  data.table(
-    tag = "bronkitt",
-    syndrome = "bronkitt",
-    alertInternal = TRUE,
-    alertExternal = FALSE,
-    websiteInternal = TRUE,
-    contactType = list(c("Legekontakt", "Telefonkontakt")),
-    syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
-    namesLong = "Bronkitt diagnose",
-    namesShort = "Bronkitt"
-  ),
-  data.table(
-    tag = "consultWithInfluensa",
-    syndrome = "consultWithInfluensa",
-    alertInternal = FALSE,
-    alertExternal = FALSE,
-    websiteInternal = FALSE,
-    contactType = list(c("Legekontakt", "Telefonkontakt")),
-    syndromeOrConsult = "consult",
-    denominator = "pop",
-    weeklyDenominatorFunction = mean,
-    namesLong = "consultWithInfluensa",
-    namesShort = "ConsWithInf"
-  ),
-  data.table(
-    tag = "consultWithoutInfluensa",
-    syndrome = "consultWithoutInfluensa",
-    alertInternal = FALSE,
-    alertExternal = FALSE,
-    websiteInternal = FALSE,
-    contactType = list(c("Legekontakt", "Telefonkontakt")),
-    syndromeOrConsult = "consult",
-    denominator = "pop",
-    weeklyDenominatorFunction = mean,
-    namesLong = "consultWithoutInfluensa",
-    namesShort = "ConsWOInf"
-  ),
-  data.table(
-    tag = "skabb",
-    syndrome = "skabb",
-    alertInternal = FALSE,
-    alertExternal = FALSE,
-    websiteInternal = TRUE,
-    contactType = list(c("Legekontakt", "Telefonkontakt")),
-    syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
-    namesLong = "Skabb diagnose",
-    namesShort = "Skabb"
-  ),
-  data.table(
-    tag = "emerg1",
-    syndrome = "emerg1",
-    alertInternal = FALSE,
-    alertExternal = FALSE,
-    websiteInternal = FALSE,
-    contactType = list(c("Legekontakt", "Telefonkontakt")),
-    syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
-    namesLong = "emerg1 diagnose",
-    namesShort = "emerg1"
-  ),
-  data.table(
-    tag = "emerg2",
-    syndrome = "emerg2",
-    alertInternal = FALSE,
-    alertExternal = FALSE,
-    websiteInternal = FALSE,
-    contactType = list(c("Legekontakt", "Telefonkontakt")),
-    syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
-    namesLong = "emerg2 diagnose",
-    namesShort = "emerg2"
-  ),
-  data.table(
-    tag = "emerg3",
-    syndrome = "emerg3",
-    alertInternal = FALSE,
-    alertExternal = FALSE,
-    websiteInternal = FALSE,
-    contactType = list(c("Legekontakt", "Telefonkontakt")),
-    syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
-    namesLong = "emerg3 diagnose",
-    namesShort = "emerg3"
-  ),
-  data.table(
-    tag = "emerg4",
-    syndrome = "emerg4",
-    alertInternal = FALSE,
-    alertExternal = FALSE,
-    websiteInternal = FALSE,
-    contactType = list(c("Legekontakt", "Telefonkontakt")),
-    syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
-    namesLong = "emerg4 diagnose",
-    namesShort = "emerg4"
-  ),
-  data.table(
-    tag = "emerg5",
-    syndrome = "emerg5",
-    alertInternal = FALSE,
-    alertExternal = FALSE,
-    websiteInternal = FALSE,
-    contactType = list(c("Legekontakt", "Telefonkontakt")),
-    syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
-    namesLong = "emerg5 diagnose",
-    namesShort = "emerg5"
   )
 )
+
+
+CONFIG$QUASIPOISSON <- rbind(
+  data.table(
+    tag = "influensa",
+    syndrome = "influensa",
+    alertInternal = TRUE,
+    alertExternal = FALSE,
+    websiteInternal = TRUE,
+    contactType = list("Legekontakt"),
+    syndromeOrConsult = "syndrome",
+    denominator = "consultWithInfluensa",
+    weeklyDenominatorFunction = sum,
+    namesLong = "Influensa",
+    namesShort = "Influensa"
+  )
+  
+)
+
+
+
+
+CONFIG$MODELS <- list("mem" = CONFIG$MEM, "quasipoisson"= CONFIG$QUASIPOISSON)
+
+
+CONFIG$SYNDROMES <- data.table(tag = character(),
+                               syndrome = character(),
+                               syndromeOrConsult = character(),
+                               namesLong = character(),
+                               namesShort = character(),
+                               alertInternal = logical(),
+                               websiteInternal = logical(),
+                               alertExternal = logical(),
+                               contactType = list())
+for(model in CONFIG$MODELS){
+
+  for(i in 1:nrow(model)){
+    config = model[i]
+    sub_config = config[, names(CONFIG$SYNDROMES), with=FALSE]
+    if(config$tag %in% CONFIG$SYNDROMES[, tag]){
+      if(! isTRUE(all.equal(CONFIG$SYNDROMES[tag==config$tag], sub_config))){
+        stop(paste("tag, syndromeOrconsult, namesLong, namesShort, alertInternal, alertExternal, websiteInternal and contactType needs to be the same for the same syndrom across multiple models. It was not the same for", config$tag))
+        }
+
+    } else {
+      CONFIG$SYNDROMES <- rbind(CONFIG$SYNDROMES, sub_config)
+
+    }
+
+  }
+}
+
+
+  ## data.table(
+  ##   tag = "gastro",
+  ##   syndrome = "gastro",
+  ##   alertInternal = TRUE,
+  ##   alertExternal = TRUE,
+  ##   websiteInternal = TRUE,
+  ##   contactType = list(c("Legekontakt", "Telefonkontakt")),
+  ##   syndromeOrConsult = "syndrome",
+  ##   denominator = "consultWithoutInfluensa",
+  ##   weeklyDenominatorFunction = sum,
+  ##   namesLong = "Mage-tarm diagnose",
+  ##   namesShort = "Mage-tarm"
+  ## ),
+  ## data.table(
+  ##   tag = "respiratoryinternal",
+  ##   syndrome = "respiratoryinternal",
+  ##   alertInternal = TRUE,
+  ##   alertExternal = FALSE,
+  ##   websiteInternal = TRUE,
+  ##   contactType = list(c("Legekontakt", "Telefonkontakt")),
+  ##   syndromeOrConsult = "syndrome",
+  ##   denominator = "consultWithoutInfluensa",
+  ##   weeklyDenominatorFunction = sum,
+  ##   namesLong = "\u00D8vre-luftvei diagnose",
+  ##   namesShort = "Luftvei"
+  ## ),
+  ## data.table(
+  ##   tag = "respiratoryexternal",
+  ##   syndrome = "respiratoryexternal",
+  ##   alertInternal = FALSE,
+  ##   alertExternal = TRUE,
+  ##   websiteInternal = FALSE,
+  ##   contactType = list(c("Legekontakt", "Telefonkontakt")),
+  ##   syndromeOrConsult = "syndrome",
+  ##   denominator = "consultWithoutInfluensa",
+  ##   weeklyDenominatorFunction = sum,
+  ##   namesLong = "\u00D8vre-luftvei diagnose",
+  ##   namesShort = "Luftvei"
+  ## ),
+  ## data.table(
+  ##   tag = "lungebetennelse",
+  ##   syndrome = "lungebetennelse",
+  ##   alertInternal = TRUE,
+  ##   alertExternal = FALSE,
+  ##   websiteInternal = TRUE,
+  ##   contactType = list(c("Legekontakt", "Telefonkontakt")),
+  ##   syndromeOrConsult = "syndrome",
+  ##   denominator = "consultWithoutInfluensa",
+  ##   weeklyDenominatorFunction = sum,
+  ##   namesLong = "Lungebetennelse diagnose",
+  ##   namesShort = "Lungebet"
+  ## ),
+  ## data.table(
+  ##   tag = "bronkitt",
+  ##   syndrome = "bronkitt",
+  ##   alertInternal = TRUE,
+  ##   alertExternal = FALSE,
+  ##   websiteInternal = TRUE,
+  ##   contactType = list(c("Legekontakt", "Telefonkontakt")),
+  ##   syndromeOrConsult = "syndrome",
+  ##   denominator = "consultWithoutInfluensa",
+  ##   weeklyDenominatorFunction = sum,
+  ##   namesLong = "Bronkitt diagnose",
+  ##   namesShort = "Bronkitt"
+  ## ),
+  ## data.table(
+  ##   tag = "consultWithInfluensa",
+  ##   syndrome = "consultWithInfluensa",
+  ##   alertInternal = FALSE,
+  ##   alertExternal = FALSE,
+  ##   websiteInternal = FALSE,
+  ##   contactType = list(c("Legekontakt", "Telefonkontakt")),
+  ##   syndromeOrConsult = "consult",
+  ##   denominator = "pop",
+  ##   weeklyDenominatorFunction = mean,
+  ##   namesLong = "consultWithInfluensa",
+  ##   namesShort = "ConsWithInf"
+  ## ),
+  ## data.table(
+  ##   tag = "consultWithoutInfluensa",
+  ##   syndrome = "consultWithoutInfluensa",
+  ##   alertInternal = FALSE,
+  ##   alertExternal = FALSE,
+  ##   websiteInternal = FALSE,
+  ##   contactType = list(c("Legekontakt", "Telefonkontakt")),
+  ##   syndromeOrConsult = "consult",
+  ##   denominator = "pop",
+  ##   weeklyDenominatorFunction = mean,
+  ##   namesLong = "consultWithoutInfluensa",
+  ##   namesShort = "ConsWOInf"
+  ## ),
+  ## data.table(
+  ##   tag = "skabb",
+  ##   syndrome = "skabb",
+  ##   alertInternal = FALSE,
+  ##   alertExternal = FALSE,
+  ##   websiteInternal = TRUE,
+  ##   contactType = list(c("Legekontakt", "Telefonkontakt")),
+  ##   syndromeOrConsult = "syndrome",
+  ##   denominator = "consultWithoutInfluensa",
+  ##   weeklyDenominatorFunction = sum,
+  ##   namesLong = "Skabb diagnose",
+  ##   namesShort = "Skabb"
+  ## ),
+  ## data.table(
+  ##   tag = "emerg1",
+  ##   syndrome = "emerg1",
+  ##   alertInternal = FALSE,
+  ##   alertExternal = FALSE,
+  ##   websiteInternal = FALSE,
+  ##   contactType = list(c("Legekontakt", "Telefonkontakt")),
+  ##   syndromeOrConsult = "syndrome",
+  ##   denominator = "consultWithoutInfluensa",
+  ##   weeklyDenominatorFunction = sum,
+  ##   namesLong = "emerg1 diagnose",
+  ##   namesShort = "emerg1"
+  ## ),
+  ## data.table(
+  ##   tag = "emerg2",
+  ##   syndrome = "emerg2",
+  ##   alertInternal = FALSE,
+  ##   alertExternal = FALSE,
+  ##   websiteInternal = FALSE,
+  ##   contactType = list(c("Legekontakt", "Telefonkontakt")),
+  ##   syndromeOrConsult = "syndrome",
+  ##   denominator = "consultWithoutInfluensa",
+  ##   weeklyDenominatorFunction = sum,
+  ##   namesLong = "emerg2 diagnose",
+  ##   namesShort = "emerg2"
+  ## ),
+  ## data.table(
+  ##   tag = "emerg3",
+  ##   syndrome = "emerg3",
+  ##   alertInternal = FALSE,
+  ##   alertExternal = FALSE,
+  ##   websiteInternal = FALSE,
+  ##   contactType = list(c("Legekontakt", "Telefonkontakt")),
+  ##   syndromeOrConsult = "syndrome",
+  ##   denominator = "consultWithoutInfluensa",
+  ##   weeklyDenominatorFunction = sum,
+  ##   namesLong = "emerg3 diagnose",
+  ##   namesShort = "emerg3"
+  ## ),
+  ## data.table(
+  ##   tag = "emerg4",
+  ##   syndrome = "emerg4",
+  ##   alertInternal = FALSE,
+  ##   alertExternal = FALSE,
+  ##   websiteInternal = FALSE,
+  ##   contactType = list(c("Legekontakt", "Telefonkontakt")),
+  ##   syndromeOrConsult = "syndrome",
+  ##   denominator = "consultWithoutInfluensa",
+  ##   weeklyDenominatorFunction = sum,
+  ##   namesLong = "emerg4 diagnose",
+  ##   namesShort = "emerg4"
+  ## ),
+  ## data.table(
+  ##   tag = "emerg5",
+  ##   syndrome = "emerg5",
+  ##   alertInternal = FALSE,
+  ##   alertExternal = FALSE,
+  ##   websiteInternal = FALSE,
+  ##   contactType = list(c("Legekontakt", "Telefonkontakt")),
+  ##   syndromeOrConsult = "syndrome",
+  ##   denominator = "consultWithoutInfluensa",
+  ##   weeklyDenominatorFunction = sum,
+  ##   namesLong = "emerg5 diagnose",
+  ##   namesShort = "emerg5"
+  ## )
+  ## )
 
 CONFIG$tagsWithLong <- CONFIG$SYNDROMES$tag
 names(CONFIG$tagsWithLong) <- CONFIG$SYNDROMES$namesLong

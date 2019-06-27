@@ -11,6 +11,7 @@ if (!dir.exists(fhi::DashboardFolder("results", file.path(LatestRawID(), "stats"
 if (!dir.exists(fhi::DashboardFolder("results", file.path(LatestRawID(), "skabb")))) dir.create(fhi::DashboardFolder("results", file.path(LatestRawID(), "skabb")))
 if (!dir.exists(fhi::DashboardFolder("data_raw", "normomo"))) dir.create(fhi::DashboardFolder("data_raw", "normomo"))
 
+
 SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("results", "config.RDS"))
 SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("data_app", "config.RDS"))
 SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("results", "externalapi/config.RDS"))
@@ -20,63 +21,28 @@ fhi::Log("versionAlgorithm", CONFIG$VERSION)
 fhi::Log("versionPackage", packageDescription("sykdomspuls")$Version)
 
 
-fhi::Log("cleanBefore")
-if (!UpdateData()) {
-  fhi::DashboardMsg("Have not run analyses and exiting")
-  q(save = "no", status = 21)
-}
-DeleteOldDatasets()
-fhi::Log("cleanAfter")
+## fhi::Log("cleanBefore")
+## if (!UpdateData()) {
+##   fhi::DashboardMsg("Have not run analyses and exiting")
+##   q(save = "no", status = 21)
+## }
+## DeleteOldDatasets()
+## fhi::Log("cleanAfter")
 
-fhi::Log("analyse1Before")
-for (i in 1:nrow(sykdomspuls::CONFIG$SYNDROMES)) {
-  conf <- sykdomspuls::CONFIG$SYNDROMES[i]
-  fhi::DashboardMsg(conf$tag)
 
-  stackAndData <- StackAndEfficientDataForAnalysisInList(conf = conf)
 
-  res <- pbmclapply(stackAndData,
-    function(x) RunOneAnalysis(analysesStack = x$stack, analysisData = x$data),
-    mc.cores = parallel::detectCores()
-  )
-
-  res <- rbindlist(res)
-
-  # adding in extra information
-  AddLocationName(res)
-  AddCounty(res)
-
-  # cleaning on small municipalities
-  res[location %in% CONFIG$smallMunicips & age != "Totalt", n := 0 ]
-  res[location %in% CONFIG$smallMunicips & age != "Totalt", threshold2 := 5 ]
-  res[location %in% CONFIG$smallMunicips & age != "Totalt", threshold4 := 10 ]
-
-  fhi::DashboardMsg("Saving files", newLine = T)
-  for (f in unique(res$file)) {
-    fhi::DashboardMsg(sprintf("Saving file %s", f))
-    saveRDS(res[file == f], file = fhi::DashboardFolder("results", sprintf("%s/%s", LatestRawID(), f)))
+for (modelName in names(sykdomspuls::CONFIG$MODELS)){
+  fhi::DashboardMsg(paste("starting", modelName))
+  modelConfig <- sykdomspuls::CONFIG$MODELS[[modelName]]
+  model <- sykdomspuls::models[[modelName]]$new()
+  
+  for (i in 1:nrow(modelConfig)) {
+    conf <- modelConfig[i]
+    model$run(conf)
   }
-
-  rm("res", "stackAndData")
-
-  # displaying timing information
-  timeElapsed <- as.numeric(difftime(Sys.time(), fhi::LogGet()$analyse1Before, units = "min"))
-  timeTotal <- (timeElapsed / i) * nrow(sykdomspuls::CONFIG$SYNDROMES)
-  timeRemaining <- timeTotal * (nrow(sykdomspuls::CONFIG$SYNDROMES) - i) / nrow(sykdomspuls::CONFIG$SYNDROMES)
-  fhi::DashboardMsg(sprintf(
-    "%s min total, %s min elapsed, %s min remaining",
-    round(timeTotal),
-    round(timeElapsed),
-    round(timeRemaining)
-  ))
+  model$save()
+  fhi::DashboardMsg(paste("Ending", modelName))
 }
-fhi::Log("analyse1After")
-
-
-# Append all the syndromes together
-fhi::Log("save1Before")
-ResultsAggregateApply()
-fhi::Log("save1After")
 
 ## GENERATE LIST OF OUTBREAKS
 fhi::DashboardMsg("Generate list of outbreaks")
