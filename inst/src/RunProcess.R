@@ -56,7 +56,7 @@ for (i in 1:nrow(sykdomspuls::CONFIG$SYNDROMES)) {
 
   data <- readRDS(file = fhi::DashboardFolder("data_clean", sprintf("%s_%s_cleaned.RDS", LatestRawID(), conf$tag)))
   load_stack_schema(conf = conf, schema = sch$stack_x)
-  data <- schema_and_data(conf = conf)
+  #data <- schema_and_data(conf = conf)
 
   to_run <- split(
     sch$stack_x$get_data_dt()[exists_in_db==FALSE],
