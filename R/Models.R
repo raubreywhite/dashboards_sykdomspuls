@@ -50,6 +50,9 @@ QuasiPoission <-  R6Class(
     fhi::Log("save1Before")
     ResultsAggregateApply()
     fhi::Log("save1After")
+  },
+  setup_db = function(){
+    return(NULL)
   }
 )
 )
@@ -61,6 +64,11 @@ MeM <-  R6Class(
     run = function(conf) {
       print("run MeM")
       sykdomspuls::run_all_mem(conf)
+    },
+    setup_db = function(){
+      mem_schema$db_connect(sykdomspuls::CONFIG$DB_CONFIG)
+      mem_schema$db_create_table()
+     # mem_schema$add_index_db()
     },
     save = function(){
       print("save MeM")

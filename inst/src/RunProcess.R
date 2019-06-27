@@ -30,11 +30,12 @@ fhi::Log("versionPackage", packageDescription("sykdomspuls")$Version)
 ## fhi::Log("cleanAfter")
 
 
-
 for (modelName in names(sykdomspuls::CONFIG$MODELS)){
   fhi::DashboardMsg(paste("starting", modelName))
   modelConfig <- sykdomspuls::CONFIG$MODELS[[modelName]]
   model <- sykdomspuls::models[[modelName]]$new()
+
+  model$setup_db()
   
   for (i in 1:nrow(modelConfig)) {
     conf <- modelConfig[i]
