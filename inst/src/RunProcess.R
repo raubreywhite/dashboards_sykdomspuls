@@ -38,13 +38,13 @@ conn <- DBI::dbConnect(odbc::odbc(),
 
 fd:::use_db(conn, "sykdomspuls")
 
-schema$stack_x$conn <- conn
-#schema$stack_x$db_drop_table()
-schema$stack_x$db_create_table()
+sch$stack_x$conn <- conn
+#sch$stack_x$db_drop_table()
+sch$stack_x$db_create_table()
 
-schema$results_x$conn <- conn
-#schema$results_x$db_drop_table()
-schema$results_x$db_create_table()
+sch$results_x$conn <- conn
+#sch$results_x$db_drop_table()
+sch$results_x$db_create_table()
 
 field.types <- vapply(res, DBI::dbDataType, dbObj = db,
                       FUN.VALUE = character(1))
