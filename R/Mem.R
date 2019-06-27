@@ -100,6 +100,7 @@ run_all_mem <- function(conf){
   out[, n:= NULL]
   out[, consultWithInfluensa:= NULL]
   mem_schema$db_connect(sykdomspuls::CONFIG$DB_CONFIG)
+  mem_schema$db_drop_all_rows()
   mem_schema$db_load_data_infile(out)
 
   
