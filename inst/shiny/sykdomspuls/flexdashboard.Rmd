@@ -18,6 +18,9 @@ library(fhi)
 library(magrittr)
 library(dplyr)
 
+fhi::DashboardInitialiseOpinionated("sykdomspuls",
+                                    PACKAGE_DIR="/dashboards/dashboards_sykdomspuls",
+				    FORCE_DEV_PACKAGE_LOAD=TRUE)
 CONFIG <- readRDS("/data_app/sykdomspuls/config.RDS")
 GLOBAL <- readRDS("/data_app/sykdomspuls/GLOBAL.RDS")
 
@@ -694,6 +697,77 @@ selectInput("dailyType", "Sykdom/Symptom", as.list(GLOBAL$dailyTypes), selected 
 selectInput("dailyAge", "Alder", as.list(GLOBAL$dailyAges), selected = "Totalt")
 
 selectInput("dailyCounty", "Fylke", as.list(GLOBAL$dailyCounties), selected = GLOBAL$dailyCounties[1])
+
+```
+
+
+
+
+Influensa
+===================================== 
+
+```{r, include=FALSE}
+
+  current_season <- get_season(Sys.Date())
+  mem_schema$db_connect(CONFIG$DB_CONFIG)
+
+
+influensa_data <- reactive({
+  x_location <- input$influensaCounty
+
+  data <- mem_schema$get_data_db(season==current_season, location==x_location)
+  setDT(data)
+  return(data)
+})
+
+output$influensa_plot <- renderPlot({
+    data <- influensa_data()
+    t2 <- GetLocationName(input$influensaCounty)
+    data$week <- factor(data$week, levels = data$week)
+    title<- paste0("Prosent pasienter med influensa i ", t2)
+    q <- ggplot(data) +
+      geom_line(aes(x=week, y=rate, group=1)) +
+      fhiplot::theme_fhi_lines() +
+      geom_ribbon(aes(x=week, ymin=very_high, ymax=very_high*1.1, fill="l5", group=1), alpha=0.5) +
+      geom_ribbon(aes(x=week, ymin=high, ymax=very_high, fill="l4", group=1), alpha=0.5) +
+      geom_ribbon(aes(x=week, ymin=medium, ymax=high, fill="l3", group=1), alpha=0.5) +
+      geom_ribbon(aes(x=week, ymin=low, ymax=medium, fill="l2", group=1), alpha=0.5) +
+      geom_ribbon(aes(x=week, ymin=0, ymax=low, fill="l1", group=1), alpha=0.5)+
+      fhiplot::scale_fill_fhi("Level", labels=c("l1"="Very low", "l2"="Low", "l3"="Medium",
+                              "l4"="High", "l5"="Very high"),
+                              palette="map_seq_complete", direction=-1) +
+      ggtitle(title) + 
+      ylab("% of patients with ILI")
+   return(q)
+    
+  })
+
+
+  
+
+```
+
+Row {data-height=800 .tabset}
+-----------------------------------------------------------------------
+
+### Figur
+
+```{r}
+plotOutput("influensa_plot")
+```  
+
+### Info
+
+Grafen viser antall konsultasjoner per dag med en indikasjon om antallet er som forventet eller ikke. Valg av sykdom/symptom, sted og tidsrom gjøres på høyre side. Den svarte streken med rundingene viser antallet faktiske konsultasjoner. Bakgrunnsfargen er laget ut fra beregninger fra de foregående 5 årene. Når den svarte streken ligger i den grønne bakgrunnsfargen er antallet konsultasjoner som forventet og rundingen vises med svart. Når den svarte streken ligger i det gule feltet er antall konsultasjoner høyere enn forventet og fyllet i rundingen blir gult. Dersom den svarte streken ligger i det røde feltet er antall konsultasjoner betydelig høyere enn forventet og fyllet i rundingen blir rødt.
+
+ Se fanen *Om Sykdomspulsen* øverst for mer utfyllende informasjon om dataene og beregninger.
+
+Instillinger {.sidebar}
+-----------------------------------------------------------------------
+
+```{r, echo = F}
+
+selectInput("influensaCounty", "Fylke", as.list(GLOBAL$dailyCounties), selected = GLOBAL$dailyCounties[1])
 
 ```
 
