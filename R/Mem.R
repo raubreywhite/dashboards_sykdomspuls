@@ -4,6 +4,7 @@
 #' @import lubridate
 #' @import mem
 #' @import ggplot2
+#' @import ggrepel
 #' @import fhi
 
 run_all <- function(conf){
@@ -85,10 +86,10 @@ run_all_mem <- function(conf){
     .(n=sum(n), consultWithInfluensa=sum(consultWithInfluensa)), by=.(year, week)]
 
   mem_national_df = prepare_data_frame(national)
-  mem_results = run_mem_model(mem_national_df)
+  mem_results = run_mem_model(mem_national_df, conf)
   add_columns(national)
   national <- add_results_to_data(national, mem_results)
-  national[, location:="Norge"]
+  national[, location:="norge"]
 
   # County
 
@@ -97,7 +98,7 @@ run_all_mem <- function(conf){
   add_columns(counties)
   for(county in unique(counties[, location])){
     mem_df = prepare_data_frame(counties[location == county])
-    mem_results = run_mem_model(mem_df)
+    mem_results = run_mem_model(mem_df, conf)
     counties[location==county] <-add_results_to_data(counties[location==county], mem_results)
   }
   
@@ -133,6 +134,11 @@ get_season <- function(date){
   return(season)
 }
 
+#' create_plots
+#'
+#' create MEM season plots
+#' 
+#' @export create_plots
 
 create_plots <- function(conf){
 
@@ -148,12 +154,12 @@ create_plots <- function(conf){
     dir.create(folder)
   }
 
-  
   for(loc in unique(data[, location])){
     data_location = data[location==loc]
     data_location$week <- factor(data_location$week, levels = data_location$week)
     q <- ggplot(data_location) +
       geom_line(aes(x=week, y=rate, group=1)) +
+      geom_point(aes(x=week, y=rate, group=1)) +
       fhiplot::theme_fhi_lines() +
       geom_ribbon(aes(x=week, ymin=very_high, ymax=very_high*1.1, fill="l5", group=1), alpha=0.5) +
       geom_ribbon(aes(x=week, ymin=high, ymax=very_high, fill="l4", group=1), alpha=0.5) +
@@ -168,23 +174,85 @@ create_plots <- function(conf){
                     "in",
                     get_location_name(loc))) + 
       ylab("% of patients with ILI")
-    
-    
     filename = paste(folder, "/", loc, ".png", sep="")
-    ggsave(filename, q)
-    
+    ggsave(filename, q, height=7, width=9)
   }
 
+  latest_week <- max(data[year == max(data[, year]), week])
+  if(latest_week > 20){
+    weeks <- 40:latest_week
+  } else {
+    weeks <- c(40:52,1:latest_week)
+  }
+  counties <- fhidata::norway_map_counties
+  data[, status:= ifelse(rate <= low, "Very low",
+                         ifelse(rate <= medium, "Low",
+                                ifelse( rate <= high, "Medium",
+                                       ifelse (rate <= very_high, "High", "Very high")
+                                       )
+                                )
+                         )]
+  for(current_week in weeks){
+    counties <- fhidata::norway_map_counties
+    plot_data <- counties[data[week == current_week], on=.(location_code=location), nomatch=0]
+    cnames_country <- aggregate(cbind(long, lat) ~ rate,
+                                data=plot_data[!(location_code %in% c("county03", "county02"))],
+                                FUN=function(x)mean(range(x)))
+    cnames_country$rate = round(cnames_country$rate, 1)
+    
+    cnames_osl_ak <- aggregate(cbind(long, lat) ~ rate,
+                               data=plot_data[location_code %in% c("county03", "county02")],
+                               FUN=function(x)mean(range(x)))
+    cnames_osl_ak$rate = round(cnames_osl_ak$rate, 1)
+    
+    map_plot <- ggplot() +
+      geom_polygon(data = plot_data, aes( x = long, y = lat, group = group, fill=status),
+                   color="black", size=0.1) +
+      theme_void() +
+      coord_quickmap() +
+      scale_fill_manual("Level", values=c("Very low"=fhiplot::vals$cols$map_sequential[["MS5"]],
+                                          "Low"=fhiplot::vals$cols$map_sequential[["MS4"]],
+                                          "Medium"=fhiplot::vals$cols$map_sequential[["MS3"]],
+                                          "High"=fhiplot::vals$cols$map_sequential[["MS2"]],
+                                          "Very high"=fhiplot::vals$cols$map_sequential[["MS1"]]
+                                          )) +
+      geom_label_repel(data=cnames_country, aes(long, lat, label = rate), size=2)
+    
+    oslo_akershus <- ggplot() +
+      geom_polygon(data = plot_data[location_code %in% c("county03", "county02")]
+                 , aes( x = long, y = lat, group = group, fill=status),
+                   color="black", size=0.1) +
+      theme_void() +
+      coord_quickmap() +
+      scale_fill_manual("Level", values=c("Very low"=fhiplot::vals$cols$map_sequential[["MS5"]],
+                                          "Low"=fhiplot::vals$cols$map_sequential[["MS4"]],
+                                          "Medium"=fhiplot::vals$cols$map_sequential[["MS3"]],
+                                          "High"=fhiplot::vals$cols$map_sequential[["MS2"]],
+                                          "Very high"=fhiplot::vals$cols$map_sequential[["MS1"]]
+                                          )) +
+      geom_label(data=cnames_osl_ak, aes(long, lat, label = rate), size=2) +
+      theme(legend.position = "none") +
+      ggtitle("Oslo and Akershus") + 
+      theme(plot.title = element_text(size = 8,))
+    
+    map_plot <- map_plot + 
+      annotation_custom(
+        ggplotGrob(oslo_akershus), 
+        xmin = 10, xmax = 35, ymin = 60, ymax = 65
+      )
+    filename = paste(folder, "/map_week", current_week, ".png", sep="")
+    ggsave(filename, map_plot, height=7, width=5)
+  }
+
+
+    
 }
-
-
-
 
 prepare_data_frame <- function(data){
   
   useful_data <- data[week >= 40 | week <=20]
   
-  useful_data[, rate := n /consultWithInfluensa *100]
+  useful_data[, rate := n /consultWithInfluensa * 100]
   useful_data[, label := ifelse(week >= 40,
                                 paste(year, year + 1, sep="/"),
                                 paste(year - 1, year,  sep="/")
@@ -202,11 +270,15 @@ prepare_data_frame <- function(data){
   return(out[, !(names(out) == "week")])
 }
 
-run_mem_model <- function(data){
+run_mem_model <- function(data, conf){
   out <- list()
+  
+    
   for(i in 5:ncol(data)){
-    col = names(data)[i]
-    model_data = data[, names(data)[1:i]]
+    col <- names(data)[i]
+    model_data <- data[, names(data)[1:i]]
+
+    model_data <- data[, names(model_data)[!(names(model_data) %in% conf$excludeSeason)]]
     epi <- memmodel(model_data)
     out[[col]] <- c(epi$epidemic.thresholds[1],
                     epi$epi.intervals[1,4],

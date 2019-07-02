@@ -66,6 +66,7 @@ MeM <-  R6Class(
     run = function(conf) {
       print("run MeM")
       sykdomspuls::run_all_mem(conf)
+      sykdomspuls::create_plots(conf)
     },
     setup_db = function(){
       mem_schema$db_connect(sykdomspuls::CONFIG$DB_CONFIG)

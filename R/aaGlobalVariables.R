@@ -58,7 +58,8 @@ CONFIG$MEM <- rbind(
     denominator = "consultWithInfluensa",
     weeklyDenominatorFunction = sum,
     namesLong = "Influensa",
-    namesShort = "Influensa"
+    namesShort = "Influensa",
+    excludeSeason = c("2009/2010")
   )
 )
 

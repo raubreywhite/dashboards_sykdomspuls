@@ -20,6 +20,7 @@ Imports:
   zoo,
   iterators,
   ggplot2,
+  ggrepel,
   dplyr,
   pool,
   RMariaDB,
