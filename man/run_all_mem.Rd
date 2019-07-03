@@ -6,6 +6,9 @@
 \usage{
 run_all_mem(conf)
 }
+\arguments{
+\item{conf}{A mem model configuration object}
+}
 \description{
 Runs mem analysis for all available years for the whole
 country and for each county

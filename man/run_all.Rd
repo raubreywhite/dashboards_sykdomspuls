@@ -6,6 +6,9 @@
 \usage{
 run_all(conf)
 }
+\arguments{
+\item{conf}{A mem model configuration object}
+}
 \description{
 Mem implementation
 }

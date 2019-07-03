@@ -718,27 +718,13 @@ influensa_data <- reactive({
   data <- mem_schema$get_data_db(season==current_season, location==x_location)
   setDT(data)
   return(data)
-})
-
+  })
+  
 output$influensa_plot <- renderPlot({
     data <- influensa_data()
     t2 <- GetLocationName(input$influensaCounty)
-    data$week <- factor(data$week, levels = data$week)
     title<- paste0("Prosent pasienter med influensa i ", t2)
-    q <- ggplot(data) +
-      geom_line(aes(x=week, y=rate, group=1)) +
-      geom_point(aes(x=week, y=rate, group=1)) +	
-      fhiplot::theme_fhi_lines() +
-      geom_ribbon(aes(x=week, ymin=very_high, ymax=very_high*1.1, fill="l5", group=1), alpha=0.5) +
-      geom_ribbon(aes(x=week, ymin=high, ymax=very_high, fill="l4", group=1), alpha=0.5) +
-      geom_ribbon(aes(x=week, ymin=medium, ymax=high, fill="l3", group=1), alpha=0.5) +
-      geom_ribbon(aes(x=week, ymin=low, ymax=medium, fill="l2", group=1), alpha=0.5) +
-      geom_ribbon(aes(x=week, ymin=0, ymax=low, fill="l1", group=1), alpha=0.5)+
-      fhiplot::scale_fill_fhi("Level", labels=c("l1"="Svært lav", "l2"="Lav", "l3"="Middles",
-                              "l4"="Høy", "l5"="Svært høy"),
-                              palette="map_seq_complete", direction=-1) +
-      ggtitle(title) + 
-      ylab("% of patients with ILI")
+    q <- fhiplot::make_influenza_threshold_chart(data, title)
    return(q)
     
   })

@@ -76,7 +76,19 @@ CONFIG$QUASIPOISSON <- rbind(
     denominator = "consultWithInfluensa",
     weeklyDenominatorFunction = sum,
     namesLong = "Influensa",
-    namesShort = "Influensa"
+    namesShort = "Influensa"),
+  data.table(
+    tag = "gastro",
+    syndrome = "gastro",
+    alertInternal = TRUE,
+    alertExternal = TRUE,
+    websiteInternal = TRUE,
+    contactType = list(c("Legekontakt", "Telefonkontakt")),
+    syndromeOrConsult = "syndrome",
+    denominator = "consultWithoutInfluensa",
+    weeklyDenominatorFunction = sum,
+    namesLong = "Mage-tarm diagnose",
+    namesShort = "Mage-tarm"
   )
   
 )

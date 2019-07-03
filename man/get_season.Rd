@@ -6,6 +6,9 @@
 \usage{
 get_season(date)
 }
+\arguments{
+\item{date}{Date to get the current season for}
+}
 \description{
 get the influensa season
 }

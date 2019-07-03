@@ -4,12 +4,12 @@ suppressMessages(library(data.table))
 suppressMessages(library(ggplot2))
 suppressMessages(library(pbmcapply))
 
-if (!dir.exists(fhi::DashboardFolder("results", "externalapi"))) dir.create(fhi::DashboardFolder("results", "externalapi"))
-if (!dir.exists(fhi::DashboardFolder("results", LatestRawID()))) dir.create(fhi::DashboardFolder("results", LatestRawID()))
-if (!dir.exists(fhi::DashboardFolder("results", file.path(LatestRawID(), "emerg")))) dir.create(fhi::DashboardFolder("results", file.path(LatestRawID(), "emerg")))
-if (!dir.exists(fhi::DashboardFolder("results", file.path(LatestRawID(), "stats")))) dir.create(fhi::DashboardFolder("results", file.path(LatestRawID(), "stats")))
-if (!dir.exists(fhi::DashboardFolder("results", file.path(LatestRawID(), "skabb")))) dir.create(fhi::DashboardFolder("results", file.path(LatestRawID(), "skabb")))
-if (!dir.exists(fhi::DashboardFolder("data_raw", "normomo"))) dir.create(fhi::DashboardFolder("data_raw", "normomo"))
+## if (!dir.exists(fhi::DashboardFolder("results", "externalapi"))) dir.create(fhi::DashboardFolder("results", "externalapi"))
+## if (!dir.exists(fhi::DashboardFolder("results", LatestRawID()))) dir.create(fhi::DashboardFolder("results", LatestRawID()))
+## if (!dir.exists(fhi::DashboardFolder("results", file.path(LatestRawID(), "emerg")))) dir.create(fhi::DashboardFolder("results", file.path(LatestRawID(), "emerg")))
+## if (!dir.exists(fhi::DashboardFolder("results", file.path(LatestRawID(), "stats")))) dir.create(fhi::DashboardFolder("results", file.path(LatestRawID(), "stats")))
+## if (!dir.exists(fhi::DashboardFolder("results", file.path(LatestRawID(), "skabb")))) dir.create(fhi::DashboardFolder("results", file.path(LatestRawID(), "skabb")))
+## if (!dir.exists(fhi::DashboardFolder("data_raw", "normomo"))) dir.create(fhi::DashboardFolder("data_raw", "normomo"))
 
 
 SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("results", "config.RDS"))
@@ -45,38 +45,38 @@ for (modelName in names(sykdomspuls::CONFIG$MODELS)){
   fhi::DashboardMsg(paste("Ending", modelName))
 }
 
-## GENERATE LIST OF OUTBREAKS
-fhi::DashboardMsg("Generate list of outbreaks")
-fhi::Log("analyse2Before")
-GenerateOutbreakListInternal()
-GenerateOutbreakListInternal(
-  saveFiles = fhi::DashboardFolder("results", "externalapi/outbreaks.RDS"),
-  useType = TRUE
-)
-GenerateOutbreakListExternal()
-AnalysesSecondary()
-fhi::Log("analyse2After")
+## ## GENERATE LIST OF OUTBREAKS
+## fhi::DashboardMsg("Generate list of outbreaks")
+## fhi::Log("analyse2Before")
+## GenerateOutbreakListInternal()
+## GenerateOutbreakListInternal(
+##   saveFiles = fhi::DashboardFolder("results", "externalapi/outbreaks.RDS"),
+##   useType = TRUE
+## )
+## GenerateOutbreakListExternal()
+## AnalysesSecondary()
+## fhi::Log("analyse2After")
 
-fhi::DashboardMsg("Send data to DB")
-fhi::Log("save2Before")
-SaveShinyAppDataToDB()
-fhi::Log("save2After")
+## fhi::DashboardMsg("Send data to DB")
+## fhi::Log("save2Before")
+## SaveShinyAppDataToDB()
+## fhi::Log("save2After")
 
-# Done with analyses
-fhi::DashboardMsg("Done with all analyses")
+## # Done with analyses
+## fhi::DashboardMsg("Done with all analyses")
 
-CreateLatestDoneFile()
-cat("done", file = "/data_app/sykdomspuls/done.txt")
+## CreateLatestDoneFile()
+## cat("done", file = "/data_app/sykdomspuls/done.txt")
 
-## SENDING OUT EMAILS
-EmailNotificationOfNewResults()
+## ## SENDING OUT EMAILS
+## EmailNotificationOfNewResults()
 
-## Saving log
-log <- LogGet()
-log[[length(log) + 1]] <- fhi::LogGet()
-saveRDS(log, fhi::DashboardFolder("results", "log.RDS"))
+## ## Saving log
+## log <- LogGet()
+## log[[length(log) + 1]] <- fhi::LogGet()
+## saveRDS(log, fhi::DashboardFolder("results", "log.RDS"))
 
-fhi::DashboardMsg("Finished analyses and exiting")
-if (!fhi::DashboardIsDev()) quit(save = "no", status = 0)
+## fhi::DashboardMsg("Finished analyses and exiting")
+## if (!fhi::DashboardIsDev()) quit(save = "no", status = 0)
 
-# dk = readRDS(fhi::DashboardFolder("results", "resYearLineMunicip.RDS"))
+## # dk = readRDS(fhi::DashboardFolder("results", "resYearLineMunicip.RDS"))

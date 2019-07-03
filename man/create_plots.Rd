@@ -2,9 +2,12 @@
 % Please edit documentation in R/Mem.R
 \name{create_plots}
 \alias{create_plots}
-\title{create_plots}
+\title{create MEM season plots}
 \usage{
 create_plots(conf)
+}
+\arguments{
+\item{conf}{A mem model configuration object}
 }
 \description{
 create MEM season plots

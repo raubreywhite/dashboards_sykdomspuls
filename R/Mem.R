@@ -7,6 +7,7 @@
 #' @import ggrepel
 #' @import fhi
 
+#' @param conf A mem model configuration object
 run_all <- function(conf){
 
   data = get_mem_data(conf)
@@ -68,6 +69,8 @@ add_results_to_data <- function(data, mem_results){
 #'
 #' Runs mem analysis for all available years for the whole
 #' country and for each county
+#'
+#' @param conf A mem model configuration object
 #' 
 #' @export run_all_mem
 run_all_mem <- function(conf){
@@ -118,6 +121,8 @@ run_all_mem <- function(conf){
 #' get_season
 #'
 #' get the influensa season
+#'
+#' @param date Date to get the current season for
 #' 
 #' @export get_season
 get_season <- function(date){
@@ -134,9 +139,9 @@ get_season <- function(date){
   return(season)
 }
 
-#' create_plots
-#'
 #' create MEM season plots
+#'
+#' @param conf A mem model configuration object
 #' 
 #' @export create_plots
 
@@ -156,26 +161,15 @@ create_plots <- function(conf){
 
   for(loc in unique(data[, location])){
     data_location = data[location==loc]
-    data_location$week <- factor(data_location$week, levels = data_location$week)
-    q <- ggplot(data_location) +
-      geom_line(aes(x=week, y=rate, group=1)) +
-      geom_point(aes(x=week, y=rate, group=1)) +
-      fhiplot::theme_fhi_lines() +
-      geom_ribbon(aes(x=week, ymin=very_high, ymax=very_high*1.1, fill="l5", group=1), alpha=0.5) +
-      geom_ribbon(aes(x=week, ymin=high, ymax=very_high, fill="l4", group=1), alpha=0.5) +
-      geom_ribbon(aes(x=week, ymin=medium, ymax=high, fill="l3", group=1), alpha=0.5) +
-      geom_ribbon(aes(x=week, ymin=low, ymax=medium, fill="l2", group=1), alpha=0.5) +
-      geom_ribbon(aes(x=week, ymin=0, ymax=low, fill="l1", group=1), alpha=0.5)+
-      fhiplot::scale_fill_fhi("Level", labels=c("l1"="Very low", "l2"="Low", "l3"="Medium",
-                              "l4"="High", "l5"="Very high"),
-                              palette="map_seq_complete", direction=-1) +
-      ggtitle(paste("Percent of patients with ILI for Influenza season",
-                    current_season,
-                    "in",
-                    get_location_name(loc))) + 
-      ylab("% of patients with ILI")
+    title = paste("Percent of patients with ILI for Influenza season",
+                  current_season,
+                  "in",
+                  fhi::get_location_name(loc))
+    
+    chart = fhiplot::make_influenza_threshold_chart(data_location, title)
+
     filename = paste(folder, "/", loc, ".png", sep="")
-    ggsave(filename, q, height=7, width=9)
+    ggsave(filename, chart, height=7, width=9)
   }
 
   latest_week <- max(data[year == max(data[, year]), week])
