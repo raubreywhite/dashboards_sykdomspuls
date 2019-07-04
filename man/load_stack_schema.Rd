@@ -4,12 +4,14 @@
 \alias{load_stack_schema}
 \title{Create analysis stack and datasets for a tag}
 \usage{
-load_stack_schema(conf, data)
+load_stack_schema(conf, data, schema)
 }
 \arguments{
 \item{conf}{A row from \code{CONFIG$SYNDROMES}}
 
 \item{data}{a dataset}
+
+\item{schema}{a schema}
 }
 \description{
 Given one row from \code{CONFIG$SYNDROMES} we need

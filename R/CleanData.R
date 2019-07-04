@@ -265,8 +265,9 @@ CleanData <- function(d,
 #' without additional formatting.
 #' @param conf A row from \code{CONFIG$SYNDROMES}
 #' @param data a dataset
+#' @param schema a schema
 #' @export load_stack_schema
-load_stack_schema <- function(conf, data) {
+load_stack_schema <- function(conf, data, schema) {
   . <- NULL
   granularityGeo <- NULL
   weeklyDenominatorFunction <- NULL

@@ -68,10 +68,18 @@ IdentifyDatasets <-
 
 #' test
 #' @export LatestRawID
-LatestRawID <- function() {
+LatestRawID <- function(hyphen=F) {
   f <- IdentifyDatasets()
+  if(hyphen) f$id <- gsub("_","-",f$id)
   return(max(f$id))
 }
+
+#' latest_date
+#' @export
+latest_date <- function(){
+  LatestRawID(hyphen=T)
+}
+
 
 #' Delete the latest done file
 #' @param file Location of the latest done file (according to latest raw data file)
@@ -159,16 +167,19 @@ UpdateData <- function() {
       d = copy(d[Kontaktype %in% conf$contactType[[1]]]),
       syndrome = conf$syndrome
     )
-    saveRDS(res, file = fhi::DashboardFolder(
-      "data_clean",
-      sprintf(
-        "%s_%s_cleaned.RDS",
-        files$id,
-        conf$tag
-      )
-    ))
+    for(j in names(CONFIG$AGES)){
+      saveRDS(res[age==j], file = fhi::DashboardFolder(
+        "data_clean",
+        sprintf(
+          "%s_%s_%s_cleaned.RDS",
+          files$id,
+          conf$tag,
+          j
+        )
+      ))
+    }
   }
-
+  gc()
   fhi::DashboardMsg("New data is now formatted and ready")
   return(TRUE)
 }

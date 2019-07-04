@@ -24,14 +24,14 @@ DetermineStatus <- function(data) {
 clean_post_analysis <- function(res,schema){
   res <- res[!is.na(threshold2) & !is.infinite(threshold2)]
 
-  res[schema$stack_x$get_data_dt(),on="uuid", age:=age]
-  res[schema$stack_x$get_data_dt(),on="uuid", type:=tag]
-  res[schema$stack_x$get_data_dt(),on="uuid", tag:=tag]
-  res[schema$stack_x$get_data_dt(),on="uuid", location:=location]
-  res[schema$stack_x$get_data_dt(),on="uuid", file:=file]
-  res[schema$stack_x$get_data_dt(),on="uuid", purpose:=purpose]
-  res[schema$stack_x$get_data_dt(),on="uuid", granularity_time:=granularity_time]
-  res[schema$stack_x$get_data_dt(),on="uuid", v:=v]
+  res[schema$get_data_dt(),on="uuid", age:=age]
+  res[schema$get_data_dt(),on="uuid", type:=tag]
+  res[schema$get_data_dt(),on="uuid", tag:=tag]
+  res[schema$get_data_dt(),on="uuid", location:=location]
+  res[schema$get_data_dt(),on="uuid", file:=file]
+  res[schema$get_data_dt(),on="uuid", purpose:=purpose]
+  res[schema$get_data_dt(),on="uuid", granularity_time:=granularity_time]
+  res[schema$get_data_dt(),on="uuid", v:=v]
 
   # make threshold2 minimum of 2 and threshold4 minimum of 3
   res[threshold2 < 2, threshold2 := 2]
