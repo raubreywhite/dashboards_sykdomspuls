@@ -187,7 +187,7 @@ create_plots <- function(conf){
   data <- mem_schema$get_data_db(season==current_season)
 
 
-  folder <- fhi::DashboardFolder("results", sprintf("%s/%s", LatestRawID(),
+  folder <- fhi::DashboardFolder("results", sprintf("%s/%s", latest_date(),
                                                     paste("mem",conf$tag, sep="_")))
   if (!file.exists(folder)){
     dir.create(folder)
@@ -195,9 +195,9 @@ create_plots <- function(conf){
 
   for(loc in unique(data[, location])){
     data_location = data[location==loc]
-    title = paste("Percent of patients with ILI for Influenza season",
+    title = paste(" Nivå på influensaintensitet målt ved andel legebesøk for ILS ",
                   current_season,
-                  "in",
+                  "i",
                   fhi::get_location_name(loc))
     
     chart = fhiplot::make_influenza_threshold_chart(data_location, title)
@@ -213,10 +213,10 @@ create_plots <- function(conf){
     weeks <- c(40:52,1:latest_week)
   }
   counties <- fhidata::norway_map_counties
-  data[, status:= ifelse(rate <= low, "Very low",
-                         ifelse(rate <= medium, "Low",
-                                ifelse( rate <= high, "Medium",
-                                       ifelse (rate <= very_high, "High", "Very high")
+  data[, status:= ifelse(rate <= low, "Svært lav",
+                         ifelse(rate <= medium, "Lav",
+                                ifelse( rate <= high, "Middels",
+                                       ifelse (rate <= very_high, "Høy", "Svært høy")
                                        )
                                 )
                          )]
@@ -238,11 +238,11 @@ create_plots <- function(conf){
                    color="black", size=0.1) +
       theme_void() +
       coord_quickmap() +
-      scale_fill_manual("Level", values=c("Very low"=fhiplot::vals$cols$map_sequential[["MS5"]],
-                                          "Low"=fhiplot::vals$cols$map_sequential[["MS4"]],
-                                          "Medium"=fhiplot::vals$cols$map_sequential[["MS3"]],
-                                          "High"=fhiplot::vals$cols$map_sequential[["MS2"]],
-                                          "Very high"=fhiplot::vals$cols$map_sequential[["MS1"]]
+      scale_fill_manual("Level", values=c("Svært lav"=fhiplot::vals$cols$map_sequential[["MS5"]],
+                                          "Lav"=fhiplot::vals$cols$map_sequential[["MS4"]],
+                                          "Middels"=fhiplot::vals$cols$map_sequential[["MS3"]],
+                                          "Høy"=fhiplot::vals$cols$map_sequential[["MS2"]],
+                                          "Svært høy"=fhiplot::vals$cols$map_sequential[["MS1"]]
                                           )) +
       geom_label_repel(data=cnames_country, aes(long, lat, label = rate), size=2)
     
@@ -252,15 +252,15 @@ create_plots <- function(conf){
                    color="black", size=0.1) +
       theme_void() +
       coord_quickmap() +
-      scale_fill_manual("Level", values=c("Very low"=fhiplot::vals$cols$map_sequential[["MS5"]],
-                                          "Low"=fhiplot::vals$cols$map_sequential[["MS4"]],
-                                          "Medium"=fhiplot::vals$cols$map_sequential[["MS3"]],
-                                          "High"=fhiplot::vals$cols$map_sequential[["MS2"]],
-                                          "Very high"=fhiplot::vals$cols$map_sequential[["MS1"]]
+       scale_fill_manual("Level", values=c("Svært lav"=fhiplot::vals$cols$map_sequential[["MS5"]],
+                                          "Lav"=fhiplot::vals$cols$map_sequential[["MS4"]],
+                                          "Middels"=fhiplot::vals$cols$map_sequential[["MS3"]],
+                                          "Høy"=fhiplot::vals$cols$map_sequential[["MS2"]],
+                                          "Svært høy"=fhiplot::vals$cols$map_sequential[["MS1"]]
                                           )) +
       geom_label(data=cnames_osl_ak, aes(long, lat, label = rate), size=2) +
       theme(legend.position = "none") +
-      ggtitle("Oslo and Akershus") + 
+      ggtitle("Oslo og Akershus") + 
       theme(plot.title = element_text(size = 8,))
     
     map_plot <- map_plot + 
