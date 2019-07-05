@@ -57,8 +57,8 @@ CONFIG$MEM <- rbind(
     syndromeOrConsult = "syndrome",
     denominator = "consultWithInfluensa",
     weeklyDenominatorFunction = "sum",
-    namesLong = "Lungebetennelse diagnose",
-    namesShort = "Lungebet",
+    namesLong = "Influensa",
+    namesShort = "Influensa",
     excludeSeason = c("2009/2010")
   )
 )
@@ -114,10 +114,22 @@ CONFIG$STANDARD<- rbind(
     syndromeOrConsult = "syndrome",
     denominator = "consultWithInfluensa",
     weeklyDenominatorFunction = "sum",
+    namesLong = "Influensa",
+    namesShort = "Influensa"
+  ),
+  data.table(
+    tag = "lungebetennelse",
+    syndrome = "lungebetennelse",
+    alertInternal = TRUE,
+    alertExternal = FALSE,
+    websiteInternal = TRUE,
+    contactType = list(c("Legekontakt", "Telefonkontakt")),
+    syndromeOrConsult = "syndrome",
+    denominator = "consultWithoutInfluensa",
+    weeklyDenominatorFunction = sum,
     namesLong = "Lungebetennelse diagnose",
     namesShort = "Lungebet"
   ),
-
   data.table(
     tag = "bronkitt",
     syndrome = "bronkitt",
