@@ -1,6 +1,6 @@
 Package: sykdomspuls
 Title: Norwegian Syndromic Surveillance System - NorSySS
-Version: 2019.06.06
+Version: 2019.06.10
 Authors@R: c(
   person("Richard", "White", email = "w@rwhite.no", role = c("aut", "cre")),
   person("Gunnar", "Ro", email = "gunr@fhi.no", role = c("aut"))
@@ -35,8 +35,11 @@ Imports:
   parallel,
   pbmcapply,
   RAWmisc,
+  cowplot,
+  fhidata,
+  fd,
   R6,
-  cowplot
+  pbapply
 Suggests: testthat,
     knitr,
     rmarkdown

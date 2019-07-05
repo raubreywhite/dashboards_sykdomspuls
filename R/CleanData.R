@@ -10,7 +10,7 @@
 #' @export CleanData
 CleanData <- function(d,
                       syndrome,
-                      population = fhi::NorwayPopulation(),
+                      population = fhidata::norway_population_current,
                       hellidager = fread(system.file("extdata", "DatoerMedHelligdager.txt", package = "sykdomspuls"))[, c("Dato", "HelligdagIndikator"), with = FALSE],
                       testIfHelligdagIndikatorFileIsOutdated = TRUE,
                       removeMunicipsWithoutConsults = FALSE) {
@@ -44,13 +44,13 @@ CleanData <- function(d,
   population <- population[, .(
     pop = sum(pop)
   ), keyby = .(
-    municip, age, year
+    location_code, age, year
   )]
 
   total <- population[, .(
     pop = sum(pop)
   ), keyby = .(
-    municip, year
+    location_code, year
   )]
   total[, age := "Totalt"]
 
@@ -89,15 +89,15 @@ CleanData <- function(d,
     d[, total := NULL]
     skeleton <-
       data.table(expand.grid(
-        unique(fhi::NorwayMunicipMerging()[municipEnd %in% unique(d$municip) |
-          municip %in% unique(d$municip)]$municip),
+        municip = unique(fhidata::norway_municip_merging[municip_code_current %in% unique(d$municip) |
+          municip_code_original %in% unique(d$municip)]$municip_code_original),
         unique(d$age),
         seq.Date(dateMin, dateMax, 1)
       ))
   } else {
     skeleton <-
       data.table(expand.grid(
-        unique(fhi::NorwayMunicipMerging()$municip),
+        municip = unique(fhidata::norway_municip_merging$municip_code_original),
         unique(d$age),
         seq.Date(dateMin, dateMax, 1)
       ))
@@ -141,24 +141,27 @@ CleanData <- function(d,
   dim(data)
   data <-
     merge(data,
-      fhi::NorwayMunicipMerging()[, c("municip", "year", "municipEnd")],
-      by = c("municip", "year"),
+          fhidata::norway_municip_merging[, c("municip_code_original", "year", "municip_code_current")],
+          by.x = c("municip", "year"),
+          by.y = c("municip_code_original", "year"),
       all.x = T
     )
   dim(data)
-  data <- data[!is.na(municipEnd)]
+  data <- data[!is.na(municip_code_current)]
 
-  data <- data[!is.na(municipEnd),
+  data <- data[!is.na(municip_code_current),
     lapply(.SD, sum),
-    keyby = .(municipEnd, year, age, date),
+    keyby = .(municip_code_current, year, age, date),
     .SDcols = c(syndromeAndConsult)
   ]
   dim(data)
-  setnames(data, "municipEnd", "municip")
+  setnames(data, "municip_code_current", "municip")
 
   # merge in population
   n1 <- nrow(data)
-  data <- merge(data, population, by = c("municip", "age", "year"))
+  data <- merge(data, population,
+                by.x = c("municip", "age", "year"),
+                by.y = c("location_code", "age", "year"))
   n2 <- nrow(data)
 
   if (n1 != n2) {
@@ -166,8 +169,8 @@ CleanData <- function(d,
   }
 
   # merging in municipalitiy-fylke names
-  data <-
-    merge(data, fhi::NorwayLocations()[, c("municip", "county")], by = "municip")
+  data[fhidata::norway_locations_current,on = "municip==municip_code", county:=county_code]
+
   for (i in syndromeAndConsult) {
     data[is.na(get(i)), (i) := 0]
   }
@@ -261,8 +264,10 @@ CleanData <- function(d,
 #' that can be directly sent to \code{QuasipoissonTrainPredictData}
 #' without additional formatting.
 #' @param conf A row from \code{CONFIG$SYNDROMES}
-#' @export StackAndEfficientDataForAnalysis
-StackAndEfficientDataForAnalysis <- function(conf) {
+#' @param data a dataset
+#' @param schema a schema
+#' @export load_stack_schema
+load_stack_schema <- function(conf, data, schema) {
   . <- NULL
   granularityGeo <- NULL
   weeklyDenominatorFunction <- NULL
@@ -272,16 +277,18 @@ StackAndEfficientDataForAnalysis <- function(conf) {
   location <- NULL
   id <- NULL
 
-  data <- readRDS(file = fhi::DashboardFolder(
-    "data_clean",
-    sprintf("%s_%s_cleaned.RDS", LatestRawID(), conf$tag)
-  ))
-
   counties <- unique(data[granularityGeo == "municip"]$county)
   municips <- unique(data[granularityGeo == "municip"]$location)
   locations <- c("Norge", counties, municips)
 
   ages <- unique(data$age)
+
+  years <- CalculateTrainPredictYearPattern(
+    yearMin = lubridate::isoyear(min(data$date)),
+    yearMax = lubridate::isoyear(max(data$date)),
+    numPerYear1 = 200)
+
+  unlist(years)
 
   # setting control stack for counties
   analysesCounties <- data.table(
@@ -290,14 +297,16 @@ StackAndEfficientDataForAnalysis <- function(conf) {
       denominator = conf$denominator,
       location = c("Norge", counties),
       age = ages,
-      granularity = c("Daily", "Weekly"),
+      year_index = 1:length(years),
+      granularity_time = c("daily", "weekly"),
       stringsAsFactors = FALSE
     )
   )
-  analysesCounties[, weeklyDenominatorFunction := list(conf$weeklyDenominatorFunction)]
+  analysesCounties[, weeklyDenominatorFunction := conf$weeklyDenominatorFunction]
   analysesCounties[, v := sykdomspuls::CONFIG$VERSION]
+  analysesCounties[, purpose := "production"]
   analysesCounties[, file := sprintf("%s_%s.RDS", "resRecentLine", tag)]
-  analysesCounties[granularity == "Weekly", file := sprintf("%s_%s.RDS", "resYearLine", tag)]
+  analysesCounties[granularity_time == "weekly", file := sprintf("%s_%s.RDS", "resYearLine", tag)]
 
   # setting control stack for municipalities
   analysesMunicips <- data.table(
@@ -306,12 +315,14 @@ StackAndEfficientDataForAnalysis <- function(conf) {
       denominator = conf$denominator,
       location = municips,
       age = ages,
-      granularity = c("Weekly"),
+      year_index = 1:length(years),
+      granularity_time = c("weekly"),
       stringsAsFactors = FALSE
     )
   )
-  analysesMunicips[, weeklyDenominatorFunction := list(conf$weeklyDenominatorFunction)]
+  analysesMunicips[, weeklyDenominatorFunction := conf$weeklyDenominatorFunction]
   analysesMunicips[, v := sykdomspuls::CONFIG$VERSION]
+  analysesMunicips[, purpose := "production"]
   analysesMunicips[, file := sprintf("%s_%s.RDS", "resYearLineMunicip", tag)]
 
   # control stack for comparison of models
@@ -319,29 +330,43 @@ StackAndEfficientDataForAnalysis <- function(conf) {
     vector("list", length(sykdomspuls::CONFIG$VERSIONS))
   for (vx in sykdomspuls::CONFIG$VERSIONS) {
     temp <-
-      analysesCounties[location == "Norge" & granularity == "Weekly"]
+      analysesCounties[location == "Norge" & granularity_time == "weekly"]
     temp[, v := vx]
     analysesComparison[[vx]] <- copy(temp)
   }
   analysesComparison <- rbindlist(analysesComparison)
   analysesComparison[, file := sprintf("%s_%s.RDS", "resComparisons", tag)]
+  analysesComparison[, purpose := "comparison"]
 
   analyses <- rbind(analysesCounties, analysesMunicips, analysesComparison)
+  for(i in seq_along(years)){
+    analyses[year_index==i,year_train_min:=years[[i]]$yearTrainMin]
+    analyses[year_index==i,year_train_max:=years[[i]]$yearTrainMax]
+    analyses[year_index==i,year_predict_min:=years[[i]]$yearPredictMin]
+    analyses[year_index==i,year_predict_max:=years[[i]]$yearPredictMax]
+  }
+  analyses[,uuid:=replicate(.N, uuid::UUIDgenerate(F))]
+  analyses[,year_index:=NULL]
 
-  return(
-    list(
-      conf = conf,
-      data = data,
-      counties = counties,
-      municips = municips,
-      locations = locations,
-      ages = ages,
-      analyses = analyses,
-      analysesCounties = analysesCounties,
-      analysesMunicips = analysesMunicips,
-      analysesComparison = analysesComparison
-    )
-  )
+  dates <- data[, "date"]
+  dates[, year := RAWmisc::YearN(date)]
+  dates[, date_min := min(date), by=year]
+  dates[, date_max := max(date), by=year]
+  dates <- unique(dates[,c("year","date_min","date_max")])
+
+  analyses[dates, on="year_train_min==year", date_train_min:=date_min]
+  analyses[dates, on="year_train_max==year", date_train_max:=date_max]
+
+  analyses[dates, on="year_predict_min==year", date_predict_min:=date_min]
+  analyses[dates, on="year_predict_max==year", date_predict_max:=date_max]
+
+  # fix schema
+
+  schema$dt <- analyses
+
+  schema$identify_dt_that_exists_in_db()
+  schema$get_data_dt()[year_predict_max>=max(year_predict_max)-1,exists_in_db:=FALSE]
+
 }
 
 #' Create analysis stack and datasets for a tag inside a list
@@ -363,4 +388,31 @@ StackAndEfficientDataForAnalysisInList <- function(conf) {
     retval[[i]] <- list("stack" = stack[i], "data" = data[.(stack$location[i], stack$age[i])])
   }
   retval
+}
+
+
+
+#' Create analysis stack and datasets for a tag inside a list
+#'
+#' Given one row from \code{CONFIG$SYNDROMES} we need
+#' to generate an analysis stack and all relevant datasets
+#' that can be directly sent to \code{QuasipoissonTrainPredictData}
+#' without additional formatting into a list for use in \code{pbmcapply}
+#' @param conf A row from \code{CONFIG$SYNDROMES}
+#' @export
+schema_and_data <- function(conf){
+  stackAndData <- StackAndEfficientDataForAnalysis(conf = conf)
+  stackStrata <- stackAndData$analysesStrata
+  stack <- stackAndData$analyses
+  data <- stackAndData$data
+
+  #fd:::get_field_types(conn, stack)
+
+  schema$stack_x$dt <- stack
+
+  schema$stack_x$identify_dt_that_exists_in_db()
+  schema$stack_x$get_data_dt()[year_predict_max>=max(year_predict_max)-1,exists_in_db:=FALSE]
+
+  return(data)
+
 }

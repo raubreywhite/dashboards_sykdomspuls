@@ -6,6 +6,40 @@
 #' @import ggplot2
 #' @import ggrepel
 #' @import fhi
+#' @import R6 
+#' @export MeM
+MeM <-  R6Class(
+  "MeM",
+  portable = FALSE,
+  list(
+    conf = NULL,
+    db_config = NULL,
+    initialize = function(conf=NULL, db_config=NULL){
+      conf <<- conf
+      db_config <<- db_config
+    },
+    run_analysis = function() {
+      mem_schema$db_connect(db_config)
+      for (i in 1:nrow(conf)) {
+        current_conf <- modelConfig[i]
+        sykdomspuls::run_all_mem(current_conf)
+        sykdomspuls::create_plots(current_conf)
+      }
+      try(DBI::dbExecute(
+        mem_schema$results_x$conn,
+        glue::glue(
+          "ALTER TABLE `{tb}` ADD INDEX `ind1` (`tag`(10),`location`(10), `season`(10))",
+          tb=mem_schema$results_x$db_table
+        )
+      ),TRUE)
+      
+      
+    }
+  )
+)
+
+
+
 
 #' @param conf A mem model configuration object
 run_all <- function(conf){
@@ -324,7 +358,7 @@ mem_results_keys <- c(
 mem_schema <- fd::schema$new(
   db_table = "mem_results",
   db_field_types = mem_results_field_types,
-  db_load_file = "/xtmp/mem.csv",
+  db_load_folder = "/xtmp/",
   keys = mem_results_keys,
 )
 
