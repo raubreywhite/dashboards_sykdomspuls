@@ -30,7 +30,23 @@ CONFIG$verbose <- FALSE
 CONFIG$VERSION <- 1
 CONFIG$VERSIONS <- 1:2
 
-CONFIG$SYNDROMES <- rbind(
+CONFIG$DB_DRIVER <- Sys.getenv("DB_DRIVER", "MySQL")
+CONFIG$DB_SERVER <- Sys.getenv("DB_SERVER", "db")
+CONFIG$DB_DB <- Sys.getenv("DB_DB", "sykdomspuls")
+CONFIG$DB_PORT <- as.integer(Sys.getenv("DB_PORT", 3306))
+CONFIG$DB_USER <- Sys.getenv("DB_USER", "root")
+CONFIG$DB_PASSWORD <- Sys.getenv("DB_PASSWORD", "example")
+
+CONFIG$DB_CONFIG <- list(
+  driver = CONFIG$DB_DRIVER,
+  server = CONFIG$DB_SERVER,
+  port = CONFIG$DB_PORT,
+  user = CONFIG$DB_USER,
+  password = CONFIG$DB_PASSWORD,
+  db = CONFIG$DB_DB
+)
+
+CONFIG$MEM <- rbind(
   data.table(
     tag = "influensa",
     syndrome = "influensa",
@@ -41,9 +57,14 @@ CONFIG$SYNDROMES <- rbind(
     syndromeOrConsult = "syndrome",
     denominator = "consultWithInfluensa",
     weeklyDenominatorFunction = "sum",
-    namesLong = "Influensa",
-    namesShort = "Influensa"
-  ),
+    namesLong = "Lungebetennelse diagnose",
+    namesShort = "Lungebet",
+    excludeSeason = c("2009/2010")
+  )
+)
+
+
+CONFIG$STANDARD<- rbind(
   data.table(
     tag = "gastro",
     syndrome = "gastro",
@@ -84,18 +105,19 @@ CONFIG$SYNDROMES <- rbind(
     namesShort = "Luftvei"
   ),
   data.table(
-    tag = "lungebetennelse",
-    syndrome = "lungebetennelse",
+    tag = "influensa",
+    syndrome = "influensa",
     alertInternal = TRUE,
     alertExternal = FALSE,
     websiteInternal = TRUE,
-    contactType = list(c("Legekontakt", "Telefonkontakt")),
+    contactType = list("Legekontakt"),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
+    denominator = "consultWithInfluensa",
     weeklyDenominatorFunction = "sum",
     namesLong = "Lungebetennelse diagnose",
     namesShort = "Lungebet"
   ),
+
   data.table(
     tag = "bronkitt",
     syndrome = "bronkitt",
@@ -213,7 +235,41 @@ CONFIG$SYNDROMES <- rbind(
     namesLong = "emerg5 diagnose",
     namesShort = "emerg5"
   )
+  
 )
+
+
+
+
+CONFIG$MODELS <- list("mem" = CONFIG$MEM, "standard"= CONFIG$STANDARD)
+
+
+CONFIG$SYNDROMES <- data.table(tag = character(),
+                               syndrome = character(),
+                               syndromeOrConsult = character(),
+                               namesLong = character(),
+                               namesShort = character(),
+                               alertInternal = logical(),
+                               websiteInternal = logical(),
+                               alertExternal = logical(),
+                               contactType = list())
+for(model in CONFIG$MODELS){
+  for(i in 1:nrow(model)){
+    config = model[i]
+    sub_config = config[, names(CONFIG$SYNDROMES), with=FALSE]
+    if(config$tag %in% CONFIG$SYNDROMES[, tag]){
+      if(! isTRUE(all.equal(CONFIG$SYNDROMES[tag==config$tag], sub_config))){
+        stop(paste("tag, syndromeOrConsult, namesLong, namesShort, alertInternal, alertExternal, websiteInternal and contactType needs to be the same for the same syndrom across multiple models. It was not the same for", config$tag))
+        }
+
+    } else {
+      CONFIG$SYNDROMES <- rbind(CONFIG$SYNDROMES, sub_config)
+
+    }
+
+  }
+}
+
 
 CONFIG$tagsWithLong <- CONFIG$SYNDROMES$tag
 names(CONFIG$tagsWithLong) <- CONFIG$SYNDROMES$namesLong

@@ -13,8 +13,8 @@ standard <-  R6::R6Class(
       conf <<- conf
       db_config <<- db_config
 
-      for (i in 1:nrow(sykdomspuls::CONFIG$SYNDROMES)) {
-        models[[i]] <<- quasipoission$new(conf = sykdomspuls::CONFIG$SYNDROMES[i], db_config = db_config)
+      for (i in 1:nrow(conf)) {
+        models[[i]] <<- quasipoission$new(conf = conf[i], db_config = db_config)
       }
     },
     run_analysis = function(db_config = self$db_config){
