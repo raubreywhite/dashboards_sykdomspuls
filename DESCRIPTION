@@ -39,7 +39,8 @@ Imports:
   fhidata,
   fd,
   R6,
-  pbapply
+  pbapply,
+  magrittr
 Suggests: testthat,
     knitr,
     rmarkdown
