@@ -10,6 +10,7 @@ quasipoission <-  R6::R6Class(
     stack_field_types = c(
       "purpose"="TEXT",
       "granularity_time"="TEXT",
+      "granularity_geo"="TEXT",
       "tag"="TEXT",
       "denominator"="TEXT",
       "location"="TEXT",
@@ -32,6 +33,7 @@ quasipoission <-  R6::R6Class(
     stack_keys = c(
       "purpose",
       "granularity_time",
+      "granularity_geo",
       "tag",
       "location",
       "age",
@@ -46,6 +48,7 @@ quasipoission <-  R6::R6Class(
       "purpose"="TEXT",
       "v"="INTEGER",
       "granularity_time"="TEXT",
+      "granularity_geo"="TEXT",
       "tag"="TEXT",
       "location"="TEXT",
       "age"="TEXT",
@@ -55,7 +58,6 @@ quasipoission <-  R6::R6Class(
       "week"="DOUBLE",
       "x"="DOUBLE",
       "date"="DATE",
-      "displayDay"="DATE",
       "n"="INTEGER",
       "denominator"="INTEGER",
       "threshold0"="DOUBLE",
@@ -75,6 +77,7 @@ quasipoission <-  R6::R6Class(
       "purpose",
       "v",
       "granularity_time",
+      "granularity_geo",
       "tag",
       "location",
       "age",
@@ -91,7 +94,8 @@ quasipoission <-  R6::R6Class(
         db_table = glue::glue("spuls_standard_analyses"),
         db_field_types = stack_field_types,
         db_load_folder = "/xtmp/",
-        keys = stack_keys
+        keys = stack_keys,
+        check_fields_match = TRUE
       )
 
       results_x <<- fd::schema$new(
@@ -99,7 +103,8 @@ quasipoission <-  R6::R6Class(
         db_table = glue::glue("spuls_standard_results"),
         db_field_types = results_field_types,
         db_load_folder = "/xtmp/",
-        keys = results_keys
+        keys = results_keys,
+        check_fields_match = TRUE
       )
 
       stack_x$db_connect()
@@ -136,7 +141,7 @@ quasipoission <-  R6::R6Class(
       rm("data"); gc()
       res <- rbindlist(res)
 
-      res <- sykdomspuls::clean_post_analysis(res=res, schema = stack_x)
+      res <- clean_post_analysis(res=res, schema = stack_x)
 
       try(DBI::dbRemoveTable(conn,"temporary_table"),TRUE)
       results_x$db_upsert_load_data_infile(res[,names(results_x$db_field_types),with=F])

@@ -233,14 +233,11 @@ QuasipoissonTrainPredictData <- function(
   }
 
   datasetPredict <- AddXToWeekly(datasetPredict)
-  datasetPredict <- AddWkyrAndDisplayDateToWeekly(datasetPredict)
+  datasetPredict[, wkyr := paste0(year, "-", formatC(week, flag = "0", width = 2))]
 
-  if (isDaily) {
-    datasetPredict[, displayDay := date]
-  } else {
-    datasetPredict[, date := displayDay]
+  if (!isDaily) {
+    datasetPredict[fhidata::days,on="wkyr",date:=mon]
   }
-  datasetPredict[, displayDay := as.Date(displayDay)]
   datasetPredict[, date := as.Date(date)]
 
   return(datasetPredict[, VARS$REQ_RESULTS_BASIC, with = F])

@@ -4,7 +4,7 @@
 \name{mem_schema}
 \alias{mem_schema}
 \title{mem_schema}
-\format{An object of class \code{schema} (inherits from \code{R6}) of length 21.}
+\format{An object of class \code{schema} (inherits from \code{R6}) of length 25.}
 \usage{
 mem_schema
 }

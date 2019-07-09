@@ -23,21 +23,25 @@ fhi::Log("versionPackage", packageDescription("sykdomspuls")$Version)
 
 
 ## fhi::Log("cleanBefore")
-## if (!UpdateData()) {
-##   fhi::DashboardMsg("Have not run analyses and exiting")
-##   q(save = "no", status = 21)
-## }
-## DeleteOldDatasets()
+if (!UpdateData()) {
+   fhi::DashboardMsg("Have not run analyses and exiting")
+   q(save = "no", status = 21)
+}
+DeleteOldDatasets()
 ## fhi::Log("cleanAfter")
 
 
-for (modelName in names(sykdomspuls::CONFIG$MODELS)){
-  fhi::DashboardMsg(paste("starting", modelName))
-  modelConfig <- sykdomspuls::CONFIG$MODELS[[modelName]]
-  model <- models()[[modelName]]$new(conf=modelConfig,
-                                                db_config=CONFIG$DB_CONFIG)
-  model$run_analysis()
-  fhi::DashboardMsg(paste("Ending", modelName))
+for (model_name in names(sykdomspuls::CONFIG$MODELS)){
+  fd::msg(paste("starting", model_name))
+  conf <- sykdomspuls::CONFIG$MODELS[[model_name]]
+  db_config <- CONFIG$DB_CONFIG
+
+  model <- models()[[model_name]]$new(
+    conf=conf,
+    db_config=db_config
+    )
+  model$run_all()
+  fd::msg(paste("Ending", model_name))
 }
 
 
