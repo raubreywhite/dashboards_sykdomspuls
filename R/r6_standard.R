@@ -22,7 +22,7 @@ standard <-  R6::R6Class(
       doParallel::registerDoParallel(cl)
       base_folder <- fhi::DashboardFolder("data_clean")
       latest_id <- sykdomspuls::LatestRawID()
-      foreach(i = 1:3, .packages = c("data.table"), .verbose = T, .export = "models") %dopar% {
+      foreach(i = 1:length(models), .packages = c("data.table"), .verbose = T, .export = "models") %dopar% {
         data.table::setDTthreads(1)
         models[[i]]$run(base_folder = base_folder, latest_id = latest_id)
       }

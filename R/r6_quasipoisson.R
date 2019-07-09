@@ -88,7 +88,7 @@ quasipoission <-  R6::R6Class(
 
       stack_x <<- fd::schema$new(
         db_config = db_config,
-        db_table = glue::glue("stack"),
+        db_table = glue::glue("spuls_standard_analyses"),
         db_field_types = stack_field_types,
         db_load_folder = "/xtmp/",
         keys = stack_keys
@@ -96,7 +96,7 @@ quasipoission <-  R6::R6Class(
 
       results_x <<- fd::schema$new(
         db_config = db_config,
-        db_table = glue::glue("results"),
+        db_table = glue::glue("spuls_standard_results"),
         db_field_types = results_field_types,
         db_load_folder = "/xtmp/",
         keys = results_keys
