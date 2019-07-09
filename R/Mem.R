@@ -1,14 +1,9 @@
 #' Mem implementation
 #'
 #' @import data.table
-#' @import lubridate
-#' @import mem
 #' @import ggplot2
-#' @import ggrepel
-#' @import fhi
-#' @import R6 
 #' @export MeM
-MeM <-  R6Class(
+MeM <-  R6::R6Class(
   "MeM",
   portable = FALSE,
   list(
@@ -17,13 +12,14 @@ MeM <-  R6Class(
     initialize = function(conf=NULL, db_config=NULL){
       conf <<- conf
       db_config <<- db_config
+      mem_schema <<- get_mem_schema()
     },
     run_analysis = function() {
       mem_schema$db_connect(db_config)
       for (i in 1:nrow(conf)) {
         current_conf <- modelConfig[i]
-        sykdomspuls::run_all_mem(current_conf)
-        sykdomspuls::create_plots(current_conf)
+        run_all_mem(current_conf, mem_schema)
+        create_plots(current_conf)
       }
       try(DBI::dbExecute(
         mem_schema$results_x$conn,
@@ -107,7 +103,7 @@ add_results_to_data <- function(data, mem_results){
 #' @param conf A mem model configuration object
 #' 
 #' @export run_all_mem
-run_all_mem <- function(conf){
+run_all_mem <- function(conf, mem_schema){
 
   data <- readRDS(file = fhi::DashboardFolder(
     "data_clean",
@@ -144,7 +140,7 @@ run_all_mem <- function(conf){
   out[, rate:= n /consultWithInfluensa *100]
   out[, n:= NULL]
   out[, consultWithInfluensa:= NULL]
-  mem_schema$db_connect(sykdomspuls::CONFIG$DB_CONFIG)
+  mem_schema$db_connect(CONFIG$DB_CONFIG)
   mem_schema$db_drop_all_rows()
   mem_schema$db_load_data_infile(out)
 
@@ -179,11 +175,13 @@ get_season <- function(date){
 #' 
 #' @export create_plots
 
-create_plots <- function(conf){
+create_plots <- function(conf, mem_schema=NULL){
 
   current_season <- get_season(Sys.Date())
-  
-  mem_schema$db_connect(sykdomspuls::CONFIG$DB_CONFIG)
+  if(is.null(mem_schema)){
+    mem_schema<- get_mem_schema()
+    mem_schema$db_connect(CONFIG$DB_CONFIG)
+  }
   data <- mem_schema$get_data_db(season==current_season)
 
 
@@ -244,7 +242,7 @@ create_plots <- function(conf){
                                           "Høy"=fhiplot::vals$cols$map_sequential[["MS2"]],
                                           "Svært høy"=fhiplot::vals$cols$map_sequential[["MS1"]]
                                           )) +
-      geom_label_repel(data=cnames_country, aes(long, lat, label = rate), size=2)
+      ggrepel::geom_label_repel(data=cnames_country, aes(long, lat, label = rate), size=2)
     
     oslo_akershus <- ggplot() +
       geom_polygon(data = plot_data[location_code %in% c("county03", "county02")]
@@ -307,7 +305,7 @@ run_mem_model <- function(data, conf){
     model_data <- data[, names(data)[1:i]]
 
     model_data <- data[, names(model_data)[!(names(model_data) %in% conf$excludeSeason)]]
-    epi <- memmodel(model_data)
+    epi <- mem::memmodel(model_data)
     out[[col]] <- c(epi$epidemic.thresholds[1],
                     epi$epi.intervals[1,4],
                     epi$epi.intervals[2,4],
@@ -355,10 +353,12 @@ mem_results_keys <- c(
 #' DB schema for mem_results
 #' 
 #' @export mem_schema
-mem_schema <- fd::schema$new(
-  db_table = "mem_results",
-  db_field_types = mem_results_field_types,
-  db_load_folder = "/xtmp/",
-  keys = mem_results_keys,
+get_mem_schema <- function()
+  return(fd::schema$new(
+    db_table = "spuls_mem_results",
+    db_field_types = mem_results_field_types,
+    db_load_folder = "/xtmp/",
+    keys = mem_results_keys
+  )
 )
 

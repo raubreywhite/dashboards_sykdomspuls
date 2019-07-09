@@ -22,13 +22,13 @@ fhi::Log("versionAlgorithm", CONFIG$VERSION)
 fhi::Log("versionPackage", packageDescription("sykdomspuls")$Version)
 
 
-## fhi::Log("cleanBefore")
-## if (!UpdateData()) {
-##   fhi::DashboardMsg("Have not run analyses and exiting")
-##   q(save = "no", status = 21)
-## }
-## DeleteOldDatasets()
-## fhi::Log("cleanAfter")
+fhi::Log("cleanBefore")
+if (!UpdateData()) {
+  fhi::DashboardMsg("Have not run analyses and exiting")
+  q(save = "no", status = 21)
+}
+DeleteOldDatasets()
+fhi::Log("cleanAfter")
 
 
 for (modelName in names(sykdomspuls::CONFIG$MODELS)){
