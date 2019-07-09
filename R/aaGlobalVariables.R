@@ -126,7 +126,7 @@ CONFIG$STANDARD<- rbind(
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
     denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    weeklyDenominatorFunction = "sum",
     namesLong = "Lungebetennelse diagnose",
     namesShort = "Lungebet"
   ),
@@ -247,7 +247,7 @@ CONFIG$STANDARD<- rbind(
     namesLong = "emerg5 diagnose",
     namesShort = "emerg5"
   )
-  
+
 )
 
 
@@ -365,7 +365,6 @@ VARS$REQ_RESULTS_BASIC <- c(
   "week",
   "x",
   "date",
-  "displayDay",
   "HelligdagIndikator",
   "n",
   "denominator",
@@ -384,6 +383,7 @@ VARS$REQ_RESULTS_FULL <- c(
   "purpose",
   "v",
   "granularity_time",
+  "granularity_geo",
   "tag",
   "type",
   # "county",
@@ -395,14 +395,6 @@ VARS$REQ_RESULTS_FULL <- c(
   "file",
   "uuid"
 )
-
-
-#' The last date for each isoweek
-#' @export displayDays
-displayDays <- data.table(day = seq.Date(as.IDate("2000-01-01"), as.IDate("2030-01-01"), by = "days"))
-displayDays[, wkyr := format.Date(day, format = "%G-%V")]
-displayDays <- displayDays[, .(displayDay = as.IDate(max(day))), by = .(wkyr)]
-setkey(displayDays, wkyr)
 
 #' Environment for progress bars
 #' @export PB

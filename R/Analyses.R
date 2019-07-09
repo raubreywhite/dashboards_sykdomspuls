@@ -119,7 +119,7 @@ AddWkyrAndDisplayDateToWeekly <- function(data) {
   day <- NULL
 
   data[, wkyr := paste0(year, "-", formatC(week, flag = "0", width = 2))]
-  data <- merge(data, displayDays, by = "wkyr")
+  data[fhidata::wkyr,on="wkyr",date:=mon]
 
   return(data)
 }

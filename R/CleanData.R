@@ -307,6 +307,8 @@ load_stack_schema <- function(conf, data, schema) {
   analysesCounties[, purpose := "production"]
   analysesCounties[, file := sprintf("%s_%s.RDS", "resRecentLine", tag)]
   analysesCounties[granularity_time == "weekly", file := sprintf("%s_%s.RDS", "resYearLine", tag)]
+  analysesCounties[,granularity_geo := "county"]
+  analysesCounties[location=="Norge", granularity_geo := "national"]
 
   # setting control stack for municipalities
   analysesMunicips <- data.table(
@@ -324,6 +326,7 @@ load_stack_schema <- function(conf, data, schema) {
   analysesMunicips[, v := sykdomspuls::CONFIG$VERSION]
   analysesMunicips[, purpose := "production"]
   analysesMunicips[, file := sprintf("%s_%s.RDS", "resYearLineMunicip", tag)]
+  analysesMunicips[, granularity_geo := "municip"]
 
   # control stack for comparison of models
   analysesComparison <-
