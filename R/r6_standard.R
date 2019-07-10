@@ -18,6 +18,8 @@ standard <-  R6::R6Class(
       }
     },
     run_analysis = function(db_config = self$db_config){
+      fd::msg("Starting standard in parallel")
+
       cl <- parallel::makeCluster(3L, file = "")
       doParallel::registerDoParallel(cl)
       base_folder <- fd::path("data_clean")
