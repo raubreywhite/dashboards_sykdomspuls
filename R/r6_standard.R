@@ -39,13 +39,25 @@ standard <-  R6::R6Class(
         )
       ),TRUE)
 
-      try(DBI::dbExecute(
-        tags[[1]]$results_x$conn,
-        glue::glue(
-          "ALTER TABLE `{tb}` ADD INDEX `ind2` (`purpose`(10),`granularity_time`(10),`wkyr`(10))",
-          tb=tags[[1]]$results_x$db_table
+      try(
+        DBI::dbExecute(
+          tags[[1]]$results_x$conn,
+          glue::glue(
+            "ALTER TABLE `{tb}` ADD INDEX `ind2` (`purpose`(10),`granularity_time`(10),`wkyr`(10))",
+            tb=tags[[1]]$results_x$db_table
+          )
         )
-      ),TRUE)
+        ,TRUE)
+
+      try(
+        DBI::dbExecute(
+          tags[[1]]$results_x$conn,
+          glue::glue(
+            "ALTER TABLE `{tb}` ADD INDEX `ind3` (`wkyr`(10))",
+            tb=tags[[1]]$results_x$db_table
+          )
+        )
+        ,TRUE)
 
     },
     save_internal_dashboard = function(){
@@ -61,9 +73,9 @@ standard <-  R6::R6Class(
           purpose=="production" &
           granularity_time=="daily"
         ) %>%
-        dplyr::distinct(date) %>%
-        dplyr::top_n(1L, date) %>%
+        dplyr::summarize(date = max(date,na.rm=T)) %>%
         dplyr::collect()
+      val <- val$wkyr
       GLOBAL$dateMax <- val$date
 
       GLOBAL$dateMinRestrictedRecent <- GLOBAL$dateMax - 365
@@ -222,36 +234,11 @@ standard <-  R6::R6Class(
     },
     email_external = function(){
       fd::msg("Generating external outbreak alerts")
-      tags[[1]]$results_x$dplyr_tbl() %>%
-        dplyr::filter(
-          purpose=="production" &
-            granularity_time=="weekly" &
-            wkyr == max(wkyr)
-        ) %>%
-        dplyr::show_query()
 
-      a0 <- Sys.time()
       val <- tags[[1]]$results_x$dplyr_tbl() %>%
-        dplyr::filter(
-          purpose=="production" &
-            granularity_time=="weekly"
-        ) %>%
-        dplyr::distinct(wkyr) %>%
-        dplyr::collect()
-      a1 <- Sys.time()
-      a1 - a0
-
-      a0 <- Sys.time()
-      val <- tags[[1]]$results_x$dplyr_tbl() %>%
-        dplyr::filter(
-          purpose=="production" &
-            granularity_time=="weekly"
-        ) %>%
         dplyr::summarize(wkyr = max(wkyr,na.rm=T)) %>%
         dplyr::collect()
       val <- val$wkyr
-      a1 <- Sys.time()
-      a1 - a0
 
       d <- tags[[1]]$results_x$dplyr_tbl() %>%
         dplyr::filter(
@@ -259,16 +246,6 @@ standard <-  R6::R6Class(
           granularity_time=="weekly" &
           wkyr==val
         ) %>%
-        dplyr::collect()
-      setDT(d)
-
-
-      d <- tags[[1]]$results_x$dplyr_tbl() %>%
-        dplyr::filter(
-          purpose=="production" &
-          granularity_time=="weekly"
-        ) %>%
-        dplyr::top_n(1L, wkyr) %>%
         dplyr::collect()
       setDT(d)
 
