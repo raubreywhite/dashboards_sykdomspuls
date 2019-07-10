@@ -1,33 +1,36 @@
 fhi::DashboardInitialiseOpinionated("sykdomspuls")
+fd::initialize("sykdomspuls")
 
 suppressMessages(library(data.table))
 suppressMessages(library(ggplot2))
 suppressMessages(library(pbmcapply))
 suppressMessages(library(foreach))
 
-if (!dir.exists(fhi::DashboardFolder("results", "externalapi"))) dir.create(fhi::DashboardFolder("results", "externalapi"))
-if (!dir.exists(fhi::DashboardFolder("results", LatestRawID()))) dir.create(fhi::DashboardFolder("results", LatestRawID()))
-if (!dir.exists(fhi::DashboardFolder("results", file.path(LatestRawID(), "emerg")))) dir.create(fhi::DashboardFolder("results", file.path(LatestRawID(), "emerg")))
-if (!dir.exists(fhi::DashboardFolder("results", file.path(LatestRawID(), "stats")))) dir.create(fhi::DashboardFolder("results", file.path(LatestRawID(), "stats")))
-if (!dir.exists(fhi::DashboardFolder("results", file.path(LatestRawID(), "skabb")))) dir.create(fhi::DashboardFolder("results", file.path(LatestRawID(), "skabb")))
-if (!dir.exists(fhi::DashboardFolder("data_raw", "normomo"))) dir.create(fhi::DashboardFolder("data_raw", "normomo"))
+fs::dir_create(fd::path("results", "externalapi"))
+fs::dir_create(fd::path("results", latest_date()))
+fs::dir_create(fd::path("results", latest_date(), "standard"))
+fs::dir_create(fd::path("results", latest_date(), "emerg"))
+fs::dir_create(fd::path("results", latest_date(), "stats"))
+fs::dir_create(fd::path("results", latest_date(), "skabb"))
+fs::dir_create(fd::path("data_raw", "normomo"))
 
-SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("results", "config.RDS"))
-SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("data_app", "config.RDS"))
-SaveRDS(ConvertConfigForAPI(), fhi::DashboardFolder("results", "externalapi/config.RDS"))
+conf <- sykdomspuls::CONFIG$MODELS[["standard"]]
+db_config <- CONFIG$DB_CONFIG
 
-fhi::Log("numTags", nrow(CONFIG$SYNDROMES))
-fhi::Log("versionAlgorithm", CONFIG$VERSION)
-fhi::Log("versionPackage", packageDescription("sykdomspuls")$Version)
+model <- models()[["standard"]]$new(
+  conf=conf,
+  db_config=db_config
+)
 
+tags <- model$tags
 
-fhi::Log("cleanBefore")
-if (!UpdateData()) {
-  fhi::DashboardMsg("Have not run analyses and exiting")
-  q(save = "no", status = 21)
-}
-DeleteOldDatasets()
-fhi::Log("cleanAfter")
+tags[[1]]$run_age(
+  age = "Totalt",
+  base_folder = fd::path("data_clean"),
+  latest_id= sykdomspuls::LatestRawID()
+)
+
+model$run_all()
 
 fhi::Log("analyse1Before")
 models <- list()

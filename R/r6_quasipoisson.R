@@ -8,7 +8,6 @@ quasipoission <-  R6::R6Class(
   list(
     conf = NULL,
     stack_field_types = c(
-      "purpose"="TEXT",
       "granularity_time"="TEXT",
       "granularity_geo"="TEXT",
       "tag"="TEXT",
@@ -31,7 +30,6 @@ quasipoission <-  R6::R6Class(
       "uuid"="TEXT"
     ),
     stack_keys = c(
-      "purpose",
       "granularity_time",
       "granularity_geo",
       "tag",
@@ -45,7 +43,6 @@ quasipoission <-  R6::R6Class(
     ),
     stack_x = NULL,
     results_field_types = c(
-      "purpose"="TEXT",
       "v"="INTEGER",
       "granularity_time"="TEXT",
       "granularity_geo"="TEXT",
@@ -74,7 +71,6 @@ quasipoission <-  R6::R6Class(
       "county"="TEXT"
     ),
     results_keys = c(
-      "purpose",
       "v",
       "granularity_time",
       "granularity_geo",
@@ -110,7 +106,10 @@ quasipoission <-  R6::R6Class(
       stack_x$db_connect()
       results_x$db_connect()
     },
-    run_age = function(age, base_folder, latest_id) {
+    run_age = function(
+      age,
+      base_folder = fd::path("data_clean"),
+      latest_id= sykdomspuls::LatestRawID()) {
       on.exit(function(){rm("data","res");gc()})
 
       message(glue::glue("Running {age}"))
@@ -124,17 +123,18 @@ quasipoission <-  R6::R6Class(
       res <- pbapply::pblapply(run_stack,function(x){
         uuid <- x$uuid
 
-        run_data <- data[.(x$location,x$age)]
+        run_data <- data[.(x$location)]
+        setnames(run_data,x$denominator,"denominator")
+
         run_data_train <- run_data[date >= x$date_train_min & date <= x$date_train_max]
         run_data_predict <- run_data[date >= x$date_predict_min & date <= x$date_predict_max]
 
-        retval <- sykdomspuls::QuasipoissonTrainPredictData(
+        retval <- QuasipoissonTrainPredictData(
           datasetTrain = run_data_train,
           datasetPredict = run_data_predict,
           isDaily = x$granularity_time == "daily",
           v = x$v,
-          weeklyDenominatorFunction = ifelse(x$weeklyDenominatorFunction=="sum",sum,mean),
-          denominator_string = x$denominator
+          weeklyDenominatorFunction = ifelse(x$weeklyDenominatorFunction=="sum",sum,mean)
         )
         retval[,uuid:=uuid]
       })
@@ -143,14 +143,12 @@ quasipoission <-  R6::R6Class(
 
       res <- clean_post_analysis(res=res, schema = stack_x)
 
-      try(DBI::dbRemoveTable(conn,"temporary_table"),TRUE)
       results_x$db_upsert_load_data_infile(res[,names(results_x$db_field_types),with=F])
-      try(DBI::dbRemoveTable(conn,"temporary_table"),TRUE)
       stack_x$db_upsert_load_data_infile(stack_x$dt[uuid %in% unique(res$uuid),names(stack_x$db_field_types),with=F])
 
       rm("res"); gc()
     },
-    run = function(base_folder = fhi::DashboardFolder("data_clean"), latest_id = sykdomspuls::LatestRawID()){
+    run = function(base_folder = fd::path("data_clean"), latest_id = sykdomspuls::LatestRawID()){
       message(glue::glue("Running {conf$tag}"))
       connect_to_db()
       for(i in names(sykdomspuls::CONFIG$AGES)) run_age(age = i, base_folder = base_folder, latest_id = latest_id)

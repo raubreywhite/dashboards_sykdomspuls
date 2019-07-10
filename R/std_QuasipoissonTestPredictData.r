@@ -1,3 +1,26 @@
+#' Adds seasonal week to dataset
+#'
+#' We often want to graph seasons. This function adds the seasonal week
+#' to the dataset \code{data} as the variable \code{x}.
+#'
+#' @param data A data.table containing the variable \code{week}
+#' @return A data.table with the extra variable \code{x}
+#' @examples
+#' library(data.table)
+#' d <- data.table(week = 1:52)
+#' AddXToWeekly(d)
+#' @import data.table
+#' @export AddXToWeekly
+AddXToWeekly <- function(data) {
+  week <- NULL
+  x <- NULL
+
+  data[week >= 30, x := week - 29]
+  data[week < 30, x := week + 23]
+
+  return(data)
+}
+
 FormatDatasetDaily <- function(data) {
   # variables used in data.table functions in this function
   . <- NULL
@@ -10,7 +33,7 @@ FormatDatasetDaily <- function(data) {
   data[, trend := as.numeric(date) - 13000]
   data[, dayOfYear := data.table::yday(date)]
   data[, dayOfWeek := data.table::wday(date)]
-  data[denominator == 0, denominator := 1]
+  data[denominator < 1, denominator := 1]
 
   return(data)
 }
@@ -45,7 +68,7 @@ FormatDatasetWeekly <- function(data, weeklyDenominatorFunction = sum) {
   by = .(year, week)
   ]
 
-  data[denominator == 0, denominator := 1]
+  data[denominator < 1, denominator := 1]
 
   return(data)
 }
@@ -69,7 +92,6 @@ FormatDatasetWeekly <- function(data, weeklyDenominatorFunction = sum) {
 #' @param isDaily Is it daily data or weekly data?
 #' @param v Version (Not in use)
 #' @param weeklyDenominatorFunction sum or mean - should the denominator be summed or meaned over time
-#' @param denominator_string If not NULL then denominator variable is made from this
 #' @importFrom glm2 glm2
 #' @import data.table
 #' @import stringr
@@ -84,8 +106,7 @@ QuasipoissonTrainPredictData <- function(
                                          sign.level = 0.05,
                                          isDaily = TRUE,
                                          v = 1,
-                                         weeklyDenominatorFunction = sum,
-                                         denominator_string = NULL) {
+                                         weeklyDenominatorFunction = sum) {
   # variables used in data.table functions in this function
   consult <- NULL
   n <- NULL
@@ -105,10 +126,6 @@ QuasipoissonTrainPredictData <- function(
   displayDay <- NULL
   # end
 
-  if(!is.null(denominator_string)){
-    datasetTrain[,denominator:=get(denominator_string)]
-    datasetPredict[,denominator:=get(denominator_string)]
-  }
 
   # FUNCTION quasipoisson.algorithm
   #
@@ -128,12 +145,10 @@ QuasipoissonTrainPredictData <- function(
   # remove.highcounts: number between 0 and 1 of fraction of high counts to be removed from prediction, to remove impact of earlier outbreaks (default: 0)
   # sign.level: significance level for the prediction intervals (default: 5%)
 
-  datasetTrain[denominator == 0, denominator := 1]
   datasetTrain[, year := as.numeric(format.Date(date, "%G"))] # Week-based year, instead of normal year (%Y)
   datasetTrain[, week := as.numeric(format.Date(date, "%V"))] # Week-based year, instead of normal year (%Y)
   # datasetTrain[,week := data.table::isoweek(date)] #ISO-week, instead of others (%W and %U)
 
-  datasetPredict[denominator == 0, denominator := 1]
   datasetPredict[, year := as.numeric(format.Date(date, "%G"))] # Week-based year, instead of normal year (%Y)
   datasetPredict[, week := as.numeric(format.Date(date, "%V"))] # Week-based year, instead of normal year (%Y)
   # datasetPredict[,week := data.table::isoweek(date)] #ISO-week, instead of others (%W and %U)
@@ -183,8 +198,7 @@ QuasipoissonTrainPredictData <- function(
     datasetPredict[, failed := TRUE]
   } else {
     # REFIT THE REGRESSION USING RESIDUAL WEIGHTS (TO DOWNWEIGHT PREVIOUS OUTBREAKS):
-    w_i <- rep(1, nrow(datasetTrain))
-    datasetTrain <- cbind(datasetTrain, w_i)
+    datasetTrain[,w_i := 1]
 
     for (i in sort(1:reweights)) {
       dispersion_parameter <- summary(poisreg$fit)$dispersion
@@ -238,7 +252,6 @@ QuasipoissonTrainPredictData <- function(
   if (!isDaily) {
     datasetPredict[fhidata::days,on="wkyr",date:=mon]
   }
-  datasetPredict[, date := as.Date(date)]
 
   return(datasetPredict[, VARS$REQ_RESULTS_BASIC, with = F])
 }
