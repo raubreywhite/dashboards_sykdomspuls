@@ -122,7 +122,6 @@ load_stack_schema <- function(conf, data, schema) {
   )
   analysesCounties[, weeklyDenominatorFunction := conf$weeklyDenominatorFunction]
   analysesCounties[, v := sykdomspuls::CONFIG$VERSION]
-  analysesCounties[, purpose := "production"]
   analysesCounties[, file := sprintf("%s_%s.RDS", "resRecentLine", tag)]
   analysesCounties[granularity_time == "weekly", file := sprintf("%s_%s.RDS", "resYearLine", tag)]
   analysesCounties[,granularity_geo := "county"]
@@ -142,24 +141,10 @@ load_stack_schema <- function(conf, data, schema) {
   )
   analysesMunicips[, weeklyDenominatorFunction := conf$weeklyDenominatorFunction]
   analysesMunicips[, v := sykdomspuls::CONFIG$VERSION]
-  analysesMunicips[, purpose := "production"]
   analysesMunicips[, file := sprintf("%s_%s.RDS", "resYearLineMunicip", tag)]
   analysesMunicips[, granularity_geo := "municip"]
 
-  # control stack for comparison of models
-  analysesComparison <-
-    vector("list", length(sykdomspuls::CONFIG$VERSIONS))
-  for (vx in sykdomspuls::CONFIG$VERSIONS) {
-    temp <-
-      analysesCounties[location == "Norge" & granularity_time == "weekly"]
-    temp[, v := vx]
-    analysesComparison[[vx]] <- copy(temp)
-  }
-  analysesComparison <- rbindlist(analysesComparison)
-  analysesComparison[, file := sprintf("%s_%s.RDS", "resComparisons", tag)]
-  analysesComparison[, purpose := "comparison"]
-
-  analyses <- rbind(analysesCounties, analysesMunicips, analysesComparison)
+  analyses <- rbind(analysesCounties, analysesMunicips)
   for(i in seq_along(years)){
     analyses[year_index==i,year_train_min:=years[[i]]$yearTrainMin]
     analyses[year_index==i,year_train_max:=years[[i]]$yearTrainMax]

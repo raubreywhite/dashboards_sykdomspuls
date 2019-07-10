@@ -36,7 +36,7 @@ standard <-  R6::R6Class(
       try(DBI::dbExecute(
         tags[[1]]$results_x$conn,
         glue::glue(
-          "ALTER TABLE `{tb}` ADD INDEX `ind1` (`purpose`(10),`granularity_time`(10),`tag`(10),`location`(10),`age`(10))",
+          "ALTER TABLE `{tb}` ADD INDEX `ind1` (`granularity_time`(10),`tag`(10),`location`(10),`age`(10))",
           tb=tags[[1]]$results_x$db_table
         )
       ),TRUE)
@@ -45,7 +45,7 @@ standard <-  R6::R6Class(
         DBI::dbExecute(
           tags[[1]]$results_x$conn,
           glue::glue(
-            "ALTER TABLE `{tb}` ADD INDEX `ind2` (`purpose`(10),`granularity_time`(10),`wkyr`(10))",
+            "ALTER TABLE `{tb}` ADD INDEX `ind2` (`granularity_time`(10),`wkyr`(10))",
             tb=tags[[1]]$results_x$db_table
           )
         )
@@ -72,7 +72,6 @@ standard <-  R6::R6Class(
 
       val <- tags[[1]]$results_x$dplyr_tbl() %>%
         dplyr::filter(
-          purpose=="production" &
           granularity_time=="daily"
         ) %>%
         dplyr::summarize(date = max(date,na.rm=T)) %>%
@@ -86,7 +85,6 @@ standard <-  R6::R6Class(
       ###########################
       val <- tags[[1]]$results_x$dplyr_tbl() %>%
         dplyr::filter(
-          purpose=="production" &
           granularity_time=="daily"
         ) %>%
         dplyr::distinct(location,locationName) %>%
@@ -100,7 +98,6 @@ standard <-  R6::R6Class(
       ###########################
       val <- tags[[1]]$results_x$dplyr_tbl() %>%
         dplyr::filter(
-          purpose=="production" &
             granularity_time=="weekly"
         ) %>%
         dplyr::distinct(wkyr) %>%
@@ -112,7 +109,6 @@ standard <-  R6::R6Class(
       ###########################
       val <- tags[[1]]$results_x$dplyr_tbl() %>%
         dplyr::filter(
-          purpose=="production" &
           granularity_time=="weekly"
         ) %>%
         dplyr::distinct(location,locationName,county) %>%
@@ -123,7 +119,6 @@ standard <-  R6::R6Class(
       ###########################
       val <- tags[[1]]$results_x$dplyr_tbl() %>%
         dplyr::filter(
-          purpose=="production" &
             granularity_time=="daily"
         ) %>%
         dplyr::distinct(tag,location,age) %>%
@@ -136,7 +131,6 @@ standard <-  R6::R6Class(
       ###########################
       val <- tags[[1]]$results_x$dplyr_tbl() %>%
         dplyr::filter(
-          purpose=="production" &
           granularity_time=="weekly"
         ) %>%
         dplyr::distinct(tag,location,age) %>%
@@ -191,7 +185,6 @@ standard <-  R6::R6Class(
       fd::msg("Saving daily data for the external api")
 
       d <- tags[[1]]$results_x$get_data_db(
-        purpose=="production" &
           granularity_time=="daily"
       )
       d[,type:=tag]
@@ -207,7 +200,6 @@ standard <-  R6::R6Class(
       fd::msg("Saving weekly data for the external api")
 
       d <- tags[[1]]$results_x$get_data_db(
-        purpose=="production" &
           granularity_time=="weekly"
       )
       d[,type:=tag]
@@ -244,7 +236,6 @@ standard <-  R6::R6Class(
 
       d <- tags[[1]]$results_x$dplyr_tbl() %>%
         dplyr::filter(
-          purpose=="production" &
           granularity_time=="weekly" &
           wkyr==val
         ) %>%

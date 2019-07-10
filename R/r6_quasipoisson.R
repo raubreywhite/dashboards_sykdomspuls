@@ -8,7 +8,6 @@ quasipoission <-  R6::R6Class(
   list(
     conf = NULL,
     stack_field_types = c(
-      "purpose"="TEXT",
       "granularity_time"="TEXT",
       "granularity_geo"="TEXT",
       "tag"="TEXT",
@@ -31,7 +30,6 @@ quasipoission <-  R6::R6Class(
       "uuid"="TEXT"
     ),
     stack_keys = c(
-      "purpose",
       "granularity_time",
       "granularity_geo",
       "tag",
@@ -45,7 +43,6 @@ quasipoission <-  R6::R6Class(
     ),
     stack_x = NULL,
     results_field_types = c(
-      "purpose"="TEXT",
       "v"="INTEGER",
       "granularity_time"="TEXT",
       "granularity_geo"="TEXT",
@@ -74,7 +71,6 @@ quasipoission <-  R6::R6Class(
       "county"="TEXT"
     ),
     results_keys = c(
-      "purpose",
       "v",
       "granularity_time",
       "granularity_geo",
