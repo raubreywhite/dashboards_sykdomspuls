@@ -118,7 +118,7 @@ quasipoission <-  R6::R6Class(
       data <- readRDS(file = file.path(base_folder, sprintf("%s_%s_%s_cleaned.RDS", latest_id, conf$tag, age)))
       sykdomspuls::load_stack_schema(conf = conf, data=data, schema = stack_x)
 
-      run_stack <- stack_x$get_data_dt()[exists_in_db==FALSE][year_predict_max %in% c(2018,2019)]
+      run_stack <- stack_x$get_data_dt()[exists_in_db==FALSE]
       run_stack <- split(run_stack,seq(nrow(run_stack)))
 
       res <- pbapply::pblapply(run_stack,function(x){

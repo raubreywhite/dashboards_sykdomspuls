@@ -180,6 +180,9 @@ standard <-  R6::R6Class(
         purpose=="production" &
           granularity_time=="daily"
       )
+      d[,type:=tag]
+      d[,HelligdagIndikator:=0]
+      d[,file:="x"]
       d[,displayDay:=date]
 
       saveRDS(
@@ -193,11 +196,11 @@ standard <-  R6::R6Class(
         purpose=="production" &
           granularity_time=="weekly"
       )
-
       d[,type:=tag]
       d[,HelligdagIndikator:=0]
       d[,file:="x"]
       d[,displayDay:=date]
+
       saveRDS(
         d[stringr::str_detect(location,"^municip"),names_req,with=F],
         fd::path("results","externalapi","resYearLineMunicip.RDS")
@@ -219,12 +222,53 @@ standard <-  R6::R6Class(
     },
     email_external = function(){
       fd::msg("Generating external outbreak alerts")
+      tags[[1]]$results_x$dplyr_tbl() %>%
+        dplyr::filter(
+          purpose=="production" &
+            granularity_time=="weekly" &
+            wkyr == max(wkyr)
+        ) %>%
+        dplyr::show_query()
+
+      a0 <- Sys.time()
+      val <- tags[[1]]$results_x$dplyr_tbl() %>%
+        dplyr::filter(
+          purpose=="production" &
+            granularity_time=="weekly"
+        ) %>%
+        dplyr::distinct(wkyr) %>%
+        dplyr::collect()
+      a1 <- Sys.time()
+      a1 - a0
+
+      a0 <- Sys.time()
+      val <- tags[[1]]$results_x$dplyr_tbl() %>%
+        dplyr::filter(
+          purpose=="production" &
+            granularity_time=="weekly"
+        ) %>%
+        dplyr::summarize(wkyr = max(wkyr,na.rm=T)) %>%
+        dplyr::collect()
+      val <- val$wkyr
+      a1 <- Sys.time()
+      a1 - a0
+
+      d <- tags[[1]]$results_x$dplyr_tbl() %>%
+        dplyr::filter(
+          purpose=="production" &
+          granularity_time=="weekly" &
+          wkyr==val
+        ) %>%
+        dplyr::collect()
+      setDT(d)
+
+
       d <- tags[[1]]$results_x$dplyr_tbl() %>%
         dplyr::filter(
           purpose=="production" &
           granularity_time=="weekly"
         ) %>%
-        dplyr::top_n(1L, date) %>%
+        dplyr::top_n(1L, wkyr) %>%
         dplyr::collect()
       setDT(d)
 
