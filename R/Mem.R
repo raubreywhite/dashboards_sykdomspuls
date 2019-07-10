@@ -14,10 +14,10 @@ MeM <-  R6::R6Class(
       db_config <<- db_config
       mem_schema <<- get_mem_schema()
     },
-    run_analysis = function() {
+    run_all = function() {
       mem_schema$db_connect(db_config)
       for (i in 1:nrow(conf)) {
-        current_conf <- modelConfig[i]
+        current_conf <- conf[i]
         run_all_mem(current_conf, mem_schema)
         create_plots(current_conf)
       }
@@ -111,8 +111,8 @@ run_all_mem <- function(conf, mem_schema){
   ))[granularityGeo != "municip"]
 
   
-  data[, week:= isoweek(date)]
-  data[, year:= isoyear(date)]
+  data[, week:= lubridate::isoweek(date)]
+  data[, year:= lubridate::isoyear(date)]
 
   # National
   national <- data[location=="Norge" & age == "Totalt",
@@ -348,11 +348,11 @@ mem_results_keys <- c(
 
 )
 
-#' mem_schema
+#' get_mem_schema
 #'
 #' DB schema for mem_results
 #' 
-#' @export mem_schema
+#' @export get_mem_schema
 get_mem_schema <- function()
   return(fd::schema$new(
     db_table = "spuls_mem_results",
