@@ -22,20 +22,16 @@ AnalyseLog <- function() {
   log[, minCleaning := as.numeric(difftime(cleanAfter, cleanBefore, units = "min"))]
   log[, minAnalyse1 := as.numeric(difftime(analyse1After, analyse1Before, units = "min"))]
   log[, minAnalyse2 := as.numeric(difftime(analyse2After, analyse2Before, units = "min"))]
-  log[, minSave1 := as.numeric(difftime(save1After, save1Before, units = "min"))]
-  log[, minSave2 := as.numeric(difftime(save2After, save2Before, units = "min"))]
-  log[, minTotal := as.numeric(difftime(save2After, initialiseBefore, units = "min"))]
+  log[, minTotal := as.numeric(difftime(Done, initialiseBefore, units = "min"))]
 
   log[, minCleaningPerTag := minCleaning / numTags]
   log[, minAnalyse1PerTag := minAnalyse1 / numTags]
   log[, minAnalyse2PerTag := minAnalyse2 / numTags]
-  log[, minSave1PerTag := minSave1 / numTags]
-  log[, minSave2PerTag := minSave2 / numTags]
   log[, minTotalPerTag := minTotal / numTags]
 
   log[, id := 1:.N, by = date]
   log <- log[id == 1]
-
+  cat(file=stderr(), as.character(log))
   long <- melt.data.table(log[, c(
     "date",
     "versionPackage",
@@ -43,8 +39,6 @@ AnalyseLog <- function() {
     "minCleaning",
     "minAnalyse1",
     "minAnalyse2",
-    "minSave1",
-    "minSave2",
     "minTotal",
     "minTotalPerTag"
   )],
@@ -110,10 +104,34 @@ AnalyseLog <- function() {
 #' @param resYearLineMunicip a
 #' @export
 AnalyseStats1 <- function(
-                          resYearLine = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine.RDS", LatestRawID()))),
-                          resYearLineMunicip = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLineMunicip.RDS", LatestRawID())))) {
+                          resYearLine = NULL,
+                          resYearLineMunicip = NULL) {
   # variables used in data.table functions in this function
 
+  conn <- DBI::dbConnect(odbc::odbc(),
+    driver = CONFIG$DB_CONFIG$driver,
+    server = CONFIG$DB_CONFIG$server,
+    port = CONFIG$DB_CONFIG$port,
+    user = CONFIG$DB_CONFIG$user,
+    password = CONFIG$DB_CONFIG$password
+    )
+  fd::use_db(conn, CONFIG$DB_CONFIG$db)
+  db <- dplyr::tbl(conn, "spuls_standard_results")
+  if(is.null(resYearLine)){
+    resYearLine <- db %>% dplyr::filter(granularity_time=="weekly" &
+                                          (granularity_geo == "county" |
+                                             granularity_geo == "Norge")) %>% dplyr::collect()
+    setDT(resYearLine)
+  }
+  if(is.null(resYearLineMunicip)){
+    resYearLineMunicip <- db %>% dplyr::filter(granularity_time=="weekly" &
+                                                 granularity_geo == "municip") %>% dplyr::collect()
+    setDT(resYearLineMunicip)
+    
+    
+  }
+
+    
   resYearLine[, x_alerts2 := n > threshold2]
   resYearLine[, x_alerts4 := n > threshold4]
   resYearLine[, x_alerts2_ge5cases := n > threshold2 & n >= 5]
@@ -200,7 +218,7 @@ AnalyseEmerg <- function() {
   fhi::RenderExternally(
     input = system.file("extdata/emerg.Rmd", package = "sykdomspuls"),
     output_file = "emerg.pdf",
-    output_dir = fhi::DashboardFolder("results", file.path(LatestRawID(), "emerg")),
+    output_dir = fd::path("results", file.path(latest_date(), "emerg")),
     params = sprintf(
       "dev=%s,package_dir=\"%s\"",
       fhi::DashboardIsDev(),
@@ -213,7 +231,7 @@ AnalyseStats <- function() {
   fhi::RenderExternally(
     input = system.file("extdata/stats.Rmd", package = "sykdomspuls"),
     output_file = "stats.pdf",
-    output_dir = fhi::DashboardFolder("results", file.path(LatestRawID(), "stats")),
+    output_dir = fd::path("results", file.path(latest_date(), "stats")),
     params = sprintf(
       "dev=%s,package_dir=\"%s\"",
       fhi::DashboardIsDev(),
@@ -226,7 +244,7 @@ AnalyseSkabb <- function() {
   fhi::RenderExternally(
     input = system.file("extdata/skabb.Rmd", package = "sykdomspuls"),
     output_file = "skabb.pdf",
-    output_dir = fhi::DashboardFolder("results", file.path(LatestRawID(), "skabb")),
+    output_dir = fd::path("results", file.path(latest_date(), "skabb")),
     params = sprintf(
       "dev=%s,package_dir=\"%s\"",
       fhi::DashboardIsDev(),
@@ -235,10 +253,28 @@ AnalyseSkabb <- function() {
   )
 }
 
+#' AnalysesLogs
+#' @export
+AnalyseLogs <- function() {
+  fhi::RenderExternally(
+    input = system.file("extdata/logs.Rmd", package = "sykdomspuls"),
+    output_file = "logs.pdf",
+    output_dir = fd::path("results", file.path(latest_date(), "stats")),
+    params = sprintf(
+      "dev=%s,package_dir=\"%s\"",
+      fhi::DashboardIsDev(),
+      getwd()
+    )
+  )
+}
+
+
 #' AnalysesSecondary
 #' @export
 AnalysesSecondary <- function() {
   AnalyseEmerg()
-  AnalyseStats()
   AnalyseSkabb()
+  AnalyseStats()
+
+  return()
 }

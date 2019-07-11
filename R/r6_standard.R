@@ -50,14 +50,15 @@ standard <-  R6::R6Class(
                          )
                )
          ,TRUE)
-      DBI::dbExecute(
+      try(
+          DBI::dbExecute(
                    tags[[1]]$results_x$conn,
                    glue::glue(
                              "ALTER TABLE `{tb}` ADD INDEX `ind3` (`tag`(10), `age`(10), `granularity_time`(10), `county` (10))",
                              tb=tags[[1]]$results_x$db_table
                          )
-               )
-         ,TRUE)
+               ) , TRUE
+      )
       try(
           DBI::dbExecute(
                    tags[[1]]$results_x$conn,
@@ -95,7 +96,7 @@ standard <-  R6::R6Class(
                          )
                )
          ,TRUE)
-
+      
 
       
     },

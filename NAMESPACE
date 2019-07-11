@@ -3,6 +3,7 @@
 export("%>%")
 export(AddXToWeekly)
 export(AnalyseLog)
+export(AnalyseLogs)
 export(AnalyseStats1)
 export(AnalysesSecondary)
 export(CONFIG)

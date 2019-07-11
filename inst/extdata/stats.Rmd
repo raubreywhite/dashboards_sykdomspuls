@@ -57,36 +57,6 @@ NorwayScale <- function(x, ...){
 
 ```
 
-\newpage
-
-# Time taken
-
-```{r echo=FALSE, fig.height=11.69*0.6, message=FALSE, warning=FALSE}
-  qs <- AnalyseLog()
-```
-
-
-## Overview
-
-`r tufte::margin_note(glue::glue('
-                                    We monitor the number of time taken to ensure that \
-                                    there are no issues.
-                                    '))`
-
-```{r echo=FALSE, fig.height=11.69*0.6, message=FALSE, warning=FALSE}
-  print(qs[["overview"]])
-```
-
-\newpage
-
-## Details
-
-```{r echo=FALSE,  fig.fullwidth=TRUE, fig.height=11.69*0.6, fig.width=8.27*0.9, message=FALSE, warning=FALSE}
-  print(qs[["details"]])
-```
-
-\newpage
-
 # Number of alerts
 
 ```{r echo=FALSE, fig.fullwidth=TRUE, fig.height=11.69*0.65, fig.width=8.27*0.9, message=FALSE, warning=FALSE, paged.print=FALSE, results='asis'}

@@ -193,7 +193,7 @@ create_plots <- function(conf, mem_schema=NULL){
 
   for(loc in unique(data[, location])){
     data_location = data[location==loc]
-    title = paste(" Nivå på influensaintensitet målt ved andel legebesøk for ILS ",
+    title = paste(" Niv\u00E5 p\u00E5 influensaintensitet m\u00E5lt ved andel legebes\u00F8k for ILS ",
                   current_season,
                   "i",
                   fhi::get_location_name(loc))
@@ -211,10 +211,10 @@ create_plots <- function(conf, mem_schema=NULL){
     weeks <- c(40:52,1:latest_week)
   }
   counties <- fhidata::norway_map_counties
-  data[, status:= ifelse(rate <= low, "Svært lav",
+  data[, status:= ifelse(rate <= low, "Sv\u00E6rt lav",
                          ifelse(rate <= medium, "Lav",
                                 ifelse( rate <= high, "Middels",
-                                       ifelse (rate <= very_high, "Høy", "Svært høy")
+                                       ifelse (rate <= very_high, "H\u00F8y", "Sv\u00E6rt h\u00F8y")
                                        )
                                 )
                          )]
@@ -236,11 +236,11 @@ create_plots <- function(conf, mem_schema=NULL){
                    color="black", size=0.1) +
       theme_void() +
       coord_quickmap() +
-      scale_fill_manual("Level", values=c("Svært lav"=fhiplot::vals$cols$map_sequential[["MS5"]],
+      scale_fill_manual("Niv\u00E5", values=c("Sv\u00E6rt lav"=fhiplot::vals$cols$map_sequential[["MS5"]],
                                           "Lav"=fhiplot::vals$cols$map_sequential[["MS4"]],
                                           "Middels"=fhiplot::vals$cols$map_sequential[["MS3"]],
-                                          "Høy"=fhiplot::vals$cols$map_sequential[["MS2"]],
-                                          "Svært høy"=fhiplot::vals$cols$map_sequential[["MS1"]]
+                                          "H\u00F8y"=fhiplot::vals$cols$map_sequential[["MS2"]],
+                                          "Sv\u00E6rt h\u00F8y"=fhiplot::vals$cols$map_sequential[["MS1"]]
                                           )) +
       ggrepel::geom_label_repel(data=cnames_country, aes(long, lat, label = rate), size=2)
     
@@ -250,11 +250,11 @@ create_plots <- function(conf, mem_schema=NULL){
                    color="black", size=0.1) +
       theme_void() +
       coord_quickmap() +
-       scale_fill_manual("Level", values=c("Svært lav"=fhiplot::vals$cols$map_sequential[["MS5"]],
+       scale_fill_manual("Niv\u00E5", values=c("Sv\u00E6rt lav"=fhiplot::vals$cols$map_sequential[["MS5"]],
                                           "Lav"=fhiplot::vals$cols$map_sequential[["MS4"]],
                                           "Middels"=fhiplot::vals$cols$map_sequential[["MS3"]],
-                                          "Høy"=fhiplot::vals$cols$map_sequential[["MS2"]],
-                                          "Svært høy"=fhiplot::vals$cols$map_sequential[["MS1"]]
+                                          "H\u00F8y"=fhiplot::vals$cols$map_sequential[["MS2"]],
+                                          "Sv\u00E6rt h\u00F8y"=fhiplot::vals$cols$map_sequential[["MS1"]]
                                           )) +
       geom_label(data=cnames_osl_ak, aes(long, lat, label = rate), size=2) +
       theme(legend.position = "none") +
