@@ -39,28 +39,66 @@ standard <-  R6::R6Class(
           "ALTER TABLE `{tb}` ADD INDEX `ind1` (`granularity_time`(10),`tag`(10),`location`(10),`age`(10))",
           tb=tags[[1]]$results_x$db_table
         )
-      ),TRUE)
-
+        ),TRUE)
+      
       try(
-        DBI::dbExecute(
-          tags[[1]]$results_x$conn,
-          glue::glue(
-            "ALTER TABLE `{tb}` ADD INDEX `ind2` (`granularity_time`(10),`wkyr`(10))",
-            tb=tags[[1]]$results_x$db_table
-          )
-        )
-        ,TRUE)
-
+          DBI::dbExecute(
+                   tags[[1]]$results_x$conn,
+                   glue::glue(
+                             "ALTER TABLE `{tb}` ADD INDEX `ind2` (`granularity_time`(10),`wkyr`(10))",
+                             tb=tags[[1]]$results_x$db_table
+                         )
+               )
+         ,TRUE)
       try(
-        DBI::dbExecute(
-          tags[[1]]$results_x$conn,
-          glue::glue(
-            "ALTER TABLE `{tb}` ADD INDEX `ind3` (`wkyr`(10))",
-            tb=tags[[1]]$results_x$db_table
-          )
-        )
-        ,TRUE)
+          DBI::dbExecute(
+                   tags[[1]]$results_x$conn,
+                   glue::glue(
+                             "ALTER TABLE `{tb}` ADD INDEX `ind3` (`tag`(10), `age`(10), `granularity_time`(10), `county` (10))",
+                             tb=tags[[1]]$results_x$db_table
+                         )
+               ) , TRUE
+      )
+      try(
+          DBI::dbExecute(
+                   tags[[1]]$results_x$conn,
+                   glue::glue(
+                             "ALTER TABLE `{tb}` ADD INDEX `ind4` (`tag`(10), `age`(10), `granularity_time`(10), `granularity_geo` (10))",
+                             tb=tags[[1]]$results_x$db_table
+                         )
+               )
+         ,TRUE)
+      try(
+          DBI::dbExecute(
+                   tags[[1]]$results_x$conn,
+                   glue::glue(
+                             "ALTER TABLE `{tb}` ADD INDEX `ind4` (`tag`(10), `age`(10), `granularity_time`(10), `location` (10))",
+                             tb=tags[[1]]$results_x$db_table
+                         )
+               )
+         ,TRUE)
+      
+      try(
+          DBI::dbExecute(
+                   tags[[1]]$results_x$conn,
+                   glue::glue(
+                             "ALTER TABLE `{tb}` ADD INDEX `ind4` (`tag`(10), `age`(10), `granularity_time`(10), `location` (10))",
+                             tb=tags[[1]]$results_x$db_table
+                         )
+               )
+         ,TRUE)
+      try(
+          DBI::dbExecute(
+                   tags[[1]]$results_x$conn,
+                   glue::glue(
+                             "ALTER TABLE `{tb}` ADD INDEX `ind5` (`wkyr`(10), `granularity_time`(10), `granularity_geo`(10), `tag` (10))",
+                             tb=tags[[1]]$results_x$db_table
+                         )
+               )
+         ,TRUE)
+      
 
+      
     },
     save_internal_dashboard = function(){
 

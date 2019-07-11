@@ -10,6 +10,8 @@ runtime: shiny
 #options(shiny.port=4989)
 #options(shiny.host="0.0.0.0")
 #rmarkdown::run("/git/dashboards/dashboards_sykdomspuls/inst/shiny/flexdashboard.Rmd", shiny_args = list(port = 4989))
+                                        #options(shiny.trace=TRUE)
+
 library(flexdashboard)
 library(ggplot2)
 library(ggrepel)
@@ -82,15 +84,14 @@ Nyheter {.storyboard}
 ### Fra august 2016 er det en økning i antall konsultasjoner i aldersgruppen 15-19 år grunnet behov for sykemelding ved fravær i den videregående skole
 
 ```{r, include=FALSE}
-pd <- pool %>% tbl("resYearLine") %>%
-      filter(type == "respiratoryinternal" & age=="15-19" & location=="Norge") %>% collect()
+pd <- pool %>% tbl("spuls_standard_results") %>%
+    filter(tag == "respiratoryinternal" & age=="15-19" & location=="Norge" &
+           granularity_time == "weekly") %>% collect()
 setDT(pd)
 suppressWarnings(pd[, top := max(c(n, threshold4), na.rm = T) + 2])
 suppressWarnings(pd[, bottom := 0])
-print(pd)
-
 output$storyboard1 <- renderPlot({
-  q <- MakeLineThresholdPlot(pd,x="displayDay",dataVal="n",L1="bottom",L2="threshold2",L3="threshold4",L4="top",allPoints = FALSE, title="Øvre-luftvei diagnose i 15-19 åringer i Norge", pointShift = -3.5, weekNumbers=TRUE, step=FALSE, GetCols=GetCols)
+  q <- MakeLineThresholdPlot(pd,x="date",dataVal="n",L1="bottom",L2="threshold2",L3="threshold4",L4="top",allPoints = FALSE, title="Øvre-luftvei diagnose i 15-19 åringer i Norge", pointShift = -3.5, weekNumbers=TRUE, step=FALSE, GetCols=GetCols)
   q <- q + geom_rect(data=pd[1,],aes(xmin=as.Date("2016-08-01"),xmax=as.Date("2090-08-01"),ymin=-Inf,ymax=Inf),fill="black",alpha=0.2)
   q
 })
@@ -117,14 +118,14 @@ Oversikt (ukentlig)
 
 ```{r, include=FALSE}
 
-
 weeklyBarometerPlotBrushData <- reactive({
   x_tag <- input$weeklyBarometerType
   x_location <- input$weeklyBarometerCounty
   x_age <- input$weeklyBarometerAge
-  retData <- pool %>% tbl("resYearLine") %>%
+  retData <- pool %>% tbl("spuls_standard_results") %>%
         filter(tag == x_tag & 
                location== x_location &
+               granularity_time =="weekly" &
                age== x_age) %>% collect()
   setDT(retData)
   return(retData)
@@ -141,29 +142,33 @@ output$weeklyBarometerPlotBrush <- renderPlot({
     )
   }
   
-  MakeLineBrushPlot(pd,x="displayDay",dataVal="n",L2="threshold2",L3="threshold4", GetCols=GetCols)
+  MakeLineBrushPlot(pd,x="date",dataVal="n",L2="threshold2",L3="threshold4", GetCols=GetCols)
   
 })
 
 weeklyBarometerPlotData <- reactive({
   if (is.null(input$weeklyBarometerCounty)) {
-    x_table <- "resYearLine"
+    x_table <- "spuls_standard_results"
     x_tag <- GLOBAL$weeklyTypes[1]
     x_age <- GLOBAL$weeklyAges[1]
     
     retData <- pool %>% tbl(x_table) %>%
-        filter(tag == x_tag & 
+        filter(tag == x_tag &
+               granularity_time == "weekly" &
+               (granularity_geo == "county" | granularity_geo == "Norge") &
                age==x_age) %>% collect()
   } else if(input$weeklyBarometerCounty=="Norge"){
-    x_table <- "resYearLine"
+    x_table <- "spuls_standard_results"
     x_tag <- input$weeklyBarometerType
     x_age <- input$weeklyBarometerAge
     
     retData <- pool %>% tbl(x_table) %>%
-        filter(tag == x_tag & 
+      filter(tag == x_tag &
+               granularity_time == "weekly" &
+               (granularity_geo == "county" | granularity_geo == "Norge") &
                age==x_age) %>% collect()
   } else {
-    x_table <- "resYearLineMunicip"
+    x_table <- "spuls_standard_results"
     x_tag <- input$weeklyBarometerType
     x_age <- input$weeklyBarometerAge
     x_county <- input$weeklyBarometerCounty
@@ -171,6 +176,7 @@ weeklyBarometerPlotData <- reactive({
     retData <- pool %>% tbl(x_table) %>%
         filter(tag == x_tag & 
                age==x_age &
+               granularity_time == "weekly" &
                county==x_county) %>% collect()
   }
   setDT(retData)
@@ -181,24 +187,24 @@ weeklyBarometerPlotData <- reactive({
 MakeBarometerPlot <- function(pd, title, GetCols){
   locationNameOrder <- c("1 uke",rev(unique(pd$locationName))," 1 uke")
   
-  skeleton <- data.table(expand.grid(seq(min(pd$displayDay)-6,max(pd$displayDay),by=1),locationNameOrder,stringsAsFactors = FALSE))
-  setnames(skeleton,c("displayDay","locationName"))
-  pd <- merge(skeleton,pd,by=c("locationName","displayDay"),all.x=TRUE)
+  skeleton <- data.table(expand.grid(seq(min(pd$date)-6,max(pd$date),by=1),locationNameOrder,stringsAsFactors = FALSE))
+  setnames(skeleton,c("date","locationName"))
+  pd <- merge(skeleton,pd,by=c("locationName","date"),all.x=TRUE)
   pd[pd$locationName=="1 uke",]$status <- rep(c(rep("White",7),rep("Black",7)),sum(pd$locationName=="1 uke"))[1:sum(pd$locationName=="1 uke")]
   pd[pd$locationName==" 1 uke",]$status <- rep(c(rep("White",7),rep("Black",7)),sum(pd$locationName==" 1 uke"))[1:sum(pd$locationName==" 1 uke")]
   
   pd$printWeek <- ""
   pd$printWeekYear <- ""
-  pd[pd$locationName %in% c("1 uke"," 1 uke"),]$printWeek <- format.Date(pd[pd$locationName %in% c("1 uke"," 1 uke"),]$displayDay,"%V")
-  pd[pd$locationName %in% c("1 uke"," 1 uke"),]$printWeekYear <- format.Date(pd[pd$locationName %in% c("1 uke"," 1 uke"),]$displayDay,"%V/%G")
+  pd[pd$locationName %in% c("1 uke"," 1 uke"),]$printWeek <- format.Date(pd[pd$locationName %in% c("1 uke"," 1 uke"),]$date,"%V")
+  pd[pd$locationName %in% c("1 uke"," 1 uke"),]$printWeekYear <- format.Date(pd[pd$locationName %in% c("1 uke"," 1 uke"),]$date,"%V/%G")
   
-  setorder(pd,locationName,displayDay)
+  setorder(pd,locationName,date)
   indexErase <- which(c(1:nrow(pd)%%7+1)!=4)
   pd[indexErase,]$printWeek <- ""
   pd[indexErase,]$printWeekYear <- ""
   
   pd$locationName <- factor(pd$locationName,levels=locationNameOrder)
-  setorder(pd,locationName,-displayDay)
+  setorder(pd,locationName,-date)
   varNames <- "status"
   pd$status <- zoo::na.locf(pd$status)
 
@@ -210,12 +216,12 @@ MakeBarometerPlot <- function(pd, title, GetCols){
   if(includeHigh) colours <- c(colours,GetCols()[1])
   if(includeMedium) colours <- c(colours,GetCols()[2])
   
-  limits <- range(pd$displayDay)
+  limits <- range(pd$date)
   limitsSize <- max(1,(limits[2] - limits[1])*0.005)
   limits[1] <- limits[1] - limitsSize
   limits[2] <- limits[2] + limitsSize
   
-  q <- ggplot(pd,aes(x=displayDay,y=locationName))
+  q <- ggplot(pd,aes(x=date,y=locationName))
   q <- q + geom_tile(aes(fill = "L1"), alpha = 0.0)
   q <- q + geom_tile(aes(fill = "L2"), alpha = 0.0)
   q <- q + geom_tile(aes(fill = "L3"), alpha = 0.0)
@@ -240,7 +246,7 @@ MakeBarometerPlot <- function(pd, title, GetCols){
     breaksDF <- breaksDF[seq(1,nrow(breaksDF),64),]
   }
   breaksDF$printLabel <- breaksDF$printWeekYear
-  q <- q + scale_x_date("", breaks = breaksDF$displayDay,  labels = breaksDF$printLabel)
+  q <- q + scale_x_date("", breaks = breaksDF$date,  labels = breaksDF$printLabel)
   q <- q + scale_y_discrete("")
   q <- q + scale_fill_manual(values=GetCols(),labels=c(
     "Betydelig høyere enn forventet",
@@ -263,10 +269,10 @@ output$weeklyBarometerPlot <- renderPlot({
   }
   
   if(!is.null(input$weeklyBarometerBrush)){
-    pd <- pd[pd$displayDay>=input$weeklyBarometerBrush$xmin & pd$displayDay<=input$weeklyBarometerBrush$xmax,]
+    pd <- pd[pd$date>=input$weeklyBarometerBrush$xmin & pd$date<=input$weeklyBarometerBrush$xmax,]
   }
   
-  pd <- pd[,c("displayDay","locationName","status"),with=F]
+  pd <- pd[,c("date","locationName","status"),with=F]
   t1 <- names(GLOBAL$weeklyTypes)[GLOBAL$weeklyTypes==input$weeklyBarometerType]
   t2 <- GetLocationName(input$weeklyBarometerCounty)
   title <- paste0(t1, " i ",t2, " (",input$weeklyBarometerAge," alder)\n")
@@ -286,8 +292,7 @@ selectInput("weeklyBarometerType", "Sykdom/Symptom", as.list(GLOBAL$weeklyTypes)
 
 selectInput("weeklyBarometerAge", "Alder", as.list(GLOBAL$weeklyAges), selected = "Totalt")
 
-selectInput("weeklyBarometerCounty", "Fylke", as.list(GLOBAL$weeklyCounties), selected = GLOBAL$weeklyCounties[1])
-
+selectInput("weeklyBarometerCounty", "Fylke", as.list(GLOBAL$weeklyCounties), selected = GLOBAL$weeklyCounties[length(GLOBAL$weeklyCounties)])
 ```
 
 Row {data-height=800 .tabset}
@@ -328,13 +333,26 @@ Row {data-height=800 .tabset}
 ### Fylker
 
 ```{r}
+
 #tableOutput("weeklySignalTableDF")
 renderTable({
   x_wkyr <- input$weeklyOutbreakWeek
-  data <- pool %>% tbl("outbreaksDF") %>%
-        filter(tag != "influensa" & 
-               wkyr==x_wkyr) %>% collect()
-  setDT(data)
+  
+  data_county <- pool %>% tbl("spuls_standard_results") %>%
+    filter(tag != "influensa" &
+             granularity_time == "weekly" &
+             granularity_geo == "county" &
+             wkyr==x_wkyr) %>% collect()
+  data_municipality <- pool %>% tbl("spuls_standard_results") %>%
+        filter(tag != "influensa" &
+                 granularity_time == "weekly" &
+                 granularity_geo == "municip" &
+                 wkyr==x_wkyr) %>% collect()
+  setDT(data_county)
+  setDT(data_municipality)
+  data <- GenerateOutbreakListInternal(df=data_county,
+                                       dk=data_municipality, saveFiles=NULL)
+  data <- data[["df"]]
   
   if(input$weeklyOutbreakHideEmpty){
     data <- data[data$High!="",]
@@ -360,14 +378,25 @@ striped=TRUE)
 ### Kommuner
 
 ```{r}
-#tableOutput("weeklySignalTableDF")
+#tableOutput("weeklySignalTableDK")
 renderTable({
   x_wkyr <- input$weeklyOutbreakWeek
-  data <- pool %>% tbl("outbreaksDK") %>%
-        filter(tag != "influensa" & 
-               wkyr==x_wkyr) %>% collect()
-  setDT(data)
   
+  data_county <- pool %>% tbl("spuls_standard_results") %>%
+    filter(tag != "influensa" &
+             granularity_time == "weekly" &
+             granularity_geo == "county" &
+             wkyr==x_wkyr) %>% collect()
+  data_municipality <- pool %>% tbl("spuls_standard_results") %>%
+    filter(tag != "influensa" &
+             granularity_time == "weekly" &
+             granularity_geo == "municip" &
+             wkyr==x_wkyr) %>% collect()
+  setDT(data_county)
+  setDT(data_municipality)
+  data <- GenerateOutbreakListInternal(df=data_county,
+                                       dk=data_municipality, saveFiles=NULL)
+  data <- data[["dk"]]
   if(input$weeklyOutbreakHideEmpty){
     data <- data[data$High!="",]
   }
@@ -376,6 +405,7 @@ renderTable({
   } else if(input$weeklyOutbreakSort=="cases"){
     setorder(data,-sumCum)
   }
+  
   if(nrow(data)==0) return(data.frame("Obs"="Ingen utbrudd denne uken"))
   data$wkyr <- NULL
   data$sumCum[is.na(data$sumCum)] <- 0
@@ -421,17 +451,17 @@ Antall (ukentlig)
 ## weekly
 weeklyPlotData <- reactive({
   if (is.null(input$weeklyCounty) | is.null(input$weeklyMunicip)) {
-    x_tbl <- "resYearLine"
+    x_tbl <- "spuls_standard_results"
     x_tag <- GLOBAL$weeklyTypes[1]
     x_location <- "Norge"
     x_age <- "Totalt"
   } else if (input$weeklyMunicip %in% c("Norge", "Fylke")) {
-    x_tbl <- "resYearLine"
+    x_tbl <- "spuls_standard_results"
     x_tag <- input$weeklyType
     x_location <- input$weeklyCounty
     x_age <- input$weeklyAge
   } else {
-    x_tbl <- "resYearLineMunicip"
+    x_tbl <- "spuls_standard_results"
     x_tag <- input$weeklyType
     x_location <- input$weeklyMunicip
     x_age <- input$weeklyAge
@@ -439,7 +469,8 @@ weeklyPlotData <- reactive({
   retData <- pool %>% tbl(x_tbl) %>%
         filter(tag == x_tag & 
                location== x_location &
-               age== x_age) %>% collect()
+               granularity_time=="weekly" &
+               age == x_age) %>% collect()
   setDT(retData)
   
   if(!is.null(retData)){
@@ -461,7 +492,7 @@ output$weeklyNumberPlotBrush <- renderPlot({
     )
   }
   
-  MakeLineBrushPlot(pd,x="displayDay",dataVal="n",L2="threshold2",L3="threshold4", GetCols=GetCols)
+  MakeLineBrushPlot(pd,x="date",dataVal="n",L2="threshold2",L3="threshold4", GetCols=GetCols)
   
 })
 
@@ -476,7 +507,7 @@ output$weeklyNumberPlotBrush <- renderPlot({
     }
     
     if(!is.null(input$weeklyNumberBrush)){
-      pd <- pd[pd$displayDay>=input$weeklyNumberBrush$xmin & pd$displayDay<=input$weeklyNumberBrush$xmax,]
+      pd <- pd[pd$date>=input$weeklyNumberBrush$xmin & pd$date<=input$weeklyNumberBrush$xmax,]
     }
     
     t1 <- names(GLOBAL$weeklyTypes)[GLOBAL$weeklyTypes==input$weeklyType]
@@ -488,11 +519,11 @@ output$weeklyNumberPlotBrush <- renderPlot({
     title <- paste0(t1, " i ",t2, " (",input$weeklyAge," alder)\n")
     
     if(input$weeklyValue=="consults"){
-      return(MakeLineThresholdPlot(pd,x="displayDay",dataVal="n",L1="bottom",L2="threshold2",L3="threshold4",L4="top",title=title, pointShift = -3.5, weekNumbers=TRUE, step=GetStepGraph(), GetCols=GetCols))
+      return(MakeLineThresholdPlot(pd,x="date",dataVal="n",L1="bottom",L2="threshold2",L3="threshold4",L4="top",title=title, pointShift = -3.5, weekNumbers=TRUE, step=GetStepGraph(), GetCols=GetCols))
     } else {
       val <- stringr::str_extract(input$weeklyValue,"[0-9]$")
       
-      MakeLineExcessPlot(pd,x="displayDay",dataVal=paste0("cumE",val),dataZ=paste0("cumZ",val),dataCIL=paste0("cumL",val), dataCIU=paste0("cumU",val),title=title, pointShift = -3.5, weekNumbers=TRUE, step=FALSE, GetCols=GetCols,allPoints = F)
+      MakeLineExcessPlot(pd,x="date",dataVal=paste0("cumE",val),dataZ=paste0("cumZ",val),dataCIL=paste0("cumL",val), dataCIU=paste0("cumU",val),title=title, pointShift = -3.5, weekNumbers=TRUE, step=FALSE, GetCols=GetCols,allPoints = F)
     }
   })
   
@@ -547,7 +578,7 @@ selectInput("weeklyType", "Sykdom/Symptom", as.list(GLOBAL$weeklyTypes), selecte
 
 selectInput("weeklyAge", "Alder", as.list(GLOBAL$weeklyAges), selected = "Totalt")
 
-selectInput("weeklyCounty", "Fylke", as.list(GLOBAL$weeklyCounties), selected = GLOBAL$weeklyCounties[1])
+selectInput("weeklyCounty", "Fylke", as.list(GLOBAL$weeklyCounties), selected = GLOBAL$weeklyCounties[length( GLOBAL$weeklyCounties)])
 
 weeklyMunicipChoices <- reactive({
   if (is.null(input$weeklyCounty))
@@ -574,19 +605,22 @@ Antall (daglige)
 
 ```{r, include=FALSE}
 
+start_date <- GLOBAL$dateMinRestrictedRecent
 dailyPlotBrushData <- reactive({
   x_tag <- input$dailyType
   x_location <- input$dailyCounty
   x_age <- input$dailyAge
   
   retData <- pool %>%
-    tbl("resYearLine") %>%
+    tbl("spuls_standard_results") %>%
     filter(tag == x_tag &
-             location == x_location &
-             age == x_age) %>%
+           location == x_location &
+           granularity_time == "weekly" &
+           date >= start_date &
+           age == x_age) %>%
     collect()
   setDT(retData)
-  retData <- retData[retData$displayDay >= GLOBAL$dateMinRestrictedRecent,]
+  retData <- retData[retData$date >= GLOBAL$dateMinRestrictedRecent,]
   
   return(retData)
 })
@@ -602,7 +636,7 @@ output$dailyPlotBrush <- renderPlot({
     )
   }
   
-  MakeLineBrushPlot(pd,x="displayDay",dataVal="n",L2="threshold2",L3="threshold4", GetCols=GetCols)
+  MakeLineBrushPlot(pd,x="date",dataVal="n",L2="threshold2",L3="threshold4", GetCols=GetCols)
   
 })
 
@@ -612,9 +646,11 @@ dailyPlotData <- reactive({
   x_age <- input$dailyAge
   
   retData <- pool %>%
-    tbl("resRecentLine") %>%
+    tbl("spuls_standard_results") %>%
     filter(tag == x_tag &
              location == x_location &
+             granularity_time == "daily" &
+             date >= start_date &
              age == x_age) %>%
     collect()
   setDT(retData)
@@ -707,15 +743,16 @@ Influensa
 ===================================== 
 
 ```{r, include=FALSE}
-
-  current_season <- get_season(Sys.Date())
-  mem_schema$db_connect(CONFIG$DB_CONFIG)
-
-
+current_season <- get_season(Sys.Date())
 influensa_data <- reactive({
   x_location <- input$influensaCounty
 
-  data <- mem_schema$get_data_db(season==current_season, location==x_location)
+  data <- pool %>%
+    tbl("spuls_mem_results") %>%
+    filter(season == current_season &
+             location == x_location &
+             tag == "influensa") %>%
+        collect()
   setDT(data)
   return(data)
   })
@@ -730,7 +767,7 @@ output$influensa_plot <- renderPlot({
   })
 
 
-  
+
 
 ```
 

@@ -23,15 +23,15 @@ fhi::Log("versionPackage", packageDescription("sykdomspuls")$Version)
 
 if(fd::config$is_dev) Sys.setenv(ONLY_RUN_LATEST_YEAR=TRUE)
 
-## fhi::Log("cleanBefore")
+fhi::Log("cleanBefore")
 if (!UpdateData()) {
    fhi::DashboardMsg("Have not run analyses and exiting")
    q(save = "no", status = 21)
 }
 DeleteOldDatasets()
-## fhi::Log("cleanAfter")
+fhi::Log("cleanAfter")
 
-
+fhi::Log("analyse1Before")
 for (model_name in names(sykdomspuls::CONFIG$MODELS)){
   fd::msg(paste("starting", model_name))
 
@@ -47,7 +47,7 @@ for (model_name in names(sykdomspuls::CONFIG$MODELS)){
 
   fd::msg(paste("Ending", model_name))
 }
-
+fhi::Log("analyse1After")
 
 ## GENERATE LIST OF OUTBREAKS
 fhi::DashboardMsg("Generate list of outbreaks")
@@ -61,10 +61,6 @@ GenerateOutbreakListExternal()
 AnalysesSecondary()
 fhi::Log("analyse2After")
 
-fhi::DashboardMsg("Send data to DB")
-fhi::Log("save2Before")
-SaveShinyAppDataToDB()
-fhi::Log("save2After")
 
 # Done with analyses
 fhi::DashboardMsg("Done with all analyses")
@@ -74,48 +70,13 @@ cat("done", file = "/data_app/sykdomspuls/done.txt")
 
 ## SENDING OUT EMAILS
 EmailNotificationOfNewResults()
-
+fhi::Log("Done")
 ## Saving log
 log <- LogGet()
 log[[length(log) + 1]] <- fhi::LogGet()
 saveRDS(log, fhi::DashboardFolder("results", "log.RDS"))
 
+AnalyseLogs()
+
 fhi::DashboardMsg("Finished analyses and exiting")
 if (!fhi::DashboardIsDev()) quit(save = "no", status = 0)
->>>>>>> richard-fork/master
-
-## ## GENERATE LIST OF OUTBREAKS
-## fhi::DashboardMsg("Generate list of outbreaks")
-## fhi::Log("analyse2Before")
-## GenerateOutbreakListInternal()
-## GenerateOutbreakListInternal(
-##   saveFiles = fhi::DashboardFolder("results", "externalapi/outbreaks.RDS"),
-##   useType = TRUE
-## )
-## GenerateOutbreakListExternal()
-## AnalysesSecondary()
-## fhi::Log("analyse2After")
-
-## fhi::DashboardMsg("Send data to DB")
-## fhi::Log("save2Before")
-## SaveShinyAppDataToDB()
-## fhi::Log("save2After")
-
-## # Done with analyses
-## fhi::DashboardMsg("Done with all analyses")
-
-## CreateLatestDoneFile()
-## cat("done", file = "/data_app/sykdomspuls/done.txt")
-
-## ## SENDING OUT EMAILS
-## EmailNotificationOfNewResults()
-
-## ## Saving log
-## log <- LogGet()
-## log[[length(log) + 1]] <- fhi::LogGet()
-## saveRDS(log, fhi::DashboardFolder("results", "log.RDS"))
-
-## fhi::DashboardMsg("Finished analyses and exiting")
-## if (!fhi::DashboardIsDev()) quit(save = "no", status = 0)
-
-## # dk = readRDS(fhi::DashboardFolder("results", "resYearLineMunicip.RDS"))

@@ -4,7 +4,7 @@
 \alias{create_plots}
 \title{create MEM season plots}
 \usage{
-create_plots(conf)
+create_plots(conf, mem_schema = NULL)
 }
 \arguments{
 \item{conf}{A mem model configuration object}

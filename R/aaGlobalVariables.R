@@ -47,7 +47,7 @@ CONFIG$DB_CONFIG <- list(
 )
 
 CONFIG$MEM <- rbind(
-  data.table(
+ data.table(
     tag = "influensa",
     syndrome = "influensa",
     alertInternal = TRUE,

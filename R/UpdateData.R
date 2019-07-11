@@ -56,8 +56,8 @@ DeleteOldDatasets <-
 #' @import fhi
 #' @export IdentifyDatasets
 IdentifyDatasets <-
-  function(raw = list.files(fhi::DashboardFolder("data_raw"), "^partially_formatted_"),
-             clean = list.files(fhi::DashboardFolder("data_clean"), "done_")) {
+  function(raw = list.files(fd::path("data_raw"), "^partially_formatted_"),
+             clean = list.files(fd::path("data_clean"), "done_")) {
     res <- IdentifyAllDatasets(raw = raw, clean = clean)
     if (nrow(res) > 0) {
       res <- res[nrow(res)]
