@@ -50,14 +50,6 @@ FormatDatasetWeekly <- function(data, weeklyDenominatorFunction = sum) {
 
   data <- data[year >= 2006 & week %in% 1:52]
   data[, trend := as.numeric(date) - 13000]
-  data <- data[, .(
-    n = sum(n),
-    denominator = weeklyDenominatorFunction(denominator),
-    HelligdagIndikator = mean(HelligdagIndikator),
-    trend = mean(trend)
-  ),
-  by = .(date, year, week)
-  ]
 
   data <- data[, .(
     n = sum(n),
@@ -145,13 +137,11 @@ QuasipoissonTrainPredictData <- function(
   # remove.highcounts: number between 0 and 1 of fraction of high counts to be removed from prediction, to remove impact of earlier outbreaks (default: 0)
   # sign.level: significance level for the prediction intervals (default: 5%)
 
-  datasetTrain[, year := as.numeric(format.Date(date, "%G"))] # Week-based year, instead of normal year (%Y)
-  datasetTrain[, week := as.numeric(format.Date(date, "%V"))] # Week-based year, instead of normal year (%Y)
-  # datasetTrain[,week := data.table::isoweek(date)] #ISO-week, instead of others (%W and %U)
+  datasetTrain[, year := fhi::isoyear_n(date)] # Week-based year, instead of normal year (%Y)
+  datasetTrain[, week := fhi::isoweek_n(date)] # Week-based year, instead of normal year (%Y)
 
-  datasetPredict[, year := as.numeric(format.Date(date, "%G"))] # Week-based year, instead of normal year (%Y)
-  datasetPredict[, week := as.numeric(format.Date(date, "%V"))] # Week-based year, instead of normal year (%Y)
-  # datasetPredict[,week := data.table::isoweek(date)] #ISO-week, instead of others (%W and %U)
+  datasetPredict[, year := fhi::isoyear_n(date)] # Week-based year, instead of normal year (%Y)
+  datasetPredict[, week := fhi::isoweek_n(date)] # Week-based year, instead of normal year (%Y)
 
   # SET REGRESSION FORMULA:
   if (isDaily) {

@@ -115,7 +115,7 @@ quasipoission <-  R6::R6Class(
       message(glue::glue("Running {age}"))
 
       data <- readRDS(file = file.path(base_folder, sprintf("%s_%s_%s_cleaned.RDS", latest_id, conf$tag, age)))
-      sykdomspuls::load_stack_schema(conf = conf, data=data, schema = stack_x)
+      load_stack_schema(conf = conf, data=data, schema = stack_x)
 
       run_stack <- stack_x$get_data_dt()[exists_in_db==FALSE]
       run_stack <- split(run_stack,seq(nrow(run_stack)))
@@ -144,7 +144,7 @@ quasipoission <-  R6::R6Class(
       res <- clean_post_analysis(res=res, schema = stack_x)
 
       results_x$db_upsert_load_data_infile(res[,names(results_x$db_field_types),with=F])
-      stack_x$db_upsert_load_data_infile(stack_x$dt[uuid %in% unique(res$uuid),names(stack_x$db_field_types),with=F])
+      stack_x$db_upsert_load_data_infile(stack_x$dt[uuid %in% unique(res$uuid),names(stack_x$db_field_types),with=F], drop_indexes=c("ind1","ind2","ind3"))
 
       rm("res"); gc()
     },

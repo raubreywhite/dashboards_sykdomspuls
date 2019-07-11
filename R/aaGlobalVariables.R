@@ -380,7 +380,6 @@ VARS$REQ_RESULTS_BASIC <- c(
 )
 
 VARS$REQ_RESULTS_FULL <- c(
-  "purpose",
   "v",
   "granularity_time",
   "granularity_geo",
