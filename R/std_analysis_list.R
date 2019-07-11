@@ -166,7 +166,7 @@ load_stack_schema <- function(conf, data, schema) {
   analyses[dates, on="year_predict_min==year", date_predict_min:=date_min]
   analyses[dates, on="year_predict_max==year", date_predict_max:=date_max]
 
-  if(Sys.getenv("ONLY_RUN_LATEST_YEAR","FALSE")=="TRUE") analyses <- analyses[year==max(year)]
+  if(Sys.getenv("ONLY_RUN_LATEST_YEAR","FALSE")=="TRUE") analyses <- analyses[year_predict_max==max(year_predict_max)]
 
   # fix schema
 

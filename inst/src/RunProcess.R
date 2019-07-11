@@ -21,6 +21,7 @@ fhi::Log("numTags", nrow(CONFIG$SYNDROMES))
 fhi::Log("versionAlgorithm", CONFIG$VERSION)
 fhi::Log("versionPackage", packageDescription("sykdomspuls")$Version)
 
+if(fd::config$is_dev) Sys.setenv(ONLY_RUN_LATEST_YEAR=TRUE)
 
 ## fhi::Log("cleanBefore")
 if (!UpdateData()) {
@@ -30,7 +31,6 @@ if (!UpdateData()) {
 DeleteOldDatasets()
 ## fhi::Log("cleanAfter")
 
-if(fd::config$is_dev) Sys.setenv(ONLY_RUN_LATEST_YEAR=TRUE)
 
 for (model_name in names(sykdomspuls::CONFIG$MODELS)){
   fd::msg(paste("starting", model_name))
