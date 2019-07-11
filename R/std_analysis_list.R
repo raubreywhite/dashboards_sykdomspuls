@@ -95,8 +95,8 @@ load_stack_schema <- function(conf, data, schema) {
   location <- NULL
   id <- NULL
 
-  counties <- unique(data[granularityGeo == "municip"]$county)
-  municips <- unique(data[granularityGeo == "municip"]$location)
+  counties <- data[granularityGeo == "municip",unique(county)]
+  municips <- data[granularityGeo == "municip",unique(location)]
   locations <- c("Norge", counties, municips)
 
   ages <- unique(data$age)
@@ -155,7 +155,7 @@ load_stack_schema <- function(conf, data, schema) {
   analyses[,year_index:=NULL]
 
   dates <- data[, "date"]
-  dates[, year := RAWmisc::YearN(date)]
+  dates[, year := fhi::isoyear_n(date)]
   dates[, date_min := min(date), by=year]
   dates[, date_max := max(date), by=year]
   dates <- unique(dates[,c("year","date_min","date_max")])

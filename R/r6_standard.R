@@ -20,12 +20,12 @@ standard <-  R6::R6Class(
     run_analysis = function(db_config = self$db_config){
       fd::msg("Starting standard in parallel")
 
-      cl <- parallel::makeCluster(3L, file = "")
+      cl <- parallel::makeCluster(6L, file = "")
       doParallel::registerDoParallel(cl)
       base_folder <- fd::path("data_clean")
       latest_id <- LatestRawID()
 
-      foreach(i = 1:length(tags), .packages = c("data.table"), .verbose = T, .export = "tags") %dopar% {
+      foreach(i = 1:length(tags), .packages = c("data.table", "sykdomspuls"), .verbose = T, .export = "tags") %dopar% {
         data.table::setDTthreads(1)
         tags[[i]]$run(base_folder = base_folder, latest_id = latest_id)
       }

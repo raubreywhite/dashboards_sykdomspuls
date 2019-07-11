@@ -29,7 +29,6 @@ clean_post_analysis <- function(res,schema){
   res[schema$get_data_dt(),on="uuid", tag:=tag]
   res[schema$get_data_dt(),on="uuid", location:=location]
   res[schema$get_data_dt(),on="uuid", file:=file]
-  res[schema$get_data_dt(),on="uuid", purpose:=purpose]
   res[schema$get_data_dt(),on="uuid", granularity_time:=granularity_time]
   res[schema$get_data_dt(),on="uuid", granularity_geo:=granularity_geo]
   res[schema$get_data_dt(),on="uuid", v:=v]
