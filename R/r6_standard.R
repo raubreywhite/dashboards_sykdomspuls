@@ -40,7 +40,7 @@ standard <-  R6::R6Class(
           tb=tags[[1]]$results_x$db_table
         )
         ),TRUE)
-      
+
       try(
           DBI::dbExecute(
                    tags[[1]]$results_x$conn,
@@ -69,36 +69,15 @@ standard <-  R6::R6Class(
                )
          ,TRUE)
       try(
-          DBI::dbExecute(
-                   tags[[1]]$results_x$conn,
-                   glue::glue(
-                             "ALTER TABLE `{tb}` ADD INDEX `ind4` (`tag`(10), `age`(10), `granularity_time`(10), `location` (10))",
-                             tb=tags[[1]]$results_x$db_table
-                         )
-               )
-         ,TRUE)
-      
-      try(
-          DBI::dbExecute(
-                   tags[[1]]$results_x$conn,
-                   glue::glue(
-                             "ALTER TABLE `{tb}` ADD INDEX `ind4` (`tag`(10), `age`(10), `granularity_time`(10), `location` (10))",
-                             tb=tags[[1]]$results_x$db_table
-                         )
-               )
-         ,TRUE)
-      try(
-          DBI::dbExecute(
-                   tags[[1]]$results_x$conn,
-                   glue::glue(
-                             "ALTER TABLE `{tb}` ADD INDEX `ind5` (`wkyr`(10), `granularity_time`(10), `granularity_geo`(10), `tag` (10))",
-                             tb=tags[[1]]$results_x$db_table
-                         )
-               )
-         ,TRUE)
-      
+        DBI::dbExecute(
+          tags[[1]]$results_x$conn,
+          glue::glue(
+            "ALTER TABLE `{tb}` ADD INDEX `ind5` (`wkyr`(10), `granularity_time`(10), `granularity_geo`(10), `tag` (10))",
+            tb=tags[[1]]$results_x$db_table
+          )
+        )
+        ,TRUE)
 
-      
     },
     save_internal_dashboard = function(){
 
@@ -224,47 +203,85 @@ standard <-  R6::R6Class(
         "locationName",
         "county"
       )
+      x_tags <- conf[alertExternal==T]$tag
 
       fd::msg("Saving daily data for the external api")
 
-      d <- tags[[1]]$results_x$get_data_db(
-          granularity_time=="daily"
-      )
+      d <- tags[[1]]$results_x$dplyr_tbl() %>%
+        dplyr::filter(
+          granularity_time=="daily" &
+          tag %in% x_tags
+        ) %>%
+        dplyr::collect() %>%
+        fd::latin1_to_utf8()
+
       d[,type:=tag]
       d[,HelligdagIndikator:=0]
       d[,file:="x"]
       d[,displayDay:=date]
 
+      for(i in names(d)){
+        if(!i %in% names_req) d[,(i):=NULL]
+      }
       saveRDS(
-        d[!stringr::str_detect(location,"^municip"),names_req,with=F],
+        d,
         fd::path("results","externalapi","resRecentLine.RDS")
       )
 
-      fd::msg("Saving weekly data for the external api")
+      rm("d"); gc();
 
-      d <- tags[[1]]$results_x$get_data_db(
-          granularity_time=="weekly"
-      )
-      d[,type:=tag]
-      d[,HelligdagIndikator:=0]
-      d[,file:="x"]
-      d[,displayDay:=date]
+      fd::msg("Saving weekly municip data for the external api")
 
+      dk <- tags[[1]]$results_x$dplyr_tbl() %>%
+        dplyr::filter(
+          granularity_time=="weekly" &
+            tag %in% x_tags &
+            granularity_geo=="municip"
+        ) %>%
+        dplyr::collect() %>%
+        fd::latin1_to_utf8()
+
+      dk[,type:=tag]
+      dk[,HelligdagIndikator:=0]
+      dk[,file:="x"]
+      dk[,displayDay:=date]
+
+      for(i in names(dk)){
+        if(!i %in% names_req) dk[,(i):=NULL]
+      }
       saveRDS(
-        d[stringr::str_detect(location,"^municip"),names_req,with=F],
+        dk,
         fd::path("results","externalapi","resYearLineMunicip.RDS")
       )
 
+      fd::msg("Saving weekly not municip data for the external api")
+
+      df <- tags[[1]]$results_x$dplyr_tbl() %>%
+        dplyr::filter(
+          granularity_time=="weekly" &
+            tag %in% x_tags &
+            granularity_geo!="municip"
+        ) %>%
+        dplyr::collect() %>%
+        fd::latin1_to_utf8()
+      df[,type:=tag]
+      df[,HelligdagIndikator:=0]
+      df[,file:="x"]
+      df[,displayDay:=date]
+
+      for(i in names(df)){
+        if(!i %in% names_req) df[,(i):=NULL]
+      }
       saveRDS(
-        d[!stringr::str_detect(location,"^municip"),names_req,with=F],
+        df,
         fd::path("results","externalapi","resYearLine.RDS")
       )
 
       fd::msg("Saving outbreaks for the external api")
 
       GenerateOutbreakListInternal(
-        df = d[!stringr::str_detect(location,"^municip")],
-        dk = d[stringr::str_detect(location,"^municip")],
+        df = df,
+        dk = dk,
         saveFiles = fd::path("results", "externalapi","outbreaks.RDS"),
         useType = TRUE
       )
