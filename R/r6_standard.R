@@ -75,8 +75,8 @@ standard <-  R6::R6Class(
           granularity_time=="daily"
         ) %>%
         dplyr::summarize(date = max(date,na.rm=T)) %>%
-        dplyr::collect()
-      val <- val$wkyr
+        dplyr::collect() %>%
+        fd::latin1_to_utf8()
       GLOBAL$dateMax <- val$date
 
       GLOBAL$dateMinRestrictedRecent <- GLOBAL$dateMax - 365
@@ -88,7 +88,8 @@ standard <-  R6::R6Class(
           granularity_time=="daily"
         ) %>%
         dplyr::distinct(location,locationName) %>%
-        dplyr::collect()
+        dplyr::collect() %>%
+        fd::latin1_to_utf8()
 
       GLOBAL$dailyCounties <- unique(val$location)
       names(GLOBAL$dailyCounties) <- unique(val$locationName)
@@ -101,7 +102,8 @@ standard <-  R6::R6Class(
             granularity_time=="weekly"
         ) %>%
         dplyr::distinct(wkyr) %>%
-        dplyr::collect()
+        dplyr::collect() %>%
+        fd::latin1_to_utf8()
 
       GLOBAL$weeklyWkyr <- rev(val$wkyr)
       GLOBAL$outbreakswkyr <- rev(val$wkyr)
@@ -112,7 +114,8 @@ standard <-  R6::R6Class(
           granularity_time=="weekly"
         ) %>%
         dplyr::distinct(location,locationName,county) %>%
-        dplyr::collect()
+        dplyr::collect() %>%
+        fd::latin1_to_utf8()
 
       GLOBAL$municipToCounty <- data.table(val)
 
@@ -122,8 +125,9 @@ standard <-  R6::R6Class(
             granularity_time=="daily"
         ) %>%
         dplyr::distinct(tag,location,age) %>%
-        dplyr::collect()
-      setDT(val)
+        dplyr::collect() %>%
+        fd::latin1_to_utf8()
+
       setnames(val,"tag","type")
 
       GLOBAL$resRecentLineStack <- val
@@ -134,8 +138,9 @@ standard <-  R6::R6Class(
           granularity_time=="weekly"
         ) %>%
         dplyr::distinct(tag,location,age) %>%
-        dplyr::collect()
-      setDT(val)
+        dplyr::collect() %>%
+        fd::latin1_to_utf8()
+
       setnames(val,"tag","type")
 
       GLOBAL$resYearLineStack <- val[!stringr::str_detect(location,"^municip")]
@@ -231,7 +236,9 @@ standard <-  R6::R6Class(
 
       val <- tags[[1]]$results_x$dplyr_tbl() %>%
         dplyr::summarize(wkyr = max(wkyr,na.rm=T)) %>%
-        dplyr::collect()
+        dplyr::collect() %>%
+        fd::latin1_to_utf8()
+
       val <- val$wkyr
 
       d <- tags[[1]]$results_x$dplyr_tbl() %>%
@@ -239,8 +246,8 @@ standard <-  R6::R6Class(
           granularity_time=="weekly" &
           wkyr==val
         ) %>%
-        dplyr::collect()
-      setDT(d)
+        dplyr::collect() %>%
+        fd::latin1_to_utf8()
 
       GenerateOutbreakListExternal(
         df = d[!stringr::str_detect(location,"^municip")],
