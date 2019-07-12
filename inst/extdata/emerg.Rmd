@@ -1,7 +1,7 @@
 ---
 title: "Emergency"
 output:
-  tufte::tufte_handout:
+  pdf_document:
     toc: TRUE
     keep_tex: TRUE
 header-includes:
@@ -36,6 +36,12 @@ fhi::DashboardInitialiseOpinionated("sykdomspuls",
 suppressMessages(library(data.table))
 suppressMessages(library(ggplot2))
 suppressMessages(library(kableExtra))
+suppressMessages(library(fhiplot))
+suppressMessages(library(lubridate))
+suppressMessages(library(fhidata))
+
+
+start_date = ymd("2019-01-01")
 
 conn <- DBI::dbConnect(odbc::odbc(),
     driver = CONFIG$DB_CONFIG$driver,
@@ -48,21 +54,71 @@ fd::use_db(conn, CONFIG$DB_CONFIG$db)
 db <- dplyr::tbl(conn, "spuls_standard_results")
 d <- db %>% dplyr::filter(tag=="emerg1" & granularity_time=="weekly") %>% dplyr::collect()
 setDT(d)
-d[,age:=factor(age,levels=names(CONFIG$AGES))]
+
+county <- d[granularity_geo =="county" | granularity_geo =="national"]
+municip <- d[granularity_geo =="municip"]
+county[,age:=factor(age,levels=names(CONFIG$AGES))]
+
+county_year = county[date >=start_date]
+municip_year = municip[date >=start_date]
+
 
 ```
 
 \newpage
 
-# Norway
+# Epi-curve
 
-`r tufte::margin_note(glue::glue('
-                                  emerg1 at the national level.
-                                  '))`
-
-```{r echo=FALSE, fig.height=11.69*0.6, message=FALSE, warning=FALSE}
-q <- ggplot(d[location=="Norge"], aes(x=date,y=n))
-q <- q + geom_line()
-q <- q + facet_wrap(~age,ncol=1)
+```{r echo=FALSE, fig.height=11.69*0.3, message=FALSE, warning=FALSE}
+q <- ggplot(county_year[location=="Norge" & age == "Totalt"]) +
+    geom_col(aes(x=date, y=n), fill = fhiplot::base_color, width = 4) +
+    theme_fhi_lines() +
+    ylab("") 
 q
+```
+
+# County Map
+
+```{r echo=FALSE, fig.height=11.69*0.3, message=FALSE, warning=FALSE}
+
+pd <- fhidata::norway_map_counties
+
+plot_data <- data.table(pd)[county_year[, .(N=sum(n)), by=.(location)], on=.(location_code=location), nomatch=0]
+max <- max(plot_data$N)
+plot_data[, binned := cut(N , round(max/5 * 0:5))]
+q <- ggplot()
+q <- q + geom_polygon(data = plot_data, aes( x = long, y = lat, group = group, fill=binned), color="black")
+q <- q + theme_void()
+q <- q + coord_quickmap()
+q <- q + fhiplot::scale_fill_fhi("Cases", palette = "map_seq_complete", direction = 1) 
+q
+
+```
+
+# Muncipalities with the most cases
+
+```{r echo=FALSE, results='asis', paged.print=TRUE }
+
+pop <- fhidata::norway_population_current
+
+pop <- data.table(pop)[, .(pop=sum(pop)), by=.(location_code)]
+
+municip_cases <- municip_year[,  .(N=sum(n)), by=.(location)][pop, on=.(location=location_code), nomatch=0]
+
+municip_cases <- municip_cases[, .(location, N,  incidence = round(N / pop * 1000, 1))][data.table(fhi::NorwayLocations()), on=.(location=municip), nomatch=0]
+
+
+table <- municip_cases[order(-N), .(municipName, N, incidence)][1:35]
+ setnames(table,c(
+    "Municipality","Cases","Incidence per 1000 inhabitants")
+
+  )
+
+  k <- knitr::kable(table, "latex",
+                      booktabs = T,
+                      align = "c",
+                      linesep = "")
+   print(k)
+
+
 ```

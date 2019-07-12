@@ -1,0 +1,302 @@
+---
+title: "Outbreak data from Sykdomspulsen"
+output:
+  pdf_document:
+    toc: FALSE
+    keep_tex: TRUE
+header-includes:
+  - \usepackage{booktabs}
+  - \usepackage{longtable}
+  - \usepackage{array}
+  - \usepackage{multirow}
+  - \usepackage{wrapfig}
+  - \usepackage{float}
+  - \usepackage{colortbl}
+  - \usepackage{pdflscape}
+  - \usepackage{tabu}
+  - \usepackage{threeparttable}
+  - \usepackage{threeparttablex}
+  - \usepackage[normalem]{ulem}
+  - \usepackage{makecell}
+  - \usepackage{xcolor}
+  - \makeatletter\renewcommand*{\fps@figure}{H}\makeatother
+params:
+  dev: TRUE
+  package_dir: "."
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r message=FALSE, warning=FALSE, include=FALSE, paged.print=FALSE}
+fhi::DashboardInitialiseOpinionated("sykdomspuls",
+                                    PACKAGE_DIR=params$package_dir,
+                                    FORCE_DEV_PACKAGE_LOAD = params$dev,
+                                    SILENT=TRUE)
+
+suppressMessages(library(data.table))
+suppressMessages(library(dplyr))
+suppressMessages(library(ggplot2))
+suppressMessages(library(kableExtra))
+suppressMessages(library(fhiplot))
+suppressMessages(library(lubridate))
+suppressMessages(library(fhidata))
+suppressMessages(library(gridExtra))
+suppressMessages(library(grid))
+
+
+byMunicipality <- TRUE
+start_date = ymd("2019-05-29")
+final_data_date =ymd("2019-06-13")
+lineList <- fread(fhi::DashboardFolder("data_raw", "emerg_linelist_mult.txt"))
+lineList[, KonsultasjonDato := ymd(KonsultasjonDato)]
+population <- data.table(fhidata::norway_population_current[year == 2019, .(pop = sum(pop)), by=.(location_code)])
+lineList[, kons_location_code := paste("municip", KonsKommuneNr, sep="")]
+lineList[, pat_location_code := paste("municip", PasientKommuneNr, sep="")]
+
+dates = unique(lineList[, KonsultasjonDato])
+
+all_dates = seq(min(dates), max(dates), "days")
+
+frac_consultations <- sin(0:(length(all_dates) - 1) / length(all_dates) * pi)
+
+
+subchunkify <- function(g, fig_height=7, fig_width=5) {
+  g_deparsed <- paste0(deparse(
+    function() {g}
+  ), collapse = '')
+  
+  sub_chunk <- paste0("
+  `","``{r sub_chunk_", floor(runif(1) * 10000), ", fig.height=", fig_height, ", fig.width=", fig_width, ", echo=FALSE, fig.fullwidth=TRUE}",
+  "\n(", 
+    g_deparsed
+    , ")()",
+  "\n`","``
+  ")
+  
+  cat(knitr::knit(text = knitr::knit_expand(text = sub_chunk), quiet = TRUE))
+}
+
+
+```
+\begin{center}
+```{r echo=FALSE, results='asis', paged.print=TRUE }
+cat(paste("Data updated on the", format(final_data_date)))
+```
+\end{center}
+# Outbreak Overview
+
+```{r echo=FALSE, results='asis', paged.print=TRUE }
+
+ nCases = nrow(lineList[KonsultasjonDato > ymd("2019-05-29")])
+ cat("Data from the syndromic surveillance system Sykdomspulsen related to outbreak in Askøy and surrounding areas (please note that thsi draft is not using real data). From the 29th of May we have registered ", nCases, " consultations potentially related to the outbreak. This report includes data until the 13th of June \n")
+
+
+```
+
+\medskip
+
+# Time evolution of the outbreak
+
+The chart shows the number of consultations with gastro-intestinal or similar symptoms per day as received by Sykdomspulsen.
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth=TRUE, results='asis'}
+q <- ggplot(lineList[, .(N = .N), by=.(KonsultasjonDato)], aes(x=KonsultasjonDato, y=N)) +
+     geom_col(fill = fhiplot::base_color, width = 0.8) +
+     theme_fhi_lines() +
+     ggtitle("Outbreak consultations per day")+
+     ylab("")
+subchunkify(q, 5, 8)
+```
+
+
+
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, fig.fullwidth=TRUE, results='asis'}
+## cat("The chart shows the fraction of consultations with gastro-intestinal or similar symptoms from Sykdomspulsen.")
+
+## q1 <- ggplot(NULL, aes(x=all_dates, y=frac_consultations)) +
+##      geom_line(color = fhiplot::base_color, size=2) +
+##      scale_y_continuous(labels=scales::percent) +
+##      ylab("Percent of consultations") +
+##      ggtitle("Fraction of reported gastro-intestinal consultations") +
+##      theme_fhi_lines() +
+##      xlab("")
+## subchunkify(q1, 5, 8)
+
+
+```
+
+
+
+
+# Geographic distribution
+
+
+## Municipality of the consultation
+
+
+
+
+
+```{r echo=FALSE, results='asis', paged.print=TRUE, fig.fullwidth=TRUE, out.width=c('50%', '50%'), fig.show='hold' }
+
+create_map_table <- function(data, column_name, column_code, out_col="N", irFactor = 10000){
+  # Creates a table and a map in  a two-column layout
+  if(out_col == "N"){
+    plot_title = "Consultations by Municipality"
+    table_col_title = "Consultations"
+    plot_color_title = "Number of Consultations"
+  }else if(out_col == "ir"){
+    table_col_title = paste("Incidence Rate (per", irFactor, ")") 
+    plot_title = "Incidence Rate by Municipality"
+    plot_color_title = "Incidence Rate"
+ }
+  municip_cases <- data[, .(N=.N), by=.("name"=get(column_name), "location_code"=get(column_code))]  
+
+  municip_cases <- population[municip_cases, on=.(location_code =location_code)]
+  municip_cases[, ir:= round(N  /pop * irFactor)]
+
+  table <- municip_cases[order(-get(out_col)), .(name, get(out_col))]
+
+  cat(knitr::raw_latex("\\begin{minipage}{0.39\\textwidth}"))
+  setnames(table,c(
+    "Municipality", table_col_title)
+  )
+  k <- knitr::kable(table, "latex",
+                      booktabs = T,
+                      align = "c",
+                      linesep = "")
+   print(k)
+  cat(knitr::raw_latex("\\end{minipage}
+  \\begin{minipage}{0.69\\textwidth}"))
+
+
+ max <- max(municip_cases[, get(out_col)])
+ municip_cases[, binned := cut(get(out_col), round(max/5 * 0:5))]
+
+ pd <- fhidata::norway_map_municips
+
+ plot_data <- data.table(pd)[municip_cases, on=.(location_code=location_code), nomatch=0]
+
+ cnames <- aggregate(cbind(long, lat) ~ location_code, data=plot_data, FUN=function(x)mean(range(x)))
+ cnames <- inner_join(cnames, fhidata::norway_locations_current, by=c("location_code" = "municip_code" ))
+
+ q <- ggplot() +
+   geom_polygon(data = plot_data, aes( x = long, y = lat, group = group, fill=binned),
+                color="black") +
+   theme_void() +
+   coord_quickmap() +
+   ggtitle(plot_title) + 
+   fhiplot::scale_fill_fhi(plot_color_title, palette = "map_seq_complete", direction = 1) +
+ geom_label(data=cnames, aes(long, lat, label = municip_name), size=3)
+
+ subchunkify(q, 5, 5)
+ cat(knitr::raw_latex("\\end{minipage}"))
+}
+create_map_table(lineList, "KonsKommune", "kons_location_code")
+create_map_table(lineList, "KonsKommune", "kons_location_code", out_col="ir")
+
+```
+
+
+
+## Municipality where the patient lives
+
+```{r echo=FALSE, results='asis', paged.print=TRUE }
+create_map_table(lineList, "PasientKommune", "pat_location_code")
+```
+
+\newpage
+
+# Demographics and details
+
+We show a breakdown of the outbreak by demographics, diagnosis and type of consultation. 
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE, results='asis', fig.fullwidth=TRUE}
+
+
+table_chart <- function(data, column){
+  cat("\\subsection{", column, "}\n")
+  cat("Breakdown of all the cases from ", format(start_date), "\n")
+  breakdown <- data[, .(N=.N), by=.(get(column))]
+  table <- breakdown[order(-N), .(get, N)]
+  setnames(table,c(
+    column,"Cases")
+
+  )
+
+  k <- knitr::kable(t(table), "latex",
+                      booktabs = T,
+                      align = "c",
+                      linesep = "")
+   print(k)
+
+  cat("Timeline of cases by", column, "\n")
+  data2 <- data[, .(N = .N), by=.(KonsultasjonDato, get(column))]
+  # Hack as data.table returns get as column name
+  if (length(unique(data2[, get])) > 5){
+    q <- ggplot(data2, aes(x=KonsultasjonDato, y=N)) +
+        lemon::facet_rep_wrap(~get, repeat.tick.labels = T) +
+        geom_col(fill = fhiplot::base_color, width = 0.8) +
+        fhiplot::scale_fill_fhi(column ,palette = "primary", direction = 1) + 
+        theme_fhi_lines() +
+        ylab("") +
+        theme(axis.text.x = element_text(angle = 30))
+
+   subchunkify(q, 9, 9)
+ 
+  } else {
+    q <- ggplot(data2, aes(x=KonsultasjonDato, y=N, fill=get))+
+        geom_col(width = 0.8) + 
+        fhiplot::scale_fill_fhi(column ,palette = "primary", direction = 1) + 
+        theme_fhi_lines() +
+        ylab("")
+   subchunkify(q, 4, 8)
+  }
+  cat(" \\newpage ")
+}
+
+
+columns <- c("Kjønn", "Alder", "DiagnoseBeskrivelse", "Kontaktype", "Praksis")
+
+if(byMunicipality){
+  newColumns <- c("KonsKommune", "PasientKommune", columns)
+  for(column in newColumns){
+     table_chart(lineList, column)
+  }
+
+ municip_cases <- lineList[, .(N=.N), by=.(KonsKommune, kons_location_code)]
+ table <- municip_cases[order(-N), .(KonsKommune, N)]
+ for(i in 1:nrow(table)){
+  municipName = table[i, KonsKommune]
+  cat("\\section{", municipName, "}\n")
+
+  ## fc <- frac_consultations*runif(0.8,1, length(frac_consultations))
+  ## q1 <- ggplot(NULL, aes(x=all_dates, y= frac_consultations)) + 
+  ##    geom_line(color = fhiplot::base_color, size=2) +
+  ##    scale_y_continuous(labels=scales::percent) +
+  ##    ylab("Percent of consultations") +
+  ##    ggtitle("Fraction of reported gastro-intestinal consultations")+
+  ##    theme_fhi_lines() + xlab("")
+  ## subchunkify(q1, 5, 8)
+
+
+  for(column in columns){
+     table_chart(lineList[KonsKommune == municipName], column)
+    }
+
+
+  }
+
+
+
+} else {
+  for(column in columns){
+     table_chart(lineList, column)
+  }
+
+}
+
+```
