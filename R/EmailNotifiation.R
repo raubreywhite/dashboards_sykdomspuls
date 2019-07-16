@@ -201,7 +201,7 @@ EmailExternalGenerateTable <- function(results, xtag, xemail) {
 #' @import fhi
 #' @export EmailExternal
 EmailExternal <- function(
-                          results = readRDS(fhi::DashboardFolder("results", sprintf("%s/outbreaks_alert_external.RDS", LatestRawID()))),
+                          results = readRDS(fhi::DashboardFolder("results", sprintf("%s/outbreaks_alert_external.RDS", latest_date()))),
                           alerts = GetAlertsEmails(),
                           forceNoOutbreak = FALSE,
                           forceYesOutbreak = FALSE) {

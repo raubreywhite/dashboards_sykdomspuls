@@ -147,7 +147,7 @@ UpdateData <- function() {
     fhi::DashboardMsg("No new data")
     return(FALSE)
   }
-  if (!RAWmisc::IsFileStable(fhi::DashboardFolder("data_raw", files$raw))) {
+  if (!fhi::file_stable(fhi::DashboardFolder("data_raw", files$raw))) {
     fhi::DashboardMsg(sprintf("Unstable file %s", files$raw))
     return(FALSE)
   }

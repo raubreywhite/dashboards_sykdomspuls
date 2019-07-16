@@ -31,7 +31,6 @@ Imports:
   RMariaDB,
   plumber,
   memoise,
-  mem,
   parallel,
   RAWmisc,
   cowplot,
@@ -44,7 +43,8 @@ Imports:
   uuid
 Suggests: testthat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    mem
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

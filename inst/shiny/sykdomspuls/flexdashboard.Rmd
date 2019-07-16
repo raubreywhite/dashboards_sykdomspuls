@@ -20,9 +20,11 @@ library(fhi)
 library(magrittr)
 library(dplyr)
 
-fhi::DashboardInitialiseOpinionated("sykdomspuls",
-                                    PACKAGE_DIR="/dashboards/dashboards_sykdomspuls",
-				    FORCE_DEV_PACKAGE_LOAD=TRUE)
+fd::initialize("sykdomspuls")
+
+#fhi::DashboardInitialiseOpinionated("sykdomspuls",
+#                                    PACKAGE_DIR="/dashboards/dashboards_sykdomspuls",
+#				    FORCE_DEV_PACKAGE_LOAD=TRUE)
 CONFIG <- readRDS("/data_app/sykdomspuls/config.RDS")
 GLOBAL <- readRDS("/data_app/sykdomspuls/GLOBAL.RDS")
 
@@ -31,13 +33,7 @@ GetLocationName <- function(location) {
   locationHTML <- "Norge"
   
   if (location != "Norge") {
-    norwayLocations <- readxl::read_excel(system.file("extdata", "norwayLocations.xlsx", package = "sykdomspuls"))
-    norwayLocations <- norwayLocations[is.na(norwayLocations$yearEnd),c("municip","municipName","county","countyName")]
-    if (sum(norwayLocations$municip == location) > 0) {
-      locationName <- as.character(norwayLocations$municipName[norwayLocations$municip == location])
-    } else if (sum(norwayLocations$county == location) > 0) {
-      locationName <- as.character(norwayLocations$countyName[norwayLocations$county == location])
-    }
+    locationName <- fhidata::norway_locations_long_current[location_code==location]$location_name
   }
   
   return(locationName)
