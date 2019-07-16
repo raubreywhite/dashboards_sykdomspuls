@@ -142,7 +142,7 @@ quasipoission <-  R6::R6Class(
       res <- clean_post_analysis(res=res, stack = stack_x$get_data_dt())
 
       results_x$db_upsert_load_data_infile(res[,names(results_x$db_field_types),with=F])
-      stack_x$db_upsert_load_data_infile(stack_x$dt[uuid %in% unique(res$uuid),names(stack_x$db_field_types),with=F], drop_indexes=c("ind1","ind2","ind3"))
+      stack_x$db_upsert_load_data_infile(stack_x$dt[uuid %in% unique(res$uuid),names(stack_x$db_field_types),with=F], drop_indexes=c("ind1","ind2","ind3","ind4","ind5"))
 
       rm("res"); gc()
     },
