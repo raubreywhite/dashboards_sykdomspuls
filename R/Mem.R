@@ -2,7 +2,7 @@
 #'
 #' @import data.table
 #' @import ggplot2
-#' @export MeM
+#' @export
 MeM <-  R6::R6Class(
   "MeM",
   portable = FALSE,
@@ -28,20 +28,21 @@ MeM <-  R6::R6Class(
           tb=mem_schema$results_x$db_table
         )
       ),TRUE)
-      
-      
+
+
     }
   )
 )
 
 
 
-
+#' run_all
 #' @param conf A mem model configuration object
+#' @export
 run_all <- function(conf){
 
   data = get_mem_data(conf)
-  
+
 
 }
 
@@ -51,18 +52,18 @@ add_columns <- function(data){
   data[, high:=as.numeric(NaN)]
   data[, very_high:=as.numeric(NaN)]
   data[, season:= ""]
-  
+
 }
 
 add_results_to_data <- function(data, mem_results){
- 
+
   for(yea in unique(data[, year])){
     label0_20 = paste(yea - 2, yea - 1, sep="/")
     label40_52 = paste(yea - 1, yea, sep="/")
-    
+
     data[year==yea & week<=20, season:= paste(yea - 1, yea, sep="/")]
     data[year==yea & week>=40, season:= paste(yea, yea + 1 , sep="/")]
-    
+
     if(! is.null(mem_results[[label0_20]][1])){
       data[year==yea & week<=20, low:= mem_results[[label0_20]][1]]
     }
@@ -88,7 +89,7 @@ add_results_to_data <- function(data, mem_results){
     if(! is.null(mem_results[[label40_52]][4])){
       data[year == yea & week>=40, very_high:= mem_results[[label40_52]][4]]
     }
-     
+
 
   }
   return(data)
@@ -101,8 +102,8 @@ add_results_to_data <- function(data, mem_results){
 #' country and for each county
 #'
 #' @param conf A mem model configuration object
-#' 
-#' @export run_all_mem
+#' @param mem_schema a
+#' @export
 run_all_mem <- function(conf, mem_schema){
 
   data <- readRDS(file = fhi::DashboardFolder(
@@ -110,7 +111,7 @@ run_all_mem <- function(conf, mem_schema){
     sprintf("%s_%s_cleaned.RDS", LatestRawID(), conf$tag)
   ))[granularityGeo != "municip"]
 
-  
+
   data[, week:= lubridate::isoweek(date)]
   data[, year:= lubridate::isoyear(date)]
 
@@ -134,7 +135,7 @@ run_all_mem <- function(conf, mem_schema){
     mem_results = run_mem_model(mem_df, conf)
     counties[location==county] <-add_results_to_data(counties[location==county], mem_results)
   }
-  
+
   out = rbind(national, counties)
   out[, tag:=conf$tag]
   out[, rate:= n /consultWithInfluensa *100]
@@ -144,7 +145,7 @@ run_all_mem <- function(conf, mem_schema){
   mem_schema$db_drop_all_rows()
   mem_schema$db_load_data_infile(out)
 
-  
+
 }
 
 
@@ -153,10 +154,10 @@ run_all_mem <- function(conf, mem_schema){
 #' get the influensa season
 #'
 #' @param date Date to get the current season for
-#' 
-#' @export get_season
+#'
+#' @export
 get_season <- function(date){
-  
+
   year = year(date)
   week = week(date)
 
@@ -164,7 +165,7 @@ get_season <- function(date){
     season = paste(year - 1, year, sep="/")
   } else {
     season = paste(year, year + 1, sep="/")
-  
+
   }
   return(season)
 }
@@ -172,9 +173,8 @@ get_season <- function(date){
 #' create MEM season plots
 #'
 #' @param conf A mem model configuration object
-#' 
-#' @export create_plots
-
+#' @param mem_schema a
+#' @export
 create_plots <- function(conf, mem_schema=NULL){
 
   current_season <- get_season(Sys.Date())
@@ -197,7 +197,7 @@ create_plots <- function(conf, mem_schema=NULL){
                   current_season,
                   "i",
                   fhi::get_location_name(loc))
-    
+
     chart = fhiplot::make_influenza_threshold_chart(data_location, title)
 
     filename = paste(folder, "/", loc, ".png", sep="")
@@ -225,12 +225,12 @@ create_plots <- function(conf, mem_schema=NULL){
                                 data=plot_data[!(location_code %in% c("county03", "county02"))],
                                 FUN=function(x)mean(range(x)))
     cnames_country$rate = round(cnames_country$rate, 1)
-    
+
     cnames_osl_ak <- aggregate(cbind(long, lat) ~ rate,
                                data=plot_data[location_code %in% c("county03", "county02")],
                                FUN=function(x)mean(range(x)))
     cnames_osl_ak$rate = round(cnames_osl_ak$rate, 1)
-    
+
     map_plot <- ggplot() +
       geom_polygon(data = plot_data, aes( x = long, y = lat, group = group, fill=status),
                    color="black", size=0.1) +
@@ -243,7 +243,7 @@ create_plots <- function(conf, mem_schema=NULL){
                                           "Sv\u00E6rt h\u00F8y"=fhiplot::vals$cols$map_sequential[["MS1"]]
                                           )) +
       ggrepel::geom_label_repel(data=cnames_country, aes(long, lat, label = rate), size=2)
-    
+
     oslo_akershus <- ggplot() +
       geom_polygon(data = plot_data[location_code %in% c("county03", "county02")]
                  , aes( x = long, y = lat, group = group, fill=status),
@@ -258,12 +258,12 @@ create_plots <- function(conf, mem_schema=NULL){
                                           )) +
       geom_label(data=cnames_osl_ak, aes(long, lat, label = rate), size=2) +
       theme(legend.position = "none") +
-      ggtitle("Oslo og Akershus") + 
+      ggtitle("Oslo og Akershus") +
       theme(plot.title = element_text(size = 8,))
-    
-    map_plot <- map_plot + 
+
+    map_plot <- map_plot +
       annotation_custom(
-        ggplotGrob(oslo_akershus), 
+        ggplotGrob(oslo_akershus),
         xmin = 10, xmax = 35, ymin = 60, ymax = 65
       )
     filename = paste(folder, "/map_week", current_week, ".png", sep="")
@@ -271,13 +271,13 @@ create_plots <- function(conf, mem_schema=NULL){
   }
 
 
-    
+
 }
 
 prepare_data_frame <- function(data){
-  
+
   useful_data <- data[week >= 40 | week <=20]
-  
+
   useful_data[, rate := n /consultWithInfluensa * 100]
   useful_data[, label := ifelse(week >= 40,
                                 paste(year, year + 1, sep="/"),
@@ -298,8 +298,8 @@ prepare_data_frame <- function(data){
 
 run_mem_model <- function(data, conf){
   out <- list()
-  
-    
+
+
   for(i in 5:ncol(data)){
     col <- names(data)[i]
     model_data <- data[, names(data)[1:i]]
@@ -311,7 +311,7 @@ run_mem_model <- function(data, conf){
                     epi$epi.intervals[2,4],
                     epi$epi.intervals[3,4]
                     )
-                    
+
     }
 
   return(out)
@@ -351,8 +351,8 @@ mem_results_keys <- c(
 #' get_mem_schema
 #'
 #' DB schema for mem_results
-#' 
-#' @export get_mem_schema
+#'
+#' @export
 get_mem_schema <- function()
   return(fd::schema$new(
     db_table = "spuls_mem_results",

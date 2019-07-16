@@ -376,7 +376,8 @@ VARS$REQ_RESULTS_BASIC <- c(
   "cumE1",
   "cumL1",
   "cumU1",
-  "failed"
+  "failed",
+  "uuid"
 )
 
 VARS$REQ_RESULTS_FULL <- c(
@@ -385,18 +386,12 @@ VARS$REQ_RESULTS_FULL <- c(
   "granularity_geo",
   "tag",
   "type",
-  # "county",
+  "county",
   "location",
-  # "locationName",
+  "locationName",
   "age",
   "status",
   VARS$REQ_RESULTS_BASIC,
-  "file",
-  "uuid"
+  "file"
 )
 
-#' Environment for progress bars
-#' @export PB
-PB <- new.env(parent = emptyenv())
-PB$i <- 0
-PB$pb <- RAWmisc::ProgressBarCreate(max = 1)

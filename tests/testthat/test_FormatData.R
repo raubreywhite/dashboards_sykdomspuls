@@ -31,7 +31,7 @@ test_that("Basic Oslo", {
 
   population <- data.table(
     year = 2006,
-    municip = "municip0301",
+    location_code = "municip0301",
     age = c(0, 5, 15, 20, 30, 65),
     pop = c(100, 100, 100, 100, 100, 100)
   )

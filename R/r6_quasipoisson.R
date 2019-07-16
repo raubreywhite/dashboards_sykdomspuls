@@ -121,8 +121,6 @@ quasipoission <-  R6::R6Class(
       run_stack <- split(run_stack,seq(nrow(run_stack)))
 
       res <- pbapply::pblapply(run_stack,function(x){
-        uuid <- x$uuid
-
         run_data <- data[.(x$location)]
         setnames(run_data,x$denominator,"denominator")
 
@@ -134,14 +132,14 @@ quasipoission <-  R6::R6Class(
           datasetPredict = run_data_predict,
           isDaily = x$granularity_time == "daily",
           v = x$v,
-          weeklyDenominatorFunction = ifelse(x$weeklyDenominatorFunction=="sum",sum,mean)
+          weeklyDenominatorFunction = ifelse(x$weeklyDenominatorFunction=="sum",sum,mean),
+          uuid=x$uuid
         )
-        retval[,uuid:=uuid]
       })
       rm("data"); gc()
       res <- rbindlist(res)
 
-      res <- clean_post_analysis(res=res, schema = stack_x)
+      res <- clean_post_analysis(res=res, stack = stack_x$get_data_dt())
 
       results_x$db_upsert_load_data_infile(res[,names(results_x$db_field_types),with=F])
       stack_x$db_upsert_load_data_infile(stack_x$dt[uuid %in% unique(res$uuid),names(stack_x$db_field_types),with=F], drop_indexes=c("ind1","ind2","ind3"))

@@ -67,7 +67,8 @@ IdentifyDatasets <-
   }
 
 #' test
-#' @export LatestRawID
+#' @param hyphen Use a hyphen or underscore?
+#' @export
 LatestRawID <- function(hyphen=F) {
   f <- IdentifyDatasets()
   if(hyphen) f$id <- gsub("_","-",f$id)

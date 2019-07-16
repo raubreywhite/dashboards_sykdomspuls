@@ -84,6 +84,7 @@ FormatDatasetWeekly <- function(data, weeklyDenominatorFunction = sum) {
 #' @param isDaily Is it daily data or weekly data?
 #' @param v Version (Not in use)
 #' @param weeklyDenominatorFunction sum or mean - should the denominator be summed or meaned over time
+#' @param uuid uuid
 #' @importFrom glm2 glm2
 #' @import data.table
 #' @import stringr
@@ -98,7 +99,8 @@ QuasipoissonTrainPredictData <- function(
                                          sign.level = 0.05,
                                          isDaily = TRUE,
                                          v = 1,
-                                         weeklyDenominatorFunction = sum) {
+                                         weeklyDenominatorFunction = sum,
+                                         uuid = 1) {
   # variables used in data.table functions in this function
   consult <- NULL
   n <- NULL
@@ -242,6 +244,7 @@ QuasipoissonTrainPredictData <- function(
   if (!isDaily) {
     datasetPredict[fhidata::days,on="wkyr",date:=mon]
   }
+  datasetPredict[,uuid:=uuid]
 
   return(datasetPredict[, VARS$REQ_RESULTS_BASIC, with = F])
 }

@@ -6,6 +6,9 @@
 \usage{
 LatestRawID(hyphen = F)
 }
+\arguments{
+\item{hyphen}{Use a hyphen or underscore?}
+}
 \description{
 test
 }

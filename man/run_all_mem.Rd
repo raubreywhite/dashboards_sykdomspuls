@@ -8,6 +8,8 @@ run_all_mem(conf, mem_schema)
 }
 \arguments{
 \item{conf}{A mem model configuration object}
+
+\item{mem_schema}{a}
 }
 \description{
 Runs mem analysis for all available years for the whole

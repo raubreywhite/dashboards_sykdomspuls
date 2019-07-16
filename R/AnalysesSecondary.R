@@ -1,7 +1,7 @@
 
 #' AnalyseLog dfdf
 #' dfd
-#' @export AnalyseLog
+#' @export
 AnalyseLog <- function() {
   log <- LogGet()
   if (length(log) == 0) {
@@ -200,14 +200,14 @@ AnalyseStats1 <- function(
     resYearLineMunicip <- db %>% dplyr::filter(granularity_time=="weekly" &
                                                  granularity_geo == "municip") %>% dplyr::collect()
     setDT(resYearLineMunicip)
-    
-    
+
+
   }
 
 
   resYearLine <- addThresholds(resYearLine)
   resYearLineMunicip <- addThresholds(resYearLineMunicip)
-  
+
   pd <- AggregateAlertsCases(resYearLine, resYearLineMunicip)
 
   pd[, prettyVar := variable]
@@ -235,7 +235,7 @@ AnalyseEmergLineList <- function() {
       fhi::DashboardIsDev(),
       getwd()
     )
-  )                                                                                                                        
+  )
 }
 
 AnalyseEmerg <- function() {
@@ -247,7 +247,7 @@ AnalyseEmerg <- function() {
       "dev=%s,package_dir=\"%s\"",
       fhi::DashboardIsDev(),
       getwd()
-      
+
     )
   )
 }

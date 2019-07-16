@@ -4,12 +4,12 @@
 \alias{clean_post_analysis}
 \title{clean_post_analysis}
 \usage{
-clean_post_analysis(res, schema)
+clean_post_analysis(res, stack)
 }
 \arguments{
 \item{res}{a}
 
-\item{schema}{a}
+\item{stack}{a}
 }
 \description{
 clean_post_analysis

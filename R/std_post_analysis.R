@@ -19,19 +19,19 @@ DetermineStatus <- function(data) {
 
 #' clean_post_analysis
 #' @param res a
-#' @param schema a
+#' @param stack a
 #' @export clean_post_analysis
-clean_post_analysis <- function(res,schema){
+clean_post_analysis <- function(res,stack){
   res <- res[!is.na(threshold2) & !is.infinite(threshold2)]
 
-  res[schema$get_data_dt(),on="uuid", age:=age]
-  res[schema$get_data_dt(),on="uuid", type:=tag]
-  res[schema$get_data_dt(),on="uuid", tag:=tag]
-  res[schema$get_data_dt(),on="uuid", location:=location]
-  res[schema$get_data_dt(),on="uuid", file:=file]
-  res[schema$get_data_dt(),on="uuid", granularity_time:=granularity_time]
-  res[schema$get_data_dt(),on="uuid", granularity_geo:=granularity_geo]
-  res[schema$get_data_dt(),on="uuid", v:=v]
+  res[stack,on="uuid", age:=age]
+  res[stack,on="uuid", type:=tag]
+  res[stack,on="uuid", tag:=tag]
+  res[stack,on="uuid", location:=location]
+  res[stack,on="uuid", file:=file]
+  res[stack,on="uuid", granularity_time:=granularity_time]
+  res[stack,on="uuid", granularity_geo:=granularity_geo]
+  res[stack,on="uuid", v:=v]
 
   # make threshold2 minimum of 2 and threshold4 minimum of 3
   res[threshold2 < 2, threshold2 := 2]

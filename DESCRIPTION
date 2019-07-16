@@ -33,14 +33,15 @@ Imports:
   memoise,
   mem,
   parallel,
-  pbmcapply,
   RAWmisc,
   cowplot,
-  fhidata,
   fd,
   R6,
   pbapply,
-  magrittr
+  magrittr,
+  DBI,
+  odbc,
+  uuid
 Suggests: testthat,
     knitr,
     rmarkdown
