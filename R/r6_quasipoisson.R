@@ -145,6 +145,53 @@ quasipoission <-  R6::R6Class(
       stack_x$db_upsert_load_data_infile(stack_x$dt[uuid %in% unique(res$uuid),names(stack_x$db_field_types),with=F], drop_indexes=c("ind1","ind2","ind3","ind4","ind5"))
 
       rm("res"); gc()
+
+      # add index
+      try(DBI::dbExecute(
+        results_x$conn,
+        glue::glue(
+          "ALTER TABLE `{tb}` ADD INDEX `ind1` (`granularity_time`(10),`tag`(10),`location`(10),`age`(10))",
+          tb=results_x$db_table
+        )
+      ),TRUE)
+
+      try(
+        DBI::dbExecute(
+          results_x$conn,
+          glue::glue(
+            "ALTER TABLE `{tb}` ADD INDEX `ind2` (`granularity_time`(10),`wkyr`(10))",
+            tb=results_x$db_table
+          )
+        )
+        ,TRUE)
+      try(
+        DBI::dbExecute(
+          results_x$conn,
+          glue::glue(
+            "ALTER TABLE `{tb}` ADD INDEX `ind3` (`tag`(10), `age`(10), `granularity_time`(10), `county` (10))",
+            tb=results_x$db_table
+          )
+        ) , TRUE
+      )
+      try(
+        DBI::dbExecute(
+          results_x$conn,
+          glue::glue(
+            "ALTER TABLE `{tb}` ADD INDEX `ind4` (`tag`(10), `age`(10), `granularity_time`(10), `granularity_geo` (10))",
+            tb=results_x$db_table
+          )
+        )
+        ,TRUE)
+      try(
+        DBI::dbExecute(
+          results_x$conn,
+          glue::glue(
+            "ALTER TABLE `{tb}` ADD INDEX `ind5` (`wkyr`(10), `granularity_time`(10), `granularity_geo`(10), `tag` (10))",
+            tb=results_x$db_table
+          )
+        )
+        ,TRUE)
+
     },
     run = function(base_folder = fd::path("data_clean"), latest_id = sykdomspuls::LatestRawID()){
       message(glue::glue("Running {conf$tag}"))

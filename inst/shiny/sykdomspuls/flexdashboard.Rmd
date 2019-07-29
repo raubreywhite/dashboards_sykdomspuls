@@ -87,7 +87,7 @@ setDT(pd)
 suppressWarnings(pd[, top := max(c(n, threshold4), na.rm = T) + 2])
 suppressWarnings(pd[, bottom := 0])
 output$storyboard1 <- renderPlot({
-  q <- MakeLineThresholdPlot(pd,x="date",dataVal="n",L1="bottom",L2="threshold2",L3="threshold4",L4="top",allPoints = FALSE, title="Øvre-luftvei diagnose i 15-19 åringer i Norge", pointShift = -3.5, weekNumbers=TRUE, step=FALSE, GetCols=GetCols)
+  q <- fhiplot::make_line_threshold_plot(pd,x="date",dataVal="n",L1="bottom",L2="threshold2",L3="threshold4",L4="top",allPoints = FALSE, title="Øvre-luftvei diagnose i 15-19 åringer i Norge", pointShift = -3.5, weekNumbers=TRUE, step=FALSE, GetCols=GetCols, legend_position = "bottom")
   q <- q + geom_rect(data=pd[1,],aes(xmin=as.Date("2016-08-01"),xmax=as.Date("2090-08-01"),ymin=-Inf,ymax=Inf),fill="black",alpha=0.2)
   q
 })
@@ -138,7 +138,7 @@ output$weeklyBarometerPlotBrush <- renderPlot({
     )
   }
   
-  MakeLineBrushPlot(pd,x="date",dataVal="n",L2="threshold2",L3="threshold4", GetCols=GetCols)
+  fhiplot::make_line_brush_plot(pd,x="date",dataVal="n",L2="threshold2",L3="threshold4", GetCols=GetCols)
   
 })
 
@@ -226,7 +226,7 @@ MakeBarometerPlot <- function(pd, title, GetCols){
   if(includeNormal) q <- q + geom_tile(aes(fill = "L3"), alpha = 0.6, data=pd[pd$status=="Normal",])
   q <- q + geom_tile(fill="black", alpha = 0.6, data=pd[pd$status=="Black",])
   q <- q + geom_tile(fill="white", alpha = 0.6, data=pd[pd$status=="White",])
-  q <- q + ThemeShiny()
+  q <- q + fhiplot::theme_fhi_basic(legend_position = "bottom")
   breaksDF <- pd[pd$locationName %in% c("1 uke") & pd$status %in% c("Black","White") & pd$printWeekYear!="",]
   if(as.numeric(difftime(limits[2],limits[1],"days"))/7 < 52*0.5){
     breaksDF <- breaksDF[seq(1,nrow(breaksDF),2),]
@@ -244,7 +244,7 @@ MakeBarometerPlot <- function(pd, title, GetCols){
   breaksDF$printLabel <- breaksDF$printWeekYear
   q <- q + scale_x_date("", breaks = breaksDF$date,  labels = breaksDF$printLabel)
   q <- q + scale_y_discrete("")
-  q <- q + scale_fill_manual(values=GetCols(),labels=c(
+  q <- q + scale_fill_manual("",values=GetCols(),labels=c(
     "Betydelig høyere enn forventet",
     "Høyere enn forventet",
     "Forventet"))
@@ -488,7 +488,7 @@ output$weeklyNumberPlotBrush <- renderPlot({
     )
   }
   
-  MakeLineBrushPlot(pd,x="date",dataVal="n",L2="threshold2",L3="threshold4", GetCols=GetCols)
+  fhiplot::make_line_brush_plot(pd,x="date",dataVal="n",L2="threshold2",L3="threshold4", GetCols=GetCols)
   
 })
 
@@ -515,11 +515,11 @@ output$weeklyNumberPlotBrush <- renderPlot({
     title <- paste0(t1, " i ",t2, " (",input$weeklyAge," alder)\n")
     
     if(input$weeklyValue=="consults"){
-      return(MakeLineThresholdPlot(pd,x="date",dataVal="n",L1="bottom",L2="threshold2",L3="threshold4",L4="top",title=title, pointShift = -3.5, weekNumbers=TRUE, step=GetStepGraph(), GetCols=GetCols))
+      return(fhiplot::make_line_threshold_plot(pd,x="date",dataVal="n",L1="bottom",L2="threshold2",L3="threshold4",L4="top",title=title, pointShift = -3.5, weekNumbers=TRUE, step=GetStepGraph(), GetCols=GetCols, legend_position = "bottom"))
     } else {
       val <- stringr::str_extract(input$weeklyValue,"[0-9]$")
       
-      MakeLineExcessPlot(pd,x="date",dataVal=paste0("cumE",val),dataZ=paste0("cumZ",val),dataCIL=paste0("cumL",val), dataCIU=paste0("cumU",val),title=title, pointShift = -3.5, weekNumbers=TRUE, step=FALSE, GetCols=GetCols,allPoints = F)
+      fhiplot::make_line_excess_graph(pd,x="date",dataVal=paste0("cumE",val),dataZ=paste0("cumZ",val),dataCIL=paste0("cumL",val), dataCIU=paste0("cumU",val),title=title, pointShift = -3.5, weekNumbers=TRUE, step=FALSE, GetCols=GetCols,allPoints = F, legend_position = "bottom")
     }
   })
   
@@ -632,7 +632,7 @@ output$dailyPlotBrush <- renderPlot({
     )
   }
   
-  MakeLineBrushPlot(pd,x="date",dataVal="n",L2="threshold2",L3="threshold4", GetCols=GetCols)
+  fhiplot::make_line_brush_plot(pd,x="date",dataVal="n",L2="threshold2",L3="threshold4", GetCols=GetCols)
   
 })
 
@@ -676,7 +676,7 @@ output$dailyNumberPlot <- renderPlot({
     
     title <- paste0(t1, " i ",t2, " (",input$dailyAge," alder)\n")
     
-    MakeLineThresholdPlot(pd,x="date",dataVal="n",L1="bottom",L2="threshold2",L3="threshold4",L4="top",allPoints=FALSE,title=title,xShift=0.5, step=GetStepGraph(), GetCols=GetCols)
+    fhiplot::make_line_threshold_plot(pd,x="date",dataVal="n",L1="bottom",L2="threshold2",L3="threshold4",L4="top",allPoints=FALSE,title=title,xShift=0.5, step=GetStepGraph(), GetCols=GetCols, legend_position = "bottom")
   })
   
   output$dailyPlotTitle <- renderText({

@@ -64,7 +64,7 @@ CONFIG$MEM <- rbind(
 )
 
 
-CONFIG$STANDARD<- rbind(
+CONFIG$BAYESIAN <- CONFIG$STANDARD<- rbind(
   data.table(
     tag = "gastro",
     syndrome = "gastro",

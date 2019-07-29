@@ -30,7 +30,7 @@ FormatDatasetDaily <- function(data) {
   denominator <- NULL
   # end
 
-  data[, trend := as.numeric(date) - 13000]
+  data[, trend := (as.numeric(date) - 13000)/100]
   data[, dayOfYear := data.table::yday(date)]
   data[, dayOfWeek := data.table::wday(date)]
   data[denominator < 1, denominator := 1]
@@ -38,7 +38,11 @@ FormatDatasetDaily <- function(data) {
   return(data)
 }
 
-FormatDatasetWeekly <- function(data, weeklyDenominatorFunction = sum) {
+FormatDatasetWeekly <- function(
+  data,
+  weeklyDenominatorFunction = sum,
+  by_group = NULL
+  ) {
   # variables used in data.table functions in this function
   . <- NULL
   n <- NULL
@@ -49,15 +53,20 @@ FormatDatasetWeekly <- function(data, weeklyDenominatorFunction = sum) {
   # end
 
   data <- data[year >= 2006 & week %in% 1:52]
-  data[, trend := as.numeric(date) - 13000]
+  data[, trend := (as.numeric(date) - 13000)/100]
 
+  if(is.null(by_group)){
+    by_var <- parse(text=glue::glue("list(year,week)"))
+  } else {
+    by_var <- parse(text=glue::glue("list(year,week,{by_group})"))
+  }
   data <- data[, .(
     n = sum(n),
     denominator = weeklyDenominatorFunction(denominator),
     HelligdagIndikator = mean(HelligdagIndikator),
     trend = mean(trend)
   ),
-  by = .(year, week)
+    by = eval(by_var)
   ]
 
   data[denominator < 1, denominator := 1]
