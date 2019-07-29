@@ -746,7 +746,7 @@ influensa_data <- reactive({
   data <- pool %>%
     tbl("spuls_mem_results") %>%
     filter(season == current_season &
-             location == x_location &
+             location_code == x_location &
              tag == "influensa") %>%
         collect()
   setDT(data)
@@ -787,7 +787,7 @@ Instillinger {.sidebar}
 
 ```{r, echo = F}
 
-selectInput("influensaCounty", "Fylke", as.list(GLOBAL$dailyCounties), selected = GLOBAL$dailyCounties[1])
+selectInput("influensaCounty", "Fylke", as.list(GLOBAL$dailyCounties), selected = GLOBAL$dailyCounties[length( GLOBAL$dailyCounties)])
 
 ```
 

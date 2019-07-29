@@ -13,7 +13,7 @@ MeM <-  R6::R6Class(
       conf <<- conf
       db_config <<- db_config
       mem_schema <<- get_mem_schema()
-    },
+str    },
     run_all = function() {
       mem_schema$db_connect(db_config)
       for (i in 1:nrow(conf)) {
@@ -106,14 +106,15 @@ add_results_to_data <- function(data, mem_results){
 #' @export
 run_all_mem <- function(conf, mem_schema){
 
-  data <- readRDS(file = fhi::DashboardFolder(
+
+    data <- readRDS(file = fhi::DashboardFolder(
     "data_clean",
     sprintf("%s_%s_cleaned.RDS", LatestRawID(), conf$tag)
   ))[granularityGeo != "municip"]
 
 
-  data[, week:= lubridate::isoweek(date)]
-  data[, year:= lubridate::isoyear(date)]
+  data[, week:= fhi::isoweek_n(date)]
+  data[, year:= fhi::isoyear_n(date)]
 
   # National
   national <- data[location=="Norge" & age == "Totalt",
@@ -141,6 +142,10 @@ run_all_mem <- function(conf, mem_schema){
   out[, rate:= n /consultWithInfluensa *100]
   out[, n:= NULL]
   out[, consultWithInfluensa:= NULL]
+  out[, wkyr:=paste(year, stringr::str_pad(week, 2, pad="0"), sep="-")]
+  out <- out[fhidata::days[, .(wkyr=wkyr, date=mon)], on="wkyr", nomatch=0]
+  out[, location_code:=location]
+  out[, location:=NULL]
   mem_schema$db_connect(CONFIG$DB_CONFIG)
   mem_schema$db_drop_all_rows()
   mem_schema$db_load_data_infile(out)
@@ -191,8 +196,8 @@ create_plots <- function(conf, mem_schema=NULL){
     dir.create(folder)
   }
 
-  for(loc in unique(data[, location])){
-    data_location = data[location==loc]
+  for(loc in unique(data[, location_code])){
+    data_location = data[location_code==loc]
     title = paste(" Niv\u00E5 p\u00E5 influensaintensitet m\u00E5lt ved andel legebes\u00F8k for ILS ",
                   current_season,
                   "i",
@@ -220,7 +225,7 @@ create_plots <- function(conf, mem_schema=NULL){
                          )]
   for(current_week in weeks){
     counties <- fhidata::norway_map_counties
-    plot_data <- counties[data[week == current_week], on=.(location_code=location), nomatch=0]
+    plot_data <- counties[data[week == current_week], on=.(location_code=location_code), nomatch=0]
     cnames_country <- aggregate(cbind(long, lat) ~ rate,
                                 data=plot_data[!(location_code %in% c("county03", "county02"))],
                                 FUN=function(x)mean(range(x)))
@@ -322,13 +327,13 @@ run_mem_model <- function(data, conf){
 
 mem_results_field_types <- c(
   "tag"="TEXT",
-  "location"="TEXT",
+  "location_code"="TEXT",
   "season"="TEXT",
 #  "status"="TEXT",
-#  "wkyr"="TEXT",
+  "wkyr"="TEXT",
   "year"="INTEGER",
   "week"="INTEGER",
-#  "date"="DATE",
+  "date"="DATE",
 #  "displayDay"="DATE",
   "rate"="DOUBLE",
 #  "denominator"="INTEGER",
@@ -342,7 +347,7 @@ mem_results_field_types <- c(
 
 mem_results_keys <- c(
   "tag",
-  "location",
+  "location_code",
   "year",
   "week"
 
