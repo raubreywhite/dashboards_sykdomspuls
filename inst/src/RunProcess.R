@@ -1,6 +1,6 @@
 fhi::DashboardInitialiseOpinionated("sykdomspuls")
 fd::initialize("sykdomspuls")
-
+options(error=traceback)
 suppressMessages(library(data.table))
 suppressMessages(library(ggplot2))
 suppressMessages(library(pbmcapply))
@@ -24,11 +24,11 @@ fhi::Log("versionPackage", packageDescription("sykdomspuls")$Version)
 if(fd::config$is_dev) Sys.setenv(ONLY_RUN_LATEST_YEAR=TRUE)
 
 fhi::Log("cleanBefore")
-if (!UpdateData()) {
-   fhi::DashboardMsg("Have not run analyses and exiting")
-   q(save = "no", status = 21)
-}
-DeleteOldDatasets()
+## if (!UpdateData()) {
+##    fhi::DashboardMsg("Have not run analyses and exiting")
+##    q(save = "no", status = 21)
+## }
+## DeleteOldDatasets()
 fhi::Log("cleanAfter")
 
 fhi::Log("analyse1Before")

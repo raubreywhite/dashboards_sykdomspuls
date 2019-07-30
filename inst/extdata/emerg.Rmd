@@ -105,10 +105,10 @@ pop <- data.table(pop)[, .(pop=sum(pop)), by=.(location_code)]
 
 municip_cases <- municip_year[,  .(N=sum(n)), by=.(location)][pop, on=.(location=location_code), nomatch=0]
 
-municip_cases <- municip_cases[, .(location, N,  incidence = round(N / pop * 1000, 1))][data.table(fhi::NorwayLocations()), on=.(location=municip), nomatch=0]
+municip_cases <- municip_cases[, .(location, N,  incidence = round(N / pop * 1000, 1))][data.table(fhidata::norway_locations_current), on=.(location=municip_code), nomatch=0]
 
 
-table <- municip_cases[order(-N), .(municipName, N, incidence)][1:35]
+table <- municip_cases[order(-N), .(municip_name, N, incidence)][1:35]
  setnames(table,c(
     "Municipality","Cases","Incidence per 1000 inhabitants")
 

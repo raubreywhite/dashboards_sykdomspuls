@@ -113,10 +113,10 @@ cat("  \n \\medskip  \n ")
  if(nrow(resYearLine[failed == TRUE]) > 0){
 
     cat('<div class = "row">\n <div class = "col-md-6"> \n')
-    table <- resYearLine[failed == TRUE, .N, by=.(location)][data.table(fhi::NorwayLocations()), on=.(location=county), nomatch=0]
+    table <- resYearLine[failed == TRUE, .N, by=.(location)][data.table(fhidata::norway_locations_current), on=.(location=county_code), nomatch=0]
     cat('\\begin{minipage}[t]{0.5\\textwidth}')
     cat("Weeks when regression failed by county \n")
-    k <- knitr::kable(table[order(-N), .(countyName, N)], "latex",
+    k <- knitr::kable(table[order(-N), .(county_name, N)], "latex",
                       booktabs = T,
                       align = "c",
                       linesep = ""
@@ -133,7 +133,7 @@ cat("  \n \\medskip  \n ")
    cat('\\end{minipage}')
  }
  if(nrow(resYearLineMunicip[failed == TRUE]) > 0){
-    table <- resYearLineMunicip[failed == TRUE, .N, by=.(location)][data.table(fhi::NorwayLocations()), on=.(location=municip), nomatch=0]
+    table <- resYearLineMunicip[failed == TRUE, .N, by=.(location)][data.table(fhidata::norway_locations_current), on=.(location=municip_code), nomatch=0]
 
 
 
@@ -146,7 +146,7 @@ cat("  \n \\medskip  \n ")
     if(n_rows == 35){
        cat("(top 35)\n")
     }
-    k <- knitr::kable(table[order(-N), .(municipName, N)][1:n_rows], "latex",
+    k <- knitr::kable(table[order(-N), .(municip_name, N)][1:n_rows], "latex",
                       booktabs = T,
                       align = "c",
                       linesep = ""
