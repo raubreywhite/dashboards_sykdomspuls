@@ -24,11 +24,11 @@ fhi::Log("versionPackage", packageDescription("sykdomspuls")$Version)
 if(fd::config$is_dev) Sys.setenv(ONLY_RUN_LATEST_YEAR=TRUE)
 
 fhi::Log("cleanBefore")
-## if (!UpdateData()) {
-##    fhi::DashboardMsg("Have not run analyses and exiting")
-##    q(save = "no", status = 21)
-## }
-## DeleteOldDatasets()
+if (!UpdateData()) {
+   fhi::DashboardMsg("Have not run analyses and exiting")
+   q(save = "no", status = 21)
+}
+DeleteOldDatasets()
 fhi::Log("cleanAfter")
 
 fhi::Log("analyse1Before")
@@ -48,6 +48,9 @@ for (model_name in names(sykdomspuls::CONFIG$MODELS)){
   fd::msg(paste("Ending", model_name))
 }
 fhi::Log("analyse1After")
+
+fhi::DashboardMsg("Finished analyses and exiting")
+if (!fhi::DashboardIsDev()) quit(save = "no", status = 0)
 
 ## GENERATE LIST OF OUTBREAKS
 fhi::DashboardMsg("Generate list of outbreaks")

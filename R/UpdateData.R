@@ -140,28 +140,28 @@ UpdateData <- function() {
   # end
 
   files <- IdentifyDatasets()
-  if (!fhi::DashboardIsDev()) {
+  if (!fd::config$is_dev) {
     files <- files[is.na(isClean)]
   }
   if (nrow(files) == 0) {
-    fhi::DashboardMsg("No new data")
+    fd::msg("No new data")
     return(FALSE)
   }
-  if (!fhi::file_stable(fhi::DashboardFolder("data_raw", files$raw))) {
-    fhi::DashboardMsg(sprintf("Unstable file %s", files$raw))
+  if (!fhi::file_stable(fd::path("data_raw", files$raw))) {
+    fd::msg(sprintf("Unstable file %s", files$raw))
     return(FALSE)
   }
 
-  fhi::DashboardMsg(sprintf("Cleaning file %s", files$raw))
+  fd::msg(sprintf("Cleaning file %s", files$raw))
   EmailNotificationOfNewData(files$id)
 
-  d <- fread(fhi::DashboardFolder("data_raw", files$raw))
+  d <- fread(fd::path("data_raw", files$raw))
   d[, date := data.table::as.IDate(date)]
   d[, respiratory := NULL]
 
   for (i in 1:nrow(CONFIG$SYNDROMES)) {
     conf <- CONFIG$SYNDROMES[i]
-    fhi::DashboardMsg(sprintf("Processing %s/%s: %s", i, nrow(CONFIG$SYNDROMES), conf$tag))
+    fd::msg(sprintf("Processing %s/%s: %s", i, nrow(CONFIG$SYNDROMES), conf$tag))
 
 
     res <- CleanData(
@@ -169,7 +169,7 @@ UpdateData <- function() {
       syndrome = conf$syndrome
     )
     for(j in names(CONFIG$AGES)){
-      saveRDS(res[age==j], file = fhi::DashboardFolder(
+      saveRDS(res[age==j], file = fd::path(
         "data_clean",
         sprintf(
           "%s_%s_%s_cleaned.RDS",
@@ -181,6 +181,6 @@ UpdateData <- function() {
     }
   }
   gc()
-  fhi::DashboardMsg("New data is now formatted and ready")
+  fd::msg("New data is now formatted and ready")
   return(TRUE)
 }

@@ -55,7 +55,7 @@ CONFIG$MEM <- rbind(
     websiteInternal = TRUE,
     contactType = list("Legekontakt"),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithInfluensa",
+    denominator = "consult_with_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "Influensa",
     namesShort = "Influensa",
@@ -73,7 +73,7 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD<- rbind(
     websiteInternal = TRUE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
+    denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "Mage-tarm diagnose",
     namesShort = "Mage-tarm"
@@ -86,7 +86,7 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD<- rbind(
     websiteInternal = TRUE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
+    denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "\u00D8vre-luftvei diagnose",
     namesShort = "Luftvei"
@@ -99,7 +99,7 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD<- rbind(
     websiteInternal = FALSE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
+    denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "\u00D8vre-luftvei diagnose",
     namesShort = "Luftvei"
@@ -112,7 +112,7 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD<- rbind(
     websiteInternal = TRUE,
     contactType = list("Legekontakt"),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithInfluensa",
+    denominator = "consult_with_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "Influensa",
     namesShort = "Influensa"
@@ -125,7 +125,7 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD<- rbind(
     websiteInternal = TRUE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
+    denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "Lungebetennelse diagnose",
     namesShort = "Lungebet"
@@ -138,14 +138,14 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD<- rbind(
     websiteInternal = TRUE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
+    denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "Bronkitt diagnose",
     namesShort = "Bronkitt"
   ),
   data.table(
-    tag = "consultWithInfluensa",
-    syndrome = "consultWithInfluensa",
+    tag = "consult_with_influenza",
+    syndrome = "consult_with_influenza",
     alertInternal = FALSE,
     alertExternal = FALSE,
     websiteInternal = FALSE,
@@ -153,12 +153,12 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD<- rbind(
     syndromeOrConsult = "consult",
     denominator = "pop",
     weeklyDenominatorFunction = "mean",
-    namesLong = "consultWithInfluensa",
+    namesLong = "consult_with_influenza",
     namesShort = "ConsWithInf"
   ),
   data.table(
-    tag = "consultWithoutInfluensa",
-    syndrome = "consultWithoutInfluensa",
+    tag = "consult_without_influenza",
+    syndrome = "consult_without_influenza",
     alertInternal = FALSE,
     alertExternal = FALSE,
     websiteInternal = FALSE,
@@ -166,7 +166,7 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD<- rbind(
     syndromeOrConsult = "consult",
     denominator = "pop",
     weeklyDenominatorFunction = "mean",
-    namesLong = "consultWithoutInfluensa",
+    namesLong = "consult_without_influenza",
     namesShort = "ConsWOInf"
   ),
   data.table(
@@ -177,7 +177,7 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD<- rbind(
     websiteInternal = TRUE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
+    denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "Skabb diagnose",
     namesShort = "Skabb"
@@ -190,7 +190,7 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD<- rbind(
     websiteInternal = FALSE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
+    denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "emerg1 diagnose",
     namesShort = "emerg1"
@@ -203,7 +203,7 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD<- rbind(
     websiteInternal = FALSE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
+    denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "emerg2 diagnose",
     namesShort = "emerg2"
@@ -216,7 +216,7 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD<- rbind(
     websiteInternal = FALSE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
+    denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "emerg3 diagnose",
     namesShort = "emerg3"
@@ -229,7 +229,7 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD<- rbind(
     websiteInternal = FALSE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
+    denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "emerg4 diagnose",
     namesShort = "emerg4"
@@ -242,7 +242,7 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD<- rbind(
     websiteInternal = FALSE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
+    denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "emerg5 diagnose",
     namesShort = "emerg5"
@@ -337,15 +337,15 @@ VARS$REQ_DATA_RAW <- c(
 )
 
 VARS$REQ_DATA_CLEAN <- c(
-  "granularityGeo",
-  "county",
-  "location",
+  "granularity_geo",
+  "county_code",
+  "location_code",
   "age",
   "date",
-  "HelligdagIndikator",
+  "holiday",
   "n",
-  "consultWithoutInfluensa",
-  "consultWithInfluensa",
+  "consult_without_influenza",
+  "consult_with_influenza",
   "pop"
 )
 
@@ -354,18 +354,18 @@ VARS$REQ_DATA_ANALYSIS <- c(
   "date",
   "municip",
   "n",
-  "consultWithInfluensa",
-  "consultWithoutInfluensa",
+  "consult_with_influenza",
+  "consult_without_influenza",
   "pop"
 )
 
 VARS$REQ_RESULTS_BASIC <- c(
-  "wkyr",
+  "yrwk",
   "year",
   "week",
   "x",
   "date",
-  "HelligdagIndikator",
+  "holiday",
   "n",
   "denominator",
   "threshold0",
@@ -386,9 +386,9 @@ VARS$REQ_RESULTS_FULL <- c(
   "granularity_geo",
   "tag",
   "type",
-  "county",
-  "location",
-  "locationName",
+  "county_code",
+  "location_code",
+  "location_name",
   "age",
   "status",
   VARS$REQ_RESULTS_BASIC,

@@ -181,8 +181,8 @@ GenerateOutbreakListExternal <- function(df = readRDS(fhi::DashboardFolder("resu
 
   resultsk <- resultsf <- list()
   for (i in 1:nrow(alerts)) {
-    resultsf[[i]] <- df[status %in% alerts$statuses[[i]] & stringr::str_detect(location, alerts$location[i])]
-    resultsk[[i]] <- dk[status %in% alerts$statuses[[i]] & stringr::str_detect(location, alerts$location[i])]
+    resultsf[[i]] <- df[status %in% alerts$statuses[[i]] & stringr::str_detect(location_code, alerts$location[i])]
+    resultsk[[i]] <- dk[status %in% alerts$statuses[[i]] & stringr::str_detect(location_code, alerts$location[i])]
 
     resultsf[[i]][, email := alerts$email[i]]
     resultsk[[i]][, email := alerts$email[i]]
@@ -192,10 +192,10 @@ GenerateOutbreakListExternal <- function(df = readRDS(fhi::DashboardFolder("resu
   resultsk <- rbindlist(resultsk)
 
   resultsf[, age := factor(age, levels = names(CONFIG$AGES))]
-  setorder(resultsf, tag, location, age)
+  setorder(resultsf, tag, location_code, age)
 
   resultsk[, age := factor(age, levels = names(CONFIG$AGES))]
-  setorder(resultsk, tag, location, age)
+  setorder(resultsk, tag, location_code, age)
 
   results <- rbind(resultsf, resultsk, fill = T)
 

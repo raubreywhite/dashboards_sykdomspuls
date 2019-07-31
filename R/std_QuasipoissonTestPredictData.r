@@ -49,7 +49,7 @@ FormatDatasetWeekly <- function(
   denominator <- NULL
   trend <- NULL
   pop <- NULL
-  HelligdagIndikator <- NULL
+  holiday <- NULL
   # end
 
   data <- data[year >= 2006 & week %in% 1:52]
@@ -63,7 +63,7 @@ FormatDatasetWeekly <- function(
   data <- data[, .(
     n = sum(n),
     denominator = weeklyDenominatorFunction(denominator),
-    HelligdagIndikator = mean(HelligdagIndikator),
+    holiday = mean(holiday),
     trend = mean(trend)
   ),
     by = eval(by_var)
@@ -156,12 +156,12 @@ QuasipoissonTrainPredictData <- function(
 
   # SET REGRESSION FORMULA:
   if (isDaily) {
-    regformula <- n ~ offset(log(denominator)) + trend + factor(dayOfWeek) + sin(2 * pi * dayOfYear / 366) + cos(2 * pi * dayOfYear / 366) + HelligdagIndikator
+    regformula <- n ~ offset(log(denominator)) + trend + factor(dayOfWeek) + sin(2 * pi * dayOfYear / 366) + cos(2 * pi * dayOfYear / 366) + holiday
 
     datasetTrain <- FormatDatasetDaily(datasetTrain)
     datasetPredict <- FormatDatasetDaily(datasetPredict)
   } else {
-    regformula <- n ~ offset(log(denominator)) + trend + sin(2 * pi * (week - 1) / 52) + cos(2 * pi * (week - 1) / 52) + HelligdagIndikator
+    regformula <- n ~ offset(log(denominator)) + trend + sin(2 * pi * (week - 1) / 52) + cos(2 * pi * (week - 1) / 52) + holiday
 
     datasetTrain <- FormatDatasetWeekly(datasetTrain, weeklyDenominatorFunction = weeklyDenominatorFunction)
     datasetPredict <- FormatDatasetWeekly(datasetPredict, weeklyDenominatorFunction = weeklyDenominatorFunction)
@@ -248,10 +248,10 @@ QuasipoissonTrainPredictData <- function(
   }
 
   datasetPredict <- AddXToWeekly(datasetPredict)
-  datasetPredict[, wkyr := paste0(year, "-", formatC(week, flag = "0", width = 2))]
+  datasetPredict[, yrwk := paste0(year, "-", formatC(week, flag = "0", width = 2))]
 
   if (!isDaily) {
-    datasetPredict[fhidata::days,on="wkyr",date:=mon]
+    datasetPredict[fhidata::days,on="yrwk",date:=mon]
   }
   datasetPredict[,uuid:=uuid]
 

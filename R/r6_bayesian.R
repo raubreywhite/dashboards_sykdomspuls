@@ -40,7 +40,7 @@ bayesian_results_field_types = c(
   "location"="TEXT",
   "age"="TEXT",
   "status"="TEXT",
-  "wkyr"="TEXT",
+  "yrwk"="TEXT",
   "year"="DOUBLE",
   "week"="DOUBLE",
   "x"="DOUBLE",
@@ -128,7 +128,7 @@ bayesian <-  R6::R6Class(
 #' without additional formatting.
 #' @param conf A row from \code{CONFIG$SYNDROMES}
 #' @param data a dataset
-#' @param schema a schema
+#' @param stack_x a schema
 #' @export
 bayesian_load_stack_schema <- function(conf, data, stack_x) {
   . <- NULL

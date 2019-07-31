@@ -48,29 +48,29 @@ test_that("Basic Oslo", {
     testIfHelligdagIndikatorFileIsOutdated = FALSE,
     removeMunicipsWithoutConsults = TRUE
   )
-  res <- res[location %in% unique(d$municip)]
+  res <- res[location_code %in% unique(d$municip)]
 
   expectedRes <- data.table(expand.grid(
     date = data.table::as.IDate(seq(as.Date("2006-01-23"), as.Date("2006-01-29"), by = 1)),
     age = c("0-4", "5-14", "15-19", "20-29", "30-64", "65+", "Totalt"),
     stringsAsFactors = FALSE
   ))
-  expectedRes[, location := "municip0301"]
+  expectedRes[, location_code := "municip0301"]
 
   expectedRes[, n := 100]
   expectedRes[age == "Totalt", n := 700]
 
-  expectedRes[, consultWithInfluensa := 500]
-  expectedRes[age == "Totalt", consultWithInfluensa := 3500]
-  expectedRes[, consultWithoutInfluensa := consultWithInfluensa - n]
+  expectedRes[, consult_with_influenza := 500]
+  expectedRes[age == "Totalt", consult_with_influenza := 3500]
+  expectedRes[, consult_without_influenza := consult_with_influenza - n]
   expectedRes[, pop := 100]
   expectedRes[age == "Totalt", pop := 600]
-  expectedRes[, county := "county03"]
-  expectedRes[, HelligdagIndikator := 0]
-  expectedRes[, granularityGeo := "municip"]
+  expectedRes[, county_code := "county03"]
+  expectedRes[, holiday := 0]
+  expectedRes[, granularity_geo := "municip"]
   setcolorder(expectedRes, VARS$REQ_DATA_CLEAN)
-  setkey(expectedRes, location, age, date)
-  setkey(res, location, age, date)
+  setkey(expectedRes, location_code, age, date)
+  setkey(res, location_code, age, date)
 
   res[, pop := 1]
   expectedRes[, pop := 1]
@@ -88,7 +88,7 @@ test_that("Sandefjord joining together", {
     testIfHelligdagIndikatorFileIsOutdated = FALSE,
     removeMunicipsWithoutConsults = TRUE
   )
-  res <- res[granularityGeo == "municip"]
+  res <- res[granularity_geo == "municip"]
 
   testthat::expect_equal(unique(res$location), "municip0710")
 })

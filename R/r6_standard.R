@@ -13,9 +13,7 @@ standard <-  R6::R6Class(
       conf <<- conf
       db_config <<- db_config
 
-      for (i in 1:nrow(conf)) {
-        tags[[i]] <<- quasipoission$new(conf = conf[i], db_config = db_config)
-      }
+      tags <<- apply(conf,1,function(x) quasip$new(conf = x, db_config = db_config))
     },
     run_analysis = function(db_config = self$db_config){
       fd::msg("Starting standard in parallel")
@@ -30,6 +28,8 @@ standard <-  R6::R6Class(
         tags[[i]]$run(base_folder = base_folder, latest_id = latest_id)
       }
       stopCluster(cl)
+
+      data.table::setDTthreads(parallel::detectCores()-2)
 
       fd::msg("Finished standard in parallel")
 
@@ -63,29 +63,29 @@ standard <-  R6::R6Class(
         dplyr::collect() %>%
         fd::latin1_to_utf8()
 
-      GLOBAL$dailyCounties <- unique(val$location)
-      names(GLOBAL$dailyCounties) <- unique(val$locationName)
-      GLOBAL$weeklyCounties <- unique(val$location)
-      names(GLOBAL$weeklyCounties) <- unique(val$locationName)
+      GLOBAL$dailyCounties <- unique(val$location_code)
+      names(GLOBAL$dailyCounties) <- unique(val$location_name)
+      GLOBAL$weeklyCounties <- unique(val$location_code)
+      names(GLOBAL$weeklyCounties) <- unique(val$location_name)
 
       ###########################
       val <- tags[[1]]$results_x$dplyr_tbl() %>%
         dplyr::filter(
             granularity_time=="weekly"
         ) %>%
-        dplyr::distinct(wkyr) %>%
+        dplyr::distinct(yrwk) %>%
         dplyr::collect() %>%
         fd::latin1_to_utf8()
 
-      GLOBAL$weeklyWkyr <- rev(val$wkyr)
-      GLOBAL$outbreakswkyr <- rev(val$wkyr)
+      GLOBAL$weeklyyrwk <- rev(val$yrwk)
+      GLOBAL$outbreaksyrwk <- rev(val$yrwk)
 
       ###########################
       val <- tags[[1]]$results_x$dplyr_tbl() %>%
         dplyr::filter(
           granularity_time=="weekly"
         ) %>%
-        dplyr::distinct(location,locationName,county) %>%
+        dplyr::distinct(location_code,location_name,county_code) %>%
         dplyr::collect() %>%
         fd::latin1_to_utf8()
 
@@ -96,7 +96,7 @@ standard <-  R6::R6Class(
         dplyr::filter(
             granularity_time=="daily"
         ) %>%
-        dplyr::distinct(tag,location,age) %>%
+        dplyr::distinct(tag,location_code,age) %>%
         dplyr::collect() %>%
         fd::latin1_to_utf8()
 
@@ -109,14 +109,14 @@ standard <-  R6::R6Class(
         dplyr::filter(
           granularity_time=="weekly"
         ) %>%
-        dplyr::distinct(tag,location,age) %>%
+        dplyr::distinct(tag,location_code,age) %>%
         dplyr::collect() %>%
         fd::latin1_to_utf8()
 
       setnames(val,"tag","type")
 
-      GLOBAL$resYearLineStack <- val[!stringr::str_detect(location,"^municip")]
-      GLOBAL$resYearLineMunicipStack <- val[stringr::str_detect(location,"^municip")]
+      GLOBAL$resYearLineStack <- val[!stringr::str_detect(location_code,"^municip")]
+      GLOBAL$resYearLineMunicipStack <- val[stringr::str_detect(location_code,"^municip")]
 
       GLOBAL$weeklyValues <- c(
         "Konsultasjoner" = "consults",
@@ -174,6 +174,10 @@ standard <-  R6::R6Class(
       d[,HelligdagIndikator:=0]
       d[,file:="x"]
       d[,displayDay:=date]
+      d[,location:=location_code]
+      d[,locationName:=location_name]
+      d[,county:=county_code]
+      d[,wkyr:=yrwk]
 
       for(i in names(d)){
         if(!i %in% names_req) d[,(i):=NULL]
@@ -200,6 +204,10 @@ standard <-  R6::R6Class(
       dk[,HelligdagIndikator:=0]
       dk[,file:="x"]
       dk[,displayDay:=date]
+      dk[,location:=location_code]
+      dk[,locationName:=location_name]
+      dk[,county:=county_code]
+      dk[,wkyr:=yrwk]
 
       for(i in names(dk)){
         if(!i %in% names_req) dk[,(i):=NULL]
@@ -223,6 +231,10 @@ standard <-  R6::R6Class(
       df[,HelligdagIndikator:=0]
       df[,file:="x"]
       df[,displayDay:=date]
+      df[,location:=location_code]
+      df[,locationName:=location_name]
+      df[,county:=county_code]
+      df[,wkyr:=yrwk]
 
       for(i in names(df)){
         if(!i %in% names_req) df[,(i):=NULL]
@@ -245,23 +257,23 @@ standard <-  R6::R6Class(
       fd::msg("Generating external outbreak alerts")
 
       val <- tags[[1]]$results_x$dplyr_tbl() %>%
-        dplyr::summarize(wkyr = max(wkyr,na.rm=T)) %>%
+        dplyr::summarize(yrwk = max(yrwk,na.rm=T)) %>%
         dplyr::collect() %>%
         fd::latin1_to_utf8()
 
-      val <- val$wkyr
+      val <- val$yrwk
 
       d <- tags[[1]]$results_x$dplyr_tbl() %>%
         dplyr::filter(
           granularity_time=="weekly" &
-          wkyr==val
+          yrwk==val
         ) %>%
         dplyr::collect() %>%
         fd::latin1_to_utf8()
 
       GenerateOutbreakListExternal(
-        df = d[!stringr::str_detect(location,"^municip")],
-        dk = d[stringr::str_detect(location,"^municip")],
+        df = d[granularity_geo!="municip"],
+        dk = d[granularity_geo=="municip"],
         saveFiles = fd::path("results", latest_date(), "outbreaks_alert_external.RDS")
       )
 

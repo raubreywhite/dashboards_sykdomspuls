@@ -11,7 +11,7 @@ bayesian_load_stack_schema(conf, data, stack_x)
 
 \item{data}{a dataset}
 
-\item{schema}{a schema}
+\item{stack_x}{a schema}
 }
 \description{
 Given one row from \code{CONFIG$SYNDROMES} we need

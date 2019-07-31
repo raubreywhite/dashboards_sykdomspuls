@@ -12,5 +12,5 @@ test_that("significantByThreshold vs significantByConfidenceIntervals", {
 
   significantByThreshold <- res[n > threshold2]
   significantByConfidenceIntervals <- res[cumL1 > 0]
-  expect_equal(significantByThreshold, significantByConfidenceIntervals)
+  testthat::expect_equal(significantByThreshold, significantByConfidenceIntervals)
 })

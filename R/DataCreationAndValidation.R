@@ -9,8 +9,9 @@ GenFakeDataRaw <- function(xmunicipEnd = "municip5054") {
   syndromeOrConsult <- NULL
   age <- NULL
 
-  m <- copy(fhi::NorwayMunicipMerging())
-  skeleton <- unique(m[municipEnd == xmunicipEnd & year <= lubridate::year(lubridate::today()), c("municip", "year")])
+  m <- fhidata::norway_municip_merging
+  skeleton <- unique(m[municip_code_current == xmunicipEnd & year <= lubridate::year(lubridate::today()), c("municip_code_original", "year")])
+  setnames(skeleton,"municip_code_original","municip")
 
   data <- vector("list", length = nrow(skeleton))
   for (i in 1:length(data)) {
@@ -74,7 +75,7 @@ GenFakeDataClean <- function(syndrome = "influensa", xmunicipEnd = "municip5054"
 
   d <- GenFakeDataRaw(xmunicipEnd = xmunicipEnd)
   d <- CleanData(d, syndrome = syndrome, removeMunicipsWithoutConsults = T)
-  d <- d[granularityGeo == "municip"]
+  d <- d[granularity_geo == "municip"]
 
   return(d)
 }
@@ -108,7 +109,7 @@ GenFakeDataAnalysis <- function(syndrome = "influensa", xage = "Totalt", xmunici
 
   d <- GenFakeDataClean(syndrome = syndrome, xmunicipEnd = xmunicipEnd)[age == xage]
 
-  setnames(d, "consultWithInfluensa", "denominator")
+  setnames(d, "consult_with_influenza", "denominator")
   return(d)
 }
 
@@ -126,8 +127,8 @@ GenFakeResultsFull <- function(granularity = "weekly", syndrome = "influensa", x
 
   stack <- data.table(
     tag = syndrome,
-    denominator = "consultWithInfluensa",
-    location = xmunicipEnd,
+    denominator = "consult_with_influenza",
+    location_code = xmunicipEnd,
     age = xage,
     granularity_time = granularity,
     granularity_geo = "municip",

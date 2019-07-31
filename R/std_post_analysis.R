@@ -27,7 +27,7 @@ clean_post_analysis <- function(res,stack){
   res[stack,on="uuid", age:=age]
   res[stack,on="uuid", type:=tag]
   res[stack,on="uuid", tag:=tag]
-  res[stack,on="uuid", location:=location]
+  res[stack,on="uuid", location_code:=location_code]
   res[stack,on="uuid", file:=file]
   res[stack,on="uuid", granularity_time:=granularity_time]
   res[stack,on="uuid", granularity_geo:=granularity_geo]
@@ -42,17 +42,17 @@ clean_post_analysis <- function(res,stack){
 
   # adding in extra information
   # add location name
-  res[fhidata::norway_locations_long_current,on="location==location_code", locationName:=location_name]
-  res[is.na(locationName),locationName:="Norge"]
+  res[fhidata::norway_locations_long_current,on="location_code==location_code", location_name:=location_name]
+  res[is.na(location_name),location_name:="Norge"]
 
   # add county
-  res[, county:= location]
-  res[fhidata::norway_locations_current,on="location==municip_code", county:=county_code]
+  res[fhidata::norway_locations_current,on="location_code==municip_code", county_code:=county_code]
+  res[is.na(county_code), county_code := location_code]
 
   # cleaning on small municipalities
-  res[location %in% CONFIG$smallMunicips & age != "Totalt", n := 0 ]
-  res[location %in% CONFIG$smallMunicips & age != "Totalt", threshold2 := 5 ]
-  res[location %in% CONFIG$smallMunicips & age != "Totalt", threshold4 := 10 ]
+  res[location_code %in% CONFIG$smallMunicips & age != "Totalt", n := 0 ]
+  res[location_code %in% CONFIG$smallMunicips & age != "Totalt", threshold2 := 5 ]
+  res[location_code %in% CONFIG$smallMunicips & age != "Totalt", threshold4 := 10 ]
 
   return(res)
 }

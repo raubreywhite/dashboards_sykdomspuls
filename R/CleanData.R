@@ -65,13 +65,13 @@ CleanData <- function(d,
     d[, date := data.table::as.IDate(date)]
   }
 
-  d[, consultWithoutInfluensa := consult - influensa]
-  setnames(d, "consult", "consultWithInfluensa")
+  d[, consult_without_influenza := consult - influensa]
+  setnames(d, "consult", "consult_with_influenza")
 
   syndromeAndConsult <- unique(c(
     syndrome,
-    "consultWithInfluensa",
-    "consultWithoutInfluensa"
+    "consult_with_influenza",
+    "consult_without_influenza"
   ))
 
   d <- d[municip != "municip9999",
@@ -83,7 +83,7 @@ CleanData <- function(d,
   dateMin <- min(d$date)
   dateMax <- max(d$date)
   if (removeMunicipsWithoutConsults) {
-    d[, total := sum(consultWithInfluensa, na.rm = T), by = municip]
+    d[, total := sum(consult_with_influenza, na.rm = T), by = municip]
     d <- d[is.finite(total)]
     d <- d[total > 0]
     d[, total := NULL]
@@ -192,11 +192,11 @@ CleanData <- function(d,
 
   setnames(data, syndrome, "n")
 
-  if (!"consultWithInfluensa" %in% names(data)) {
-    data[, consultWithInfluensa := n]
+  if (!"consult_with_influenza" %in% names(data)) {
+    data[, consult_with_influenza := n]
   }
-  if (!"consultWithoutInfluensa" %in% names(data)) {
-    data[, consultWithoutInfluensa := n]
+  if (!"consult_without_influenza" %in% names(data)) {
+    data[, consult_without_influenza := n]
   }
 
   setcolorder(data, unique(
@@ -207,8 +207,8 @@ CleanData <- function(d,
       "municip",
       "age",
       "n",
-      "consultWithoutInfluensa",
-      "consultWithInfluensa",
+      "consult_without_influenza",
+      "consult_with_influenza",
       "pop"
     )
   ))
@@ -223,8 +223,8 @@ CleanData <- function(d,
   fylke <- data[, .(
     HelligdagIndikator = mean(HelligdagIndikator),
     n = sum(n),
-    consultWithoutInfluensa = sum(consultWithoutInfluensa),
-    consultWithInfluensa = sum(consultWithInfluensa),
+    consult_without_influenza = sum(consult_without_influenza),
+    consult_with_influenza = sum(consult_with_influenza),
     pop = sum(pop)
   ), keyby = .(county, age, date)]
 
@@ -235,8 +235,8 @@ CleanData <- function(d,
   norge <- data[, .(
     HelligdagIndikator = mean(HelligdagIndikator),
     n = sum(n),
-    consultWithoutInfluensa = sum(consultWithoutInfluensa),
-    consultWithInfluensa = sum(consultWithInfluensa),
+    consult_without_influenza = sum(consult_without_influenza),
+    consult_with_influenza = sum(consult_with_influenza),
     pop = sum(pop)
   ), keyby = .(age, date)]
 
@@ -249,8 +249,21 @@ CleanData <- function(d,
   setorderv(data, c("granularityGeo", "county", "location", "age", "date"))
   setkey(data, location, age)
 
+  setnames(data,c(
+    "granularity_geo",
+    "county_code",
+    "location_code",
+    "age",
+    "date",
+    "holiday",
+    "n",
+    "consult_without_influenza",
+    "consult_with_influenza",
+    "pop"
+    ))
+
   if (!ValidateDataClean(data)) {
-    fhi::DashboardMsg("Clean data not validated", type = "err")
+    fd::msg("Clean data not validated", type = "err")
   }
 
   return(data)

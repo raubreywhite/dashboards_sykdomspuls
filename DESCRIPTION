@@ -40,7 +40,12 @@ Imports:
   magrittr,
   DBI,
   odbc,
-  uuid
+  uuid,
+  blastula,
+  glue,
+  huxtable,
+  reshape2,
+  rstanarm
 Suggests: testthat,
     knitr,
     rmarkdown,

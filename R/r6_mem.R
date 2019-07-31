@@ -46,54 +46,6 @@ run_all <- function(conf){
 
 }
 
-add_columns <- function(data){
-  data[, low:=as.numeric(NaN)]
-  data[, medium:=as.numeric(NaN)]
-  data[, high:=as.numeric(NaN)]
-  data[, very_high:=as.numeric(NaN)]
-  data[, season:= ""]
-
-}
-
-add_results_to_data <- function(data, mem_results){
-
-  for(yea in unique(data[, year])){
-    label0_20 = paste(yea - 2, yea - 1, sep="/")
-    label40_52 = paste(yea - 1, yea, sep="/")
-
-    data[year==yea & week<=20, season:= paste(yea - 1, yea, sep="/")]
-    data[year==yea & week>=40, season:= paste(yea, yea + 1 , sep="/")]
-
-    if(! is.null(mem_results[[label0_20]][1])){
-      data[year==yea & week<=20, low:= mem_results[[label0_20]][1]]
-    }
-    if(! is.null(mem_results[[label0_20]][2])){
-      data[year==yea & week<=20, medium:= mem_results[[label0_20]][2]]
-    }
-    if(! is.null(mem_results[[label0_20]][3])){
-      data[year==yea & week<=20, high:= mem_results[[label0_20]][3]]
-    }
-
-    if(! is.null(mem_results[[label0_20]][4])){
-      data[year==yea & week<=20, very_high:= mem_results[[label0_20]][4]]
-    }
-    if(! is.null(mem_results[[label40_52]][1])){
-      data[year == yea & week>=40, low:= mem_results[[label40_52]][1]]
-    }
-    if(! is.null(mem_results[[label40_52]][2])){
-      data[year == yea & week>=40, medium:= mem_results[[label40_52]][2]]
-    }
-    if(! is.null(mem_results[[label40_52]][3])){
-      data[year == yea & week>=40, high:= mem_results[[label40_52]][3]]
-    }
-    if(! is.null(mem_results[[label40_52]][4])){
-      data[year == yea & week>=40, very_high:= mem_results[[label40_52]][4]]
-    }
-
-
-  }
-  return(data)
-}
 
 #'
 #' run_all_mem
@@ -109,48 +61,56 @@ run_all_mem <- function(conf, mem_schema){
 
     data <- readRDS(file = fhi::DashboardFolder(
     "data_clean",
-    sprintf("%s_%s_cleaned.RDS", LatestRawID(), conf$tag)
-  ))[granularityGeo != "municip"]
+    sprintf("%s_%s_%s_cleaned.RDS", LatestRawID(), conf$tag, "Totalt")
+  ))[granularity_geo != "municip"]
 
 
   data[, week:= fhi::isoweek_n(date)]
   data[, year:= fhi::isoyear_n(date)]
+  data[, yrwk:= fhi::isoyearweek(date)]
+  data[, season:= fhi::season(yrwk)]
 
   # National
-  national <- data[location=="Norge" & age == "Totalt",
-    .(n=sum(n), consultWithInfluensa=sum(consultWithInfluensa)), by=.(year, week)]
+  national <- data[location_code=="Norge",
+    .(n=sum(n), consult_with_influenza=sum(consult_with_influenza)), by=.(year, week, yrwk, season)]
 
   mem_national_df = prepare_data_frame(national)
   mem_results = run_mem_model(mem_national_df, conf)
-  add_columns(national)
-  national <- add_results_to_data(national, mem_results)
-  national[, location:="norge"]
+
+  national[mem_results,on="season", low:=low]
+  national[mem_results,on="season", medium:=medium]
+  national[mem_results,on="season", high:=high]
+  national[mem_results,on="season", very_high:=very_high]
+
+  national[, location_code:="norge"]
 
   # County
 
-  counties <- data[granularityGeo=="county",
-    .(n=sum(n), consultWithInfluensa=sum(consultWithInfluensa)), by=.(year, week, location)]
-  add_columns(counties)
-  for(county in unique(counties[, location])){
-    mem_df = prepare_data_frame(counties[location == county])
+  counties <- data[granularity_geo=="county",
+    .(n=sum(n), consult_with_influenza=sum(consult_with_influenza)), by=.(year, week, yrwk, season, location_code)]
+
+
+  for(county in unique(counties[, location_code])){
+    mem_df = prepare_data_frame(counties[location_code == county])
     mem_results = run_mem_model(mem_df, conf)
-    counties[location==county] <-add_results_to_data(counties[location==county], mem_results)
+    mem_results[,location_code:=county]
+
+    counties[mem_results,on=c("season","location_code"), low:=low]
+    counties[mem_results,on=c("season","location_code"), medium:=medium]
+    counties[mem_results,on=c("season","location_code"), high:=high]
+    counties[mem_results,on=c("season","location_code"), very_high:=very_high]
   }
 
   out = rbind(national, counties)
   out[, tag:=conf$tag]
-  out[, rate:= n /consultWithInfluensa *100]
+  out[, rate:= n /consult_with_influenza *100]
   out[, n:= NULL]
-  out[, consultWithInfluensa:= NULL]
-  out[, wkyr:=paste(year, stringr::str_pad(week, 2, pad="0"), sep="-")]
-  out <- out[fhidata::days[, .(wkyr=wkyr, date=mon)], on="wkyr", nomatch=0]
-  out[, location_code:=location]
-  out[, location:=NULL]
+  out[, consult_with_influenza:= NULL]
+  out[fhidata::days,on="yrwk", date:=mon]
+
   mem_schema$db_connect(CONFIG$DB_CONFIG)
   mem_schema$db_drop_all_rows()
   mem_schema$db_load_data_infile(out)
-
-
 }
 
 
@@ -283,7 +243,7 @@ prepare_data_frame <- function(data){
 
   useful_data <- data[week >= 40 | week <=20]
 
-  useful_data[, rate := n /consultWithInfluensa * 100]
+  useful_data[, rate := n /consult_with_influenza * 100]
   useful_data[, label := ifelse(week >= 40,
                                 paste(year, year + 1, sep="/"),
                                 paste(year - 1, year,  sep="/")
@@ -317,9 +277,17 @@ run_mem_model <- function(data, conf){
                     epi$epi.intervals[3,4]
                     )
 
-    }
+  }
 
-  return(out)
+  mem_results <- data.frame(out)
+  mem_results$val <- c("low","medium","high","very_high")
+  mem_results <- reshape2::melt(mem_results, id="val")
+  setDT(mem_results)
+  mem_results[,season:=stringr::str_replace(variable,"\\.","/")]
+  mem_results[,season:=stringr::str_remove(season,"X")]
+  mem_results <- dcast.data.table(mem_results,season~val,value.var = "value")
+
+  return(mem_results)
 
 }
 
@@ -329,20 +297,15 @@ mem_results_field_types <- c(
   "tag"="TEXT",
   "location_code"="TEXT",
   "season"="TEXT",
-#  "status"="TEXT",
-  "wkyr"="TEXT",
+  "yrwk"="TEXT",
   "year"="INTEGER",
   "week"="INTEGER",
   "date"="DATE",
-#  "displayDay"="DATE",
   "rate"="DOUBLE",
-#  "denominator"="INTEGER",
   "low"="DOUBLE",
   "medium"="DOUBLE",
   "high"="DOUBLE",
   "very_high"="DOUBLE"
-#  "locationName"="TEXT",
-#  "county"="TEXT"
 )
 
 mem_results_keys <- c(
