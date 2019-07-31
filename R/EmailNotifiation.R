@@ -125,7 +125,7 @@ EmailExternalGenerateTable <- function(results, xtag, xemail) {
 #' @param forceYesOutbreak For testing. Do you want to force a "Yes outbreak" email?
 #' @export EmailExternal
 EmailExternal <- function(
-                          results = readRDS(fhi::DashboardFolder("results", sprintf("%s/outbreaks_alert_external.RDS", latest_date()))),
+                          results = readRDS(fd::path("results", sprintf("%s/outbreaks_alert_external.RDS", latest_date()))),
                           alerts = GetAlertsEmails(),
                           forceNoOutbreak = FALSE,
                           forceYesOutbreak = FALSE) {
@@ -150,7 +150,7 @@ EmailExternal <- function(
   emailSubjectNoOutbreak <- "Pilotprosjektet Sykdomspulsen til kommunehelsetjenesten er oppdatert med nye tall"
   emailSubjectYesOutbreak <- "OBS varsel fra Sykdomspulsen"
 
-  if (fhi::DashboardIsProduction()) {
+  if (fd::config$is_production) {
     if (forceNoOutbreak | forceYesOutbreak) stop("forceNoOutbreak/forceYesOutbreak set when not testing")
   } else {
     if (!"test@rwhite.no" %in% unique(alerts$email)) stop("THIS IS NOT A TEST EMAIL DATASET")
@@ -297,7 +297,7 @@ EmailEmerg <- function() {
     "sykdomspuls_emerg",
     emailSubject = "A NorSySS PDF - Emerg",
     emailText,
-    emailAttachFiles = fhi::DashboardFolder("results", sprintf("%s/emerg/emerg.pdf", LatestRawID())),
+    emailAttachFiles = fd::path("results", sprintf("%s/emerg/emerg.pdf", LatestRawID())),
     emailFooter = FALSE,
     BCC = FALSE
   )
@@ -322,7 +322,7 @@ EmailStats <- function() {
     "sykdomspuls_stats",
     emailSubject = "A NorSySS PDF - Stats",
     emailText,
-    emailAttachFiles = fhi::DashboardFolder("results", sprintf("%s/stats/stats.pdf", LatestRawID())),
+    emailAttachFiles = fd::path("results", sprintf("%s/stats/stats.pdf", LatestRawID())),
     emailFooter = FALSE,
     BCC = FALSE
   )
@@ -348,7 +348,7 @@ EmailSkabb <- function() {
     "sykdomspuls_skabb",
     emailSubject = "A NorSySS PDF - skabb",
     emailText,
-    emailAttachFiles = fhi::DashboardFolder("results", sprintf("%s/skabb/skabb.pdf", LatestRawID())),
+    emailAttachFiles = fd::path("results", sprintf("%s/skabb/skabb.pdf", LatestRawID())),
     emailFooter = FALSE,
     BCC = FALSE
   )
@@ -358,7 +358,7 @@ EmailSkabb <- function() {
 #' Email notification of new results
 #' @param lastEmailedUtbruddFile File containing the last week that emails were sent out
 #' @export EmailNotificationOfNewResults
-EmailNotificationOfNewResults <- function(lastEmailedUtbruddFile = fhi::DashboardFolder("results", "lastEmailedUtbrudd.RDS")) {
+EmailNotificationOfNewResults <- function(lastEmailedUtbruddFile = fd::path("results", "lastEmailedUtbrudd.RDS")) {
   thisWeek <- format.Date(lubridate::today(), "%U")
   sendEmail <- TRUE
 
