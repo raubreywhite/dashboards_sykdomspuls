@@ -4,8 +4,8 @@
 #' @import data.table
 #' @export IdentifyAllDatasets
 IdentifyAllDatasets <-
-  function(raw = list.files(fhi::DashboardFolder("data_raw"), "^partially_formatted_"),
-             clean = list.files(fhi::DashboardFolder("data_clean"), "done_")) {
+  function(raw = list.files(fd::path("data_raw"), "^partially_formatted_"),
+             clean = list.files(fd::path("data_clean"), "done_")) {
     # variables used in data.table functions in this function
     id <- isRaw <- isClean <- NULL
     # end
@@ -32,16 +32,16 @@ IdentifyAllDatasets <-
 #' @import data.table
 #' @export DeleteOldDatasets
 DeleteOldDatasets <-
-  function(raw = list.files(fhi::DashboardFolder("data_raw"), "^partially_formatted_"),
-             clean = list.files(fhi::DashboardFolder("data_clean"), "done_")) {
+  function(raw = list.files(fd::path("data_raw"), "^partially_formatted_"),
+             clean = list.files(fd::path("data_clean"), "done_")) {
     res <- IdentifyAllDatasets(raw = raw, clean = clean)
     if (nrow(res) > 0) {
       res <- res[-nrow(res)]
     }
     for (i in 1:nrow(res)) {
-      unlink(file.path(fhi::DashboardFolder("data_raw"), res[i]$raw))
+      unlink(file.path(fd::path("data_raw"), res[i]$raw))
       unlink(file.path(
-        fhi::DashboardFolder("data_clean"),
+        fd::path("data_clean"),
         sprintf("*%s*", res[i]$id)
       ))
     }
@@ -83,7 +83,7 @@ latest_date <- function() {
 #' @param file Location of the latest done file (according to latest raw data file)
 #' @export DeleteLatestDoneFile
 DeleteLatestDoneFile <-
-  function(file = fhi::DashboardFolder("data_clean", paste0("done_", LatestRawID(), ".txt"))) {
+  function(file = fd::path("data_clean", paste0("done_", LatestRawID(), ".txt"))) {
     try(unlink(file), TRUE)
     # try(unlink(paste0("data_clean/done_",LatestRawID(),".txt")),TRUE)
   }
@@ -92,7 +92,7 @@ DeleteLatestDoneFile <-
 #' @param file Location of the latest done file (according to latest raw data file)
 #' @export CreateLatestDoneFile
 CreateLatestDoneFile <-
-  function(file = fhi::DashboardFolder("data_clean", paste0("done_", LatestRawID(), ".txt"))) {
+  function(file = fd::path("data_clean", paste0("done_", LatestRawID(), ".txt"))) {
     try(file.create(file), TRUE)
     # try(file.create(paste0("data_clean/done_",LatestRawID(),".txt")),TRUE)
   }

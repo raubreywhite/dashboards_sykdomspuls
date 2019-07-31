@@ -5,10 +5,10 @@
 #' @param useType Use type or tag as variable name
 #' @import data.table
 #' @export GenerateOutbreakListInternal
-GenerateOutbreakListInternal <- function(df = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine.RDS", LatestRawID()))),
-                                         dk = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLineMunicip.RDS", LatestRawID()))),
+GenerateOutbreakListInternal <- function(df = readRDS(fd::path("results", sprintf("%s/resYearLine.RDS", LatestRawID()))),
+                                         dk = readRDS(fd::path("results", sprintf("%s/resYearLineMunicip.RDS", LatestRawID()))),
                                          saveFiles = c(
-                                           fhi::DashboardFolder("results", sprintf("%s/outbreaks.RDS", LatestRawID()))
+                                           fd::path("results", sprintf("%s/outbreaks.RDS", LatestRawID()))
                                          ),
                                          useType = FALSE) {
   # variables used in data.table functions in this function
@@ -158,9 +158,9 @@ GenerateOutbreakListInternal <- function(df = readRDS(fhi::DashboardFolder("resu
 #' @param alerts Excel sheet containing registration information
 #' @import data.table
 #' @export GenerateOutbreakListExternal
-GenerateOutbreakListExternal <- function(df = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine.RDS", LatestRawID()))),
-                                         dk = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLineMunicip.RDS", LatestRawID()))),
-                                         saveFiles = fhi::DashboardFolder("results", sprintf("%s/outbreaks_alert_external.RDS", LatestRawID())),
+GenerateOutbreakListExternal <- function(df = readRDS(fd::path("results", sprintf("%s/resYearLine.RDS", LatestRawID()))),
+                                         dk = readRDS(fd::path("results", sprintf("%s/resYearLineMunicip.RDS", LatestRawID()))),
+                                         saveFiles = fd::path("results", sprintf("%s/outbreaks_alert_external.RDS", LatestRawID())),
                                          alerts = GetAlertsEmails()) {
   # variables used in data.table functions in this function
   . <- NULL
