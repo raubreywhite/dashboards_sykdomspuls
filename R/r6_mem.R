@@ -90,16 +90,21 @@ run_all_mem <- function(conf, mem_schema){
     .(n=sum(n), consult_with_influenza=sum(consult_with_influenza)), by=.(year, week, yrwk, season, location_code)]
 
 
-  for(county in unique(counties[, location_code])){
+  nam <- unique(counties[, location_code])
+  res <- vector("list",length=length(nam))
+  for(i in seq_along(nam)){
+    county = nam[i]
     mem_df = prepare_data_frame(counties[location_code == county])
     mem_results = run_mem_model(mem_df, conf)
     mem_results[,location_code:=county]
-
-    counties[mem_results,on=c("season","location_code"), low:=low]
-    counties[mem_results,on=c("season","location_code"), medium:=medium]
-    counties[mem_results,on=c("season","location_code"), high:=high]
-    counties[mem_results,on=c("season","location_code"), very_high:=very_high]
+    res[[i]] <- mem_results
   }
+  res <- rbindlist(res)
+
+  counties[res,on=c("season","location_code"), low:=low]
+  counties[res,on=c("season","location_code"), medium:=medium]
+  counties[res,on=c("season","location_code"), high:=high]
+  counties[res,on=c("season","location_code"), very_high:=very_high]
 
   out = rbind(national, counties)
   out[, tag:=conf$tag]
@@ -108,32 +113,14 @@ run_all_mem <- function(conf, mem_schema){
   out[, consult_with_influenza:= NULL]
   out[fhidata::days,on="yrwk", date:=mon]
 
+  out[,x:=fhi::x(week)]
+
   mem_schema$db_connect(CONFIG$DB_CONFIG)
   mem_schema$db_drop_all_rows()
   mem_schema$db_load_data_infile(out)
 }
 
 
-#' get_season
-#'
-#' get the influensa season
-#'
-#' @param date Date to get the current season for
-#'
-#' @export
-get_season <- function(date){
-
-  year = year(date)
-  week = week(date)
-
-  if(week < 40){
-    season = paste(year - 1, year, sep="/")
-  } else {
-    season = paste(year, year + 1, sep="/")
-
-  }
-  return(season)
-}
 
 #' create MEM season plots
 #'
@@ -142,13 +129,15 @@ get_season <- function(date){
 #' @export
 create_plots <- function(conf, mem_schema=NULL){
 
-  current_season <- get_season(Sys.Date())
   if(is.null(mem_schema)){
     mem_schema<- get_mem_schema()
     mem_schema$db_connect(CONFIG$DB_CONFIG)
   }
+  current_season <- mem_schema$dplyr_tbl() %>%
+    dplyr::summarize(season=max(season,na.rm=T)) %>%
+    dplyr::collect()
+  current_season <- current_season$season
   data <- mem_schema$get_data_db(season==current_season)
-
 
   folder <- fhi::DashboardFolder("results", sprintf("%s/%s", latest_date(),
                                                     paste("mem",conf$tag, sep="_")))
@@ -169,23 +158,23 @@ create_plots <- function(conf, mem_schema=NULL){
     ggsave(filename, chart, height=7, width=9)
   }
 
-  latest_week <- max(data[year == max(data[, year]), week])
-  if(latest_week > 20){
-    weeks <- 40:latest_week
-  } else {
-    weeks <- c(40:52,1:latest_week)
-  }
+  latest_week <- max(data[, x])
+  weeks <- unique(data[,c("x","week","yrwk")])
+  setorder(weeks,x)
+
   counties <- fhidata::norway_map_counties
-  data[, status:= ifelse(rate <= low, "Sv\u00E6rt lav",
-                         ifelse(rate <= medium, "Lav",
-                                ifelse( rate <= high, "Middels",
-                                       ifelse (rate <= very_high, "H\u00F8y", "Sv\u00E6rt h\u00F8y")
-                                       )
-                                )
-                         )]
-  for(current_week in weeks){
+
+  data[, status:=as.character(NA)]
+  data[is.na(status) & rate <= low, status:="Sv\u00E6rt lav"]
+  data[is.na(status) & rate <= medium, status:="Lav"]
+  data[is.na(status) & rate <= high, status:="Middels"]
+  data[is.na(status) & rate <= very_high, status:="H\u00F8y"]
+  data[is.na(status) & rate > very_high, status:="Sv\u00E6rt h\u00F8y"]
+
+  for(i in 1:nrow(weeks)){
     counties <- fhidata::norway_map_counties
-    plot_data <- counties[data[week == current_week], on=.(location_code=location_code), nomatch=0]
+    xyrwk <- weeks$yrwk[i]
+    plot_data <- counties[data[yrwk == xyrwk], on=.(location_code=location_code), nomatch=0]
     cnames_country <- aggregate(cbind(long, lat) ~ rate,
                                 data=plot_data[!(location_code %in% c("county03", "county02"))],
                                 FUN=function(x)mean(range(x)))
@@ -231,7 +220,7 @@ create_plots <- function(conf, mem_schema=NULL){
         ggplotGrob(oslo_akershus),
         xmin = 10, xmax = 35, ymin = 60, ymax = 65
       )
-    filename = paste(folder, "/map_week", current_week, ".png", sep="")
+    filename = paste(folder, "/map_week", xyrwk, ".png", sep="")
     ggsave(filename, map_plot, height=7, width=5)
   }
 
@@ -241,24 +230,18 @@ create_plots <- function(conf, mem_schema=NULL){
 
 prepare_data_frame <- function(data){
 
-  useful_data <- data[week >= 40 | week <=20]
-
+  useful_data <- data[week %in% c(1:20,40:52)]
+  AddXToWeekly(useful_data)
   useful_data[, rate := n /consult_with_influenza * 100]
-  useful_data[, label := ifelse(week >= 40,
-                                paste(year, year + 1, sep="/"),
-                                paste(year - 1, year,  sep="/")
-                                )
-              ]
-  out <- data.frame(week = c(40:52,1:20))
+  out <- dcast.data.table(useful_data, x~season, value.var = "rate")
+  out[,x:=NULL]
+  out <- data.frame(out)
+  names(out) <- stringr::str_replace_all(names(out),"\\.","/")
+  names(out) <- stringr::str_remove(names(out),"X")
+  if(is.na(out[1,1])) out <- out[,-1]
 
-  for(lab in unique(useful_data[, label])){
-    current_season <- useful_data[label==lab, .(label, week, rate)]
-    if(nrow(current_season) == 33){
-      out[lab] = current_season[, rate]
-    }
-  }
   rownames(out) <- c(40:52,1:20)
-  return(out[, !(names(out) == "week")])
+  return(out)
 }
 
 run_mem_model <- function(data, conf){
@@ -300,6 +283,7 @@ mem_results_field_types <- c(
   "yrwk"="TEXT",
   "year"="INTEGER",
   "week"="INTEGER",
+  "x"="INTEGER",
   "date"="DATE",
   "rate"="DOUBLE",
   "low"="DOUBLE",

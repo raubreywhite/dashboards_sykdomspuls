@@ -95,9 +95,8 @@ FormatDatasetWeekly <- function(
 #' @param weeklyDenominatorFunction sum or mean - should the denominator be summed or meaned over time
 #' @param uuid uuid
 #' @importFrom glm2 glm2
-#' @import data.table
-#' @import stringr
 #' @import stats
+#' @import data.table
 #' @export QuasipoissonTrainPredictData
 QuasipoissonTrainPredictData <- function(
                                          datasetTrain,

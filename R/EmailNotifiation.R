@@ -10,7 +10,6 @@ huxtable_theme <- function(ht, position="center"){
 
 #' Email notification of new data
 #' @param files The raw data file that is being analysed
-#' @import fhi
 #' @export EmailNotificationOfNewData
 EmailNotificationOfNewData <- function(files) {
 
@@ -48,7 +47,6 @@ Files being processed are:
 }
 
 #' Internal email notifying about new results
-#' @import fhi
 #' @export EmailTechnicalNewResults
 EmailTechnicalNewResults <- function() {
 
@@ -76,7 +74,6 @@ New Sykdomspulsen results available at <a href='http://smhb.fhi.no/'>http://smhb
 #' @param xtag a
 #' @param xemail a
 #' @import data.table
-#' @importFrom RAWmisc Format RecodeDT
 #' @export EmailExternalGenerateTable
 EmailExternalGenerateTable <- function(results, xtag, xemail) {
   . <- NULL
@@ -127,8 +124,6 @@ EmailExternalGenerateTable <- function(results, xtag, xemail) {
 #' @param alerts Excel file containing the emails.
 #' @param forceNoOutbreak For testing. Do you want to force a "No outbreak" email?
 #' @param forceYesOutbreak For testing. Do you want to force a "Yes outbreak" email?
-#' @importFrom RAWmisc Format RecodeDT
-#' @import fhi
 #' @export EmailExternal
 EmailExternal <- function(
                           results = readRDS(fhi::DashboardFolder("results", sprintf("%s/outbreaks_alert_external.RDS", latest_date()))),
@@ -271,7 +266,6 @@ Sykdomspulsen kan i noen tilfeller generere et OBS varsel selv om det bare er en
 }
 
 #' Email notification of failed results
-#' @import fhi
 #' @export EmailNotificationOfFailedResults
 EmailNotificationOfFailedResults <- function() {
   emailText <- "ERROR WITH SYKDOMSPULSEN DATA UPLOAD"
@@ -363,8 +357,6 @@ EmailSkabb <- function() {
 
 #' Email notification of new results
 #' @param lastEmailedUtbruddFile File containing the last week that emails were sent out
-#' @import fhi
-#' @importFrom lubridate today
 #' @export EmailNotificationOfNewResults
 EmailNotificationOfNewResults <- function(lastEmailedUtbruddFile = fhi::DashboardFolder("results", "lastEmailedUtbrudd.RDS")) {
   thisWeek <- format.Date(lubridate::today(), "%U")

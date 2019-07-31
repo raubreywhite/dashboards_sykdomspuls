@@ -2,7 +2,6 @@
 #' @param raw Folder containing raw data
 #' @param clean Folder containing clean data
 #' @import data.table
-#' @import fhi
 #' @export IdentifyAllDatasets
 IdentifyAllDatasets <-
   function(raw = list.files(fhi::DashboardFolder("data_raw"), "^partially_formatted_"),
@@ -31,7 +30,6 @@ IdentifyAllDatasets <-
 #' @param raw Folder containing raw data
 #' @param clean Folder containing clean data
 #' @import data.table
-#' @import fhi
 #' @export DeleteOldDatasets
 DeleteOldDatasets <-
   function(raw = list.files(fhi::DashboardFolder("data_raw"), "^partially_formatted_"),
@@ -53,7 +51,6 @@ DeleteOldDatasets <-
 #' @param raw Folder containing raw data
 #' @param clean Folder containing clean data
 #' @import data.table
-#' @import fhi
 #' @export IdentifyDatasets
 IdentifyDatasets <-
   function(raw = list.files(fd::path("data_raw"), "^partially_formatted_"),
@@ -84,7 +81,6 @@ latest_date <- function(){
 
 #' Delete the latest done file
 #' @param file Location of the latest done file (according to latest raw data file)
-#' @import fhi
 #' @export DeleteLatestDoneFile
 DeleteLatestDoneFile <-
   function(file = fhi::DashboardFolder("data_clean", paste0("done_", LatestRawID(), ".txt"))) {
@@ -94,7 +90,6 @@ DeleteLatestDoneFile <-
 
 #' Create the latest done file
 #' @param file Location of the latest done file (according to latest raw data file)
-#' @import fhi
 #' @export CreateLatestDoneFile
 CreateLatestDoneFile <-
   function(file = fhi::DashboardFolder("data_clean", paste0("done_", LatestRawID(), ".txt"))) {
@@ -109,7 +104,6 @@ CreateLatestDoneFile <-
 #'
 #' @param clean A date/ID
 #' @param SYNDROME Syndrome that you are interested in
-#' @import fhi
 #' @export LatestDatasets
 LatestDatasets <-
   function(clean = LatestRawID(), SYNDROME = "influensa") {
@@ -129,8 +123,6 @@ LatestDatasets <-
 #' This function checks if there is new stable data and then cleans it.
 #'
 #' @import data.table
-#' @import fhi
-#' @importFrom RAWmisc IsFileStable
 #' @export UpdateData
 UpdateData <- function() {
   # variables used in data.table functions in this function

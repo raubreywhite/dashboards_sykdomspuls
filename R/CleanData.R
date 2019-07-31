@@ -6,7 +6,6 @@
 #' @param testIfHelligdagIndikatorFileIsOutdated Boolean. Test if the current date is older than the last hellidag recorded in the fiel?
 #' @param removeMunicipsWithoutConsults Boolean. Remove municipalities that do not have any consultations?
 #' @import data.table
-#' @importFrom lubridate today
 #' @export CleanData
 CleanData <- function(d,
                       syndrome,
