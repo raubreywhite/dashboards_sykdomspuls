@@ -3,7 +3,7 @@ test_that("Sandefjord significantByThreshold vs significantByConfidenceIntervals
   library(data.table)
 
   d <- GenFakeDataAnalysis()
-  res <- sykdomspuls::QuasipoissonTrainPredictData(
+  res <- QuasipoissonTrainPredictData(
     datasetTrain = d,
     datasetPredict = d,
     isDaily = T

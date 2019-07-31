@@ -1,24 +1,48 @@
+huxtable_theme <- function(ht, position="center"){
+  ht <- huxtable::set_top_padding(ht, 0.2)
+  ht <- huxtable::set_bottom_padding(ht, 0.2)
+  ht <- huxtable::set_background_color(ht, huxtable::evens, huxtable::everywhere, "#F2F2F2")
+  ht <- huxtable::set_bold(ht, 1, huxtable::everywhere, TRUE)
+  ht <- huxtable::set_all_borders(ht, 1)
+  ht <- huxtable::set_position(ht, position)
+  ht
+}
+
 #' Email notification of new data
 #' @param files The raw data file that is being analysed
 #' @import fhi
 #' @export EmailNotificationOfNewData
 EmailNotificationOfNewData <- function(files) {
-  emailText <- paste0(
-    "New Sykdomspulsen data has been received and signal processing has begun.
-<br><br>
-New results should be available in around two hours.
-<br><br>
-Tags being processed are: ", paste0(CONFIG$SYNDROMES$tag, collapse = ", "), "
-<br><br>
-Files being processed are: ", paste0(files, collapse = ", "), "
-"
-  )
 
-  fhi::DashboardEmail(
-    "sykdomspuls_data",
-    "New Sykdomspuls data",
-    emailText
-  )
+  tags <- paste0(CONFIG$SYNDROMES$tag, collapse = "</li><li>")
+  files <- paste0(files, collapse = "</li><li>")
+
+  email <-
+    blastula::compose_email(
+      body =
+"New Sykdomspulsen data has been received and signal processing has begun.
+
+New results should be available in around two hours.
+
+Tags being processed are:
+
+<li> {tags} </li>
+
+Files being processed are:
+
+<li> {files} </li>
+
+",
+      footer = fd::e_footer())
+
+  email %>%
+    blastula::smtp_send(
+      from = "dashboardsfhi@gmail.com",
+      to = "dashboardsfhi@gmail.com",
+      bcc = fd::e_emails("sykdomspuls_data"),
+      subject = fd::e_subject("New Sykdomspuls data"),
+      credentials = blastula::creds_file("/etc/gmailr/blastula.txt")
+    )
 
   return(0)
 }
@@ -27,125 +51,24 @@ Files being processed are: ", paste0(files, collapse = ", "), "
 #' @import fhi
 #' @export EmailTechnicalNewResults
 EmailTechnicalNewResults <- function() {
-  emailText <- "
-  New Sykdomspulsen results available at <a href='http://smhb.fhi.no/'>http://smhb.fhi.no/</a>
-  "
-  fhi::DashboardEmail(
-    emailsFromExcel = "sykdomspuls_results",
-    emailSubject = "New Sykdomspuls results available",
-    emailText = emailText
-  )
-}
 
-#' Internal email for possible outbreaks
-#' @param resYearLine Data from an resYearLine.RDS file
-#' @import fhi
-#' @import data.table
-#' @export EmailInternal
-EmailInternal <- function(
-                          resYearLine = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine.RDS", LatestRawID())))) {
-  # variables used in data.table functions in this function
-  status <- NULL
-  location <- NULL
-  statusNum0 <- NULL
-  statusNum1 <- NULL
-  statusNum2 <- NULL
-  statusSum2weeks <- NULL
-  statusSum3weeks <- NULL
-  statusYellow <- NULL
-  statusRed <- NULL
-  age <- NULL
-  wkyr <- NULL
-  tag <- NULL
-  # end
+  email <-
+    blastula::compose_email(
+      body =
+"
+New Sykdomspulsen results available at <a href='http://smhb.fhi.no/'>http://smhb.fhi.no/</a>
+",
+      footer = fd::e_footer())
 
-  currentWeek <- max(resYearLine$wkyr)
+  email %>%
+    blastula::smtp_send(
+      from = "dashboardsfhi@gmail.com",
+      to = "dashboardsfhi@gmail.com",
+      bcc = fd::e_emails("sykdomspuls_results"),
+      subject = fd::e_subject("New Sykdomspuls results available"),
+      credentials = blastula::creds_file("/etc/gmailr/blastula.txt")
+    )
 
-  resYearLine[, statusNum0 := 0]
-  resYearLine[status == "Medium", statusNum0 := 1]
-  resYearLine[status == "High", statusNum0 := 2]
-  resYearLine[, statusNum1 := shift(statusNum0), by = location]
-  resYearLine[, statusNum2 := shift(statusNum0, n = 2L), by = location]
-  resYearLine[, statusSum2weeks := as.numeric(statusNum0 == 2) + as.numeric(statusNum1 == 2)]
-  resYearLine[, statusSum3weeks := as.numeric(statusNum0 >= 1) + as.numeric(statusNum1 >= 1) + as.numeric(statusNum2 >= 1)]
-
-  resYearLine[, statusYellow := 0]
-  resYearLine[statusSum3weeks >= 2, statusYellow := 1]
-
-  resYearLine[, statusRed := 0]
-  resYearLine[statusSum2weeks >= 1, statusRed := 1]
-
-  resYearLine <- resYearLine[age == "Totalt"]
-  outbreaks <- resYearLine[statusYellow == 1 | statusRed == 1, c("wkyr", "tag", "location", "locationName", "status", "statusYellow", "statusRed"), with = F]
-  setorder(outbreaks, -wkyr, location)
-
-  outbreaksGastro <- unique(outbreaks[wkyr == currentWeek & tag == "gastro"]$locationName)
-  outbreaksRespiratory <- unique(outbreaks[wkyr == currentWeek & tag == "respiratoryinternal"]$locationName)
-  outbreaksInfluensa <- unique(outbreaks[wkyr == currentWeek & tag == "influensa"]$locationName)
-  outbreaksLungebetennelse <- unique(outbreaks[wkyr == currentWeek & tag == "lungebetennelse"]$locationName)
-  outbreaksBronkitt <- unique(outbreaks[wkyr == currentWeek & tag == "bronkitt"]$locationName)
-
-  outbreaksGastro <- paste0(outbreaksGastro, collapse = ", ")
-  outbreaksRespiratory <- paste0(outbreaksRespiratory, collapse = ", ")
-  outbreaksInfluensa <- paste0(outbreaksInfluensa, collapse = ", ")
-  outbreaksLungebetennelse <- paste0(outbreaksLungebetennelse, collapse = ", ")
-  outbreaksBronkitt <- paste0(outbreaksBronkitt, collapse = ", ")
-
-  if (outbreaksGastro == "") outbreaksGastro <- "Ingen"
-  if (outbreaksRespiratory == "") outbreaksRespiratory <- "Ingen"
-  if (outbreaksInfluensa == "") outbreaksInfluensa <- "Ingen"
-  if (outbreaksLungebetennelse == "") outbreaksLungebetennelse <- "Ingen"
-  if (outbreaksBronkitt == "") outbreaksBronkitt <- "Ingen"
-
-  emailText <- sprintf(
-    "
-                       OBS-Varsel fra Sykdomspulsen uke %s:
-                       <br><br>
-                       OBS varslet er basert p\u00E5 oversiktsbildet for de siste ukene for mage-tarminfeksjoner, luftveisinfeksjoner, og influensa.<br>
-                       Det blir generert et varsel dersom:<br>
-                       - Et eller flere av fylkene har r\u00F8d farge en av de to siste ukene<br>
-                       - Et eller flere av fylkene har gul farge to av de tre siste ukene
-                       <br><br>
-                       Ved OBS varsel b\u00F8r mottaksansvarlig melde ifra til fagansvarlig i riktig avdeling.
-                       <br><br>
-Sykdomspulsen kan i noen tilfeller generere et OBS varsel selv om det bare er en eller to konsultasjoner for et symptom/sykdom. Dette sees som oftest i sm\u00E5 kommuner der det vanligvis ikke er mange konsultasjoner. For ikke \u00E5 bli forstyrret av slike signaler har vi n\u00E5 lagt inn en nedre grense for gult signal p\u00E5 to konsultasjoner og en nedre grense for r\u00F8dt signal p\u00E5 tre konsultasjoner.<br><br>
-                       <br><br>
-                       Mage-tarminfeksjoner:
-                       <br>
-                       %s
-                       <br><br>
-                       Luftveisinfeksjoner:
-                       <br>
-                       %s
-                       <br><br>
-                       Influensa:
-                       <br>
-                       %s
-                       <br><br>
-                       Lungebetennelse:
-                       <br>
-                       %s
-                       <br><br>
-                       Akutt bronkitt/bronkiolitt:
-                       <br>
-                       %s
-                       <br><br>
-                       Se ogs\u00E5 p\u00E5 Signaler (ukentlig) b\u00E5de for fylker og kommuner og meld ifra til fagansvarlig dersom det st\u00E5r noe p\u00E5 disse sidene.
-                       ", currentWeek,
-    outbreaksGastro,
-    outbreaksRespiratory,
-    outbreaksInfluensa,
-    outbreaksLungebetennelse,
-    outbreaksBronkitt
-  )
-
-  fhi::DashboardEmail(
-    "sykdomspuls_utbrudd",
-    sprintf("OBS-Varsel fra Sykdomspulsen uke %s", currentWeek),
-    emailText
-  )
-
-  return(0)
 }
 
 #' Generates the outbreak table for the external email
@@ -170,26 +93,33 @@ EmailExternalGenerateTable <- function(results, xtag, xemail) {
   email <- NULL
   n <- NULL
 
-  setorder(results, -zscore)
-  results[, link := sprintf("<a href='http://sykdomspulsen.fhi.no/lege123/#/ukentlig/%s/%s/%s/%s'>Klikk</a>", county, location, tag, age)]
-  results[is.na(county), link := sprintf("<a href='http://sykdomspulsen.fhi.no/lege123/#/ukentlig/%s/%s/%s/%s'>Klikk</a>", location, location, tag, age)]
-  # this turns "dirty" tag (eg gastro) into "pretty" tag (e.g. mage-tarm syndrome)
-  results[, tag_pretty := tag]
-  RAWmisc::RecodeDT(results, switch = CONFIG$tagsWithLong, var = "tag_pretty", oldOnLeft = FALSE)
-  results[, output := sprintf("<tr> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td> </tr>", link, tag_pretty, locationName, location, age, n, round(cumE1), RAWmisc::Format(zscore, digits = 2))]
-
   r <- results[email == xemail & tag == xtag]
+  setorder(r,tag,-zscore)
+
   if (nrow(r) == 0) {
     return(sprintf("%s utbrudd:<br><br>Ingen utbrudd registrert", CONFIG$SYNDROMES[tag == xtag]$namesLong))
   }
 
-  emailText <- sprintf("%s utbrudd:<br><br><table style='width:90%%'><tr><th>Til nettsiden</th> <th>Syndrom</th> <th>Geografisk omr\u00E5de</th> <th>Geografisk omr\u00E5de</th> <th>Alder</th> <th>Meldte tilfeller</th> <th>Eksess</th> <th>Z-verdi</th></tr>", CONFIG$SYNDROMES[tag == xtag]$namesLong)
-  for (i in 1:nrow(r)) {
-    emailText <- sprintf("%s%s", emailText, r$output[i])
-  }
-  emailText <- sprintf("%s</table>", emailText)
+  tab <- huxtable::huxtable(
+    Syndrom = r$tag_pretty,
+    "Geografisk omr\u00E5de"=r$link,
+    Alder=r$age,
+    `Meldte<br>tilfeller`=r$n,
+    `Flere tilfeller<br>enn forventet`=r$cumE1,
+    `Z-verdi`=r$zscore) %>%
+    huxtable::add_colnames() %>%
+    huxtable_theme()
+  huxtable::escape_contents(tab)[, 2] <- FALSE
+  huxtable::escape_contents(tab)[1, 4:5] <- FALSE
+  huxtable::number_format(tab)[,5] <- 0
+  huxtable::number_format(tab)[,6] <- 1
+  huxtable::background_color(tab)[-1,6] <- "yellow"
+  huxtable::background_color(tab)[which(r$zscore>=4)+1,6] <- "red"
+  huxtable::align(tab)[1,] <- "center"
+  huxtable::align(tab)[-1,3:6] <- "center"
 
-  return(emailText)
+  return(huxtable::to_html(tab))
+
 }
 
 #' Sends an external email warning about alters
@@ -201,7 +131,7 @@ EmailExternalGenerateTable <- function(results, xtag, xemail) {
 #' @import fhi
 #' @export EmailExternal
 EmailExternal <- function(
-                          results = readRDS(fhi::DashboardFolder("results", sprintf("%s/outbreaks_alert_external.RDS", LatestRawID()))),
+                          results = readRDS(fhi::DashboardFolder("results", sprintf("%s/outbreaks_alert_external.RDS", latest_date()))),
                           alerts = GetAlertsEmails(),
                           forceNoOutbreak = FALSE,
                           forceYesOutbreak = FALSE) {
@@ -222,46 +152,6 @@ EmailExternal <- function(
   setDT(alerts)
   emails <- unique(alerts$email)
 
-
-  emailHeader <-
-    "<style>
-    html {
-      font-family: sans-serif;
-    }
-
-    table {
-      border-collapse: collapse;
-      border: 2px solid rgb(200,200,200);
-      letter-spacing: 1px;
-      font-size: 0.8rem;
-    }
-
-    td, th {
-      border: 1px solid rgb(190,190,190);
-      padding: 10px 20px;
-    }
-
-    th {
-      background-color: rgb(235,235,235);
-    }
-
-    td {
-      text-align: center;
-    }
-
-    tr:nth-child(even) td {
-      background-color: rgb(250,250,250);
-    }
-
-    tr:nth-child(odd) td {
-      background-color: rgb(245,245,245);
-    }
-
-    caption {
-      padding: 10px;
-    }
-    </style>
-"
 
   emailSubjectNoOutbreak <- "Pilotprosjektet Sykdomspulsen til kommunehelsetjenesten er oppdatert med nye tall"
   emailSubjectYesOutbreak <- "OBS varsel fra Sykdomspulsen"
@@ -320,6 +210,13 @@ Sykdomspulsen kan i noen tilfeller generere et OBS varsel selv om det bare er en
 
   alerts[, output := sprintf("<tr> <td>%s</td> </tr>", location)]
 
+  setorder(results, -zscore)
+  results[, tag_pretty := tag]
+  RAWmisc::RecodeDT(results, switch = CONFIG$tagsWithLong, var = "tag_pretty", oldOnLeft = FALSE)
+  results[, link := sprintf("<a href='http://sykdomspulsen.fhi.no/lege123/#/ukentlig/%s/%s/%s/%s'>%s</a>", county_code, location_code, tag, age, location_name)]
+  results[is.na(county_code), link := sprintf("<a href='http://sykdomspulsen.fhi.no/lege123/#/ukentlig/%s/%s/%s/%s'>%s</a>", location_code, location_code, tag, age, location_name)]
+
+
   for (em in emails) {
     r <- results[email %in% em]
     a <- alerts[email %in% em]
@@ -330,32 +227,43 @@ Sykdomspulsen kan i noen tilfeller generere et OBS varsel selv om det bare er en
 
     # no outbreaks
     if (noOutbreak) {
-      emailText <- paste0(emailHeader, emailNoOutbreak)
+      emailText <- emailNoOutbreak
       emailSubject <- emailSubjectNoOutbreak
       useEmail <- "xxxxxxx"
     } else {
-      emailText <- paste0(emailHeader, emailYesOutbreak)
+      emailText <- emailYesOutbreak
       emailSubject <- emailSubjectYesOutbreak
       useEmail <- em
     }
 
     # include registered places
-    emailText <- paste0(emailText, "Du er registrert for \u00E5 motta varsel om utbrudd i:<br><br><table style='width:90%'><tr><th>location</th></tr>")
-    for (i in 1:nrow(a)) {
-      emailText <- sprintf("%s%s", emailText, a$output[i])
-    }
-    emailText <- sprintf("%s</table><br><br>", emailText)
+    tab <- huxtable::huxtable("Geografisk omr\u00E5de"=a$location) %>%
+      huxtable::add_colnames() %>%
+      huxtable_theme()
+    huxtable::escape_contents(tab)[1, 1] <- FALSE
+    tab <- huxtable::to_html(tab)
+
+    emailText <- paste0(emailText, "Du er registrert for \u00E5 motta varsel om utbrudd i:<br>",tab,"<br><br>")
 
     # include outbreaks
     for (tag in CONFIG$SYNDROMES[alertExternal == T]$tag) {
-      emailText <- paste0(emailText, EmailExternalGenerateTable(results = r, xtag = tag, xemail = useEmail), "<br><br>")
+      emailText <- paste0(emailText, EmailExternalGenerateTable(results = r, xtag = tag, xemail = useEmail), "<br>")
     }
 
-    fhi::DashboardEmail(
-      emailsDirect = em,
-      emailSubject = emailSubject,
-      emailText = emailText
-    )
+    email <-
+      blastula::compose_email(
+        body = emailText,
+        footer = fd::e_footer())
+    #email
+
+    email %>%
+      blastula::smtp_send(
+        from = "dashboardsfhi@gmail.com",
+        to = em,
+        subject = fd::e_subject(emailSubject),
+        credentials = blastula::creds_file("/etc/gmailr/blastula.txt")
+      )
+
     Sys.sleep(5)
   }
 
@@ -374,71 +282,6 @@ EmailNotificationOfFailedResults <- function() {
       emailText
     )
   }
-  return(0)
-}
-
-#' Email notification of comparison between NorMOMO and Influensa
-#' @import ggplot2
-#' @export EmailNorMOMOInfluensa
-EmailNorMOMOInfluensa <- function() {
-  files <- list.files(fhi::DashboardFolder("data_raw", "normomo"))
-  nor <- vector("list", length = length(files))
-  for (i in seq_along(nor)) {
-    nor[[i]] <- readRDS(file.path(fhi::DashboardFolder("data_raw", "normomo"), files[i]))
-    nor[[i]][, x := files[i]]
-  }
-  nor <- rbindlist(nor)[GROUP == "Total"]
-  nor[, location := sprintf("county%s", stringr::str_extract(x, "[0-9][0-9]"))]
-  nor[location == "countyNA", location := "Norge"]
-  nor[, x := NULL]
-  setnames(nor, "zscore", "zscore_death")
-
-  inf <- readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine_influensa.RDS", LatestRawID())))[age == "Totalt"]
-  setnames(inf, "zscore", "zscore_inf")
-
-  nrow(inf)
-  inf <- merge(inf, nor, by.x = c("location", "wkyr"), by.y = c("location", "wk2"))
-  nrow(inf)
-  inf[, season := sprintf("%s/%s", year - 1, year)]
-  inf[week >= 30, season := sprintf("%s/%s", year, year + 1)]
-
-  breaks <- unique(inf[season == max(season), c("wkyr", "x")])
-  breaks <- breaks[seq(.N, 1, -2)]
-
-  q <- ggplot(inf[season == max(season)], aes(x = x))
-  q <- q + geom_ribbon(ymin = -Inf, ymax = 2, fill = "#91bfdb", alpha = 0.4)
-  q <- q + geom_ribbon(ymin = 2, ymax = Inf, fill = "#fc8d59", alpha = 0.4)
-  q <- q + geom_line(aes(y = zscore_death), lwd = 1.5)
-  q <- q + geom_line(aes(y = zscore_inf), lwd = 1.5)
-  q <- q + geom_line(aes(y = zscore_death, colour = "Death"), lwd = 1.25)
-  q <- q + geom_line(aes(y = zscore_inf, colour = "Influensa"), lwd = 1.25)
-  q <- q + scale_colour_brewer("", palette = "Set1")
-  q <- q + scale_y_continuous("Z-Score")
-  q <- q + scale_x_continuous("", breaks = breaks$x, labels = breaks$wkyr)
-  q <- q + theme(axis.text.x = element_text(angle = 90, hjust = 0.5, vjust = 0.5))
-  q <- q + facet_wrap(~locationName)
-
-  RAWmisc::saveA4(q, fhi::DashboardFolder("results", sprintf("%s/death_and_influensa.png", LatestRawID())))
-
-
-  emailText <- sprintf("
-<html><body>
-Please find attached a comparison between NorMOMO and NorSySS (Sykdomspulsen)<br><br>
-------------------------
-<br>
-DO NOT REPLY TO THIS EMAIL! This email address is not checked by anyone!
-<br>
-To add or remove people to/from this notification list, send their details to richardaubrey.white@fhi.no
-</body></html>")
-
-  fhi::DashboardEmail(
-    "normomo_influensa",
-    emailSubject = "NorMOMO and NorSySS Comparison",
-    emailText,
-    emailAttachFiles = fhi::DashboardFolder("results", sprintf("%s/death_and_influensa.png", LatestRawID())),
-    emailFooter = FALSE,
-    BCC = FALSE
-  )
   return(0)
 }
 

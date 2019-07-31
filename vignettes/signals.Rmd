@@ -47,7 +47,7 @@ print(d)
 We take out the total age, and change some names:
 
 ```{r}
-d <- d[age=="Totalt" & granularityGeo=="municip"]
+d <- d[age=="Totalt" & granularity_geo=="municip"]
 print(d)
 ```
 

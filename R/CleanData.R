@@ -10,7 +10,7 @@
 #' @export CleanData
 CleanData <- function(d,
                       syndrome,
-                      population = fhi::NorwayPopulation(),
+                      population = fhidata::norway_population_current,
                       hellidager = fread(system.file("extdata", "DatoerMedHelligdager.txt", package = "sykdomspuls"))[, c("Dato", "HelligdagIndikator"), with = FALSE],
                       testIfHelligdagIndikatorFileIsOutdated = TRUE,
                       removeMunicipsWithoutConsults = FALSE) {
@@ -44,13 +44,13 @@ CleanData <- function(d,
   population <- population[, .(
     pop = sum(pop)
   ), keyby = .(
-    municip, age, year
+    location_code, age, year
   )]
 
   total <- population[, .(
     pop = sum(pop)
   ), keyby = .(
-    municip, year
+    location_code, year
   )]
   total[, age := "Totalt"]
 
@@ -65,13 +65,13 @@ CleanData <- function(d,
     d[, date := data.table::as.IDate(date)]
   }
 
-  d[, consultWithoutInfluensa := consult - influensa]
-  setnames(d, "consult", "consultWithInfluensa")
+  d[, consult_without_influenza := consult - influensa]
+  setnames(d, "consult", "consult_with_influenza")
 
   syndromeAndConsult <- unique(c(
     syndrome,
-    "consultWithInfluensa",
-    "consultWithoutInfluensa"
+    "consult_with_influenza",
+    "consult_without_influenza"
   ))
 
   d <- d[municip != "municip9999",
@@ -83,21 +83,21 @@ CleanData <- function(d,
   dateMin <- min(d$date)
   dateMax <- max(d$date)
   if (removeMunicipsWithoutConsults) {
-    d[, total := sum(consultWithInfluensa, na.rm = T), by = municip]
+    d[, total := sum(consult_with_influenza, na.rm = T), by = municip]
     d <- d[is.finite(total)]
     d <- d[total > 0]
     d[, total := NULL]
     skeleton <-
       data.table(expand.grid(
-        unique(fhi::NorwayMunicipMerging()[municipEnd %in% unique(d$municip) |
-          municip %in% unique(d$municip)]$municip),
+        municip = unique(fhidata::norway_municip_merging[municip_code_current %in% unique(d$municip) |
+          municip_code_original %in% unique(d$municip)]$municip_code_original),
         unique(d$age),
         seq.Date(dateMin, dateMax, 1)
       ))
   } else {
     skeleton <-
       data.table(expand.grid(
-        unique(fhi::NorwayMunicipMerging()$municip),
+        municip = unique(fhidata::norway_municip_merging$municip_code_original),
         unique(d$age),
         seq.Date(dateMin, dateMax, 1)
       ))
@@ -141,24 +141,27 @@ CleanData <- function(d,
   dim(data)
   data <-
     merge(data,
-      fhi::NorwayMunicipMerging()[, c("municip", "year", "municipEnd")],
-      by = c("municip", "year"),
+          fhidata::norway_municip_merging[, c("municip_code_original", "year", "municip_code_current")],
+          by.x = c("municip", "year"),
+          by.y = c("municip_code_original", "year"),
       all.x = T
     )
   dim(data)
-  data <- data[!is.na(municipEnd)]
+  data <- data[!is.na(municip_code_current)]
 
-  data <- data[!is.na(municipEnd),
+  data <- data[!is.na(municip_code_current),
     lapply(.SD, sum),
-    keyby = .(municipEnd, year, age, date),
+    keyby = .(municip_code_current, year, age, date),
     .SDcols = c(syndromeAndConsult)
   ]
   dim(data)
-  setnames(data, "municipEnd", "municip")
+  setnames(data, "municip_code_current", "municip")
 
   # merge in population
   n1 <- nrow(data)
-  data <- merge(data, population, by = c("municip", "age", "year"))
+  data <- merge(data, population,
+                by.x = c("municip", "age", "year"),
+                by.y = c("location_code", "age", "year"))
   n2 <- nrow(data)
 
   if (n1 != n2) {
@@ -166,8 +169,8 @@ CleanData <- function(d,
   }
 
   # merging in municipalitiy-fylke names
-  data <-
-    merge(data, fhi::NorwayLocations()[, c("municip", "county")], by = "municip")
+  data[fhidata::norway_locations_current,on = "municip==municip_code", county:=county_code]
+
   for (i in syndromeAndConsult) {
     data[is.na(get(i)), (i) := 0]
   }
@@ -189,11 +192,11 @@ CleanData <- function(d,
 
   setnames(data, syndrome, "n")
 
-  if (!"consultWithInfluensa" %in% names(data)) {
-    data[, consultWithInfluensa := n]
+  if (!"consult_with_influenza" %in% names(data)) {
+    data[, consult_with_influenza := n]
   }
-  if (!"consultWithoutInfluensa" %in% names(data)) {
-    data[, consultWithoutInfluensa := n]
+  if (!"consult_without_influenza" %in% names(data)) {
+    data[, consult_without_influenza := n]
   }
 
   setcolorder(data, unique(
@@ -204,8 +207,8 @@ CleanData <- function(d,
       "municip",
       "age",
       "n",
-      "consultWithoutInfluensa",
-      "consultWithInfluensa",
+      "consult_without_influenza",
+      "consult_with_influenza",
       "pop"
     )
   ))
@@ -220,8 +223,8 @@ CleanData <- function(d,
   fylke <- data[, .(
     HelligdagIndikator = mean(HelligdagIndikator),
     n = sum(n),
-    consultWithoutInfluensa = sum(consultWithoutInfluensa),
-    consultWithInfluensa = sum(consultWithInfluensa),
+    consult_without_influenza = sum(consult_without_influenza),
+    consult_with_influenza = sum(consult_with_influenza),
     pop = sum(pop)
   ), keyby = .(county, age, date)]
 
@@ -232,8 +235,8 @@ CleanData <- function(d,
   norge <- data[, .(
     HelligdagIndikator = mean(HelligdagIndikator),
     n = sum(n),
-    consultWithoutInfluensa = sum(consultWithoutInfluensa),
-    consultWithInfluensa = sum(consultWithInfluensa),
+    consult_without_influenza = sum(consult_without_influenza),
+    consult_with_influenza = sum(consult_with_influenza),
     pop = sum(pop)
   ), keyby = .(age, date)]
 
@@ -246,121 +249,22 @@ CleanData <- function(d,
   setorderv(data, c("granularityGeo", "county", "location", "age", "date"))
   setkey(data, location, age)
 
+  setnames(data,c(
+    "granularity_geo",
+    "county_code",
+    "location_code",
+    "age",
+    "date",
+    "holiday",
+    "n",
+    "consult_without_influenza",
+    "consult_with_influenza",
+    "pop"
+    ))
+
   if (!ValidateDataClean(data)) {
-    fhi::DashboardMsg("Clean data not validated", type = "err")
+    fd::msg("Clean data not validated", type = "err")
   }
 
   return(data)
-}
-
-
-#' Create analysis stack and datasets for a tag
-#'
-#' Given one row from \code{CONFIG$SYNDROMES} we need
-#' to generate an analysis stack and all relevant datasets
-#' that can be directly sent to \code{QuasipoissonTrainPredictData}
-#' without additional formatting.
-#' @param conf A row from \code{CONFIG$SYNDROMES}
-#' @export StackAndEfficientDataForAnalysis
-StackAndEfficientDataForAnalysis <- function(conf) {
-  . <- NULL
-  granularityGeo <- NULL
-  weeklyDenominatorFunction <- NULL
-  v <- NULL
-  tag <- NULL
-  granularity <- NULL
-  location <- NULL
-  id <- NULL
-
-  data <- readRDS(file = fhi::DashboardFolder(
-    "data_clean",
-    sprintf("%s_%s_cleaned.RDS", LatestRawID(), conf$tag)
-  ))
-
-  counties <- unique(data[granularityGeo == "municip"]$county)
-  municips <- unique(data[granularityGeo == "municip"]$location)
-  locations <- c("Norge", counties, municips)
-
-  ages <- unique(data$age)
-
-  # setting control stack for counties
-  analysesCounties <- data.table(
-    expand.grid(
-      tag = conf$tag,
-      denominator = conf$denominator,
-      location = c("Norge", counties),
-      age = ages,
-      granularity = c("Daily", "Weekly"),
-      stringsAsFactors = FALSE
-    )
-  )
-  analysesCounties[, weeklyDenominatorFunction := list(conf$weeklyDenominatorFunction)]
-  analysesCounties[, v := sykdomspuls::CONFIG$VERSION]
-  analysesCounties[, file := sprintf("%s_%s.RDS", "resRecentLine", tag)]
-  analysesCounties[granularity == "Weekly", file := sprintf("%s_%s.RDS", "resYearLine", tag)]
-
-  # setting control stack for municipalities
-  analysesMunicips <- data.table(
-    expand.grid(
-      tag = conf$tag,
-      denominator = conf$denominator,
-      location = municips,
-      age = ages,
-      granularity = c("Weekly"),
-      stringsAsFactors = FALSE
-    )
-  )
-  analysesMunicips[, weeklyDenominatorFunction := list(conf$weeklyDenominatorFunction)]
-  analysesMunicips[, v := sykdomspuls::CONFIG$VERSION]
-  analysesMunicips[, file := sprintf("%s_%s.RDS", "resYearLineMunicip", tag)]
-
-  # control stack for comparison of models
-  analysesComparison <-
-    vector("list", length(sykdomspuls::CONFIG$VERSIONS))
-  for (vx in sykdomspuls::CONFIG$VERSIONS) {
-    temp <-
-      analysesCounties[location == "Norge" & granularity == "Weekly"]
-    temp[, v := vx]
-    analysesComparison[[vx]] <- copy(temp)
-  }
-  analysesComparison <- rbindlist(analysesComparison)
-  analysesComparison[, file := sprintf("%s_%s.RDS", "resComparisons", tag)]
-
-  analyses <- rbind(analysesCounties, analysesMunicips, analysesComparison)
-
-  return(
-    list(
-      conf = conf,
-      data = data,
-      counties = counties,
-      municips = municips,
-      locations = locations,
-      ages = ages,
-      analyses = analyses,
-      analysesCounties = analysesCounties,
-      analysesMunicips = analysesMunicips,
-      analysesComparison = analysesComparison
-    )
-  )
-}
-
-#' Create analysis stack and datasets for a tag inside a list
-#'
-#' Given one row from \code{CONFIG$SYNDROMES} we need
-#' to generate an analysis stack and all relevant datasets
-#' that can be directly sent to \code{QuasipoissonTrainPredictData}
-#' without additional formatting into a list for use in \code{pbmcapply}
-#' @param conf A row from \code{CONFIG$SYNDROMES}
-#' @export
-StackAndEfficientDataForAnalysisInList <- function(conf) {
-  stackAndData <- StackAndEfficientDataForAnalysis(conf = conf)
-  stackStrata <- stackAndData$analysesStrata
-  stack <- stackAndData$analyses
-  data <- stackAndData$data
-
-  retval <- vector("list", length = nrow(stack))
-  for (i in seq_along(retval)) {
-    retval[[i]] <- list("stack" = stack[i], "data" = data[.(stack$location[i], stack$age[i])])
-  }
-  retval
 }

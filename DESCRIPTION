@@ -1,7 +1,10 @@
 Package: sykdomspuls
 Title: Norwegian Syndromic Surveillance System - NorSySS
-Version: 2019.06.06
-Authors@R: person("Richard", "White", email = "w@rwhite.no", role = c("aut", "cre"))
+Version: 2019.06.11
+Authors@R: c(
+  person("Richard", "White", email = "w@rwhite.no", role = c("aut", "cre")),
+  person("Gunnar", "Ro", email = "gunr@fhi.no", role = c("aut"))
+  )
 Author: Richard White
 Maintainer: Richard White <w@rwhite.no>
 Description: https://www.fhi.no/en/hn/statistics/NorSySS/.
@@ -15,23 +18,38 @@ Imports:
   lubridate,
   data.table,
   fhi,
+  fhidata,
+  fhiplot,
   httr,
   jsonlite,
   zoo,
   iterators,
   ggplot2,
+  ggrepel,
   dplyr,
   pool,
   RMariaDB,
   plumber,
   memoise,
   parallel,
-  pbmcapply,
   RAWmisc,
-  cowplot
+  cowplot,
+  fd,
+  R6,
+  pbapply,
+  magrittr,
+  DBI,
+  odbc,
+  uuid,
+  blastula,
+  glue,
+  huxtable,
+  reshape2,
+  rstanarm
 Suggests: testthat,
     knitr,
-    rmarkdown
+    rmarkdown,
+    mem
 License: GPL-3
 Encoding: UTF-8
 LazyData: true

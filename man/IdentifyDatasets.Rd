@@ -4,9 +4,9 @@
 \alias{IdentifyDatasets}
 \title{Identify the latest raw/clean datasets}
 \usage{
-IdentifyDatasets(raw = list.files(fhi::DashboardFolder("data_raw"),
-  "^partially_formatted_"),
-  clean = list.files(fhi::DashboardFolder("data_clean"), "done_"))
+IdentifyDatasets(raw = list.files(fd::path("data_raw"),
+  "^partially_formatted_"), clean = list.files(fd::path("data_clean"),
+  "done_"))
 }
 \arguments{
 \item{raw}{Folder containing raw data}

@@ -1,9 +1,9 @@
 ---
-title: "Skabb"
+title: "Statistics"
 output:
   tufte::tufte_handout:
     toc: TRUE
-    keep_tex: TRUE
+    keep_tex: FALSE
 header-includes:
   - \usepackage{booktabs}
   - \usepackage{longtable}
@@ -36,33 +36,34 @@ fhi::DashboardInitialiseOpinionated("sykdomspuls",
 suppressMessages(library(data.table))
 suppressMessages(library(ggplot2))
 suppressMessages(library(kableExtra))
-conn <- DBI::dbConnect(odbc::odbc(),
-    driver = CONFIG$DB_CONFIG$driver,
-    server = CONFIG$DB_CONFIG$server,
-    port = CONFIG$DB_CONFIG$port,
-    user = CONFIG$DB_CONFIG$user,
-    password = CONFIG$DB_CONFIG$password
-    )
-fd::use_db(conn, CONFIG$DB_CONFIG$db)
-db <- dplyr::tbl(conn, "spuls_standard_results")
-d <- db %>% dplyr::filter(tag=="skabb" & granularity_time=="weekly") %>% dplyr::collect()
-setDT(d)
 
-d[,age:=factor(age,levels=names(CONFIG$AGES))]
 
 ```
 
 \newpage
 
-# Norway
-
-`r tufte::margin_note(glue::glue('
-                                  Skabb at the national level.
-                                  '))`
+# Time taken
 
 ```{r echo=FALSE, fig.height=11.69*0.6, message=FALSE, warning=FALSE}
-q <- ggplot(d[location=="Norge"], aes(x=date,y=n))
-q <- q + geom_line()
-q <- q + facet_wrap(~age,ncol=1)
-q
+  qs <- AnalyseLog()
+```
+
+
+## Overview
+
+`r tufte::margin_note(glue::glue('
+                                    We monitor the number of time taken to ensure that \
+                                    there are no issues.
+                                    '))`
+
+```{r echo=FALSE, fig.height=11.69*0.6, message=FALSE, warning=FALSE}
+  print(qs[["overview"]])
+```
+
+\newpage
+
+## Details
+
+```{r echo=FALSE,  fig.fullwidth=TRUE, fig.height=11.69*0.6, fig.width=8.27*0.9, message=FALSE, warning=FALSE}
+  print(qs[["details"]])
 ```

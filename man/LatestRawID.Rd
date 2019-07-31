@@ -4,7 +4,10 @@
 \alias{LatestRawID}
 \title{test}
 \usage{
-LatestRawID()
+LatestRawID(hyphen = F)
+}
+\arguments{
+\item{hyphen}{Use a hyphen or underscore?}
 }
 \description{
 test

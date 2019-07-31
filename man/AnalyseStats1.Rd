@@ -4,10 +4,7 @@
 \alias{AnalyseStats1}
 \title{AnalyseStats1}
 \usage{
-AnalyseStats1(resYearLine = readRDS(fhi::DashboardFolder("results",
-  sprintf("\%s/resYearLine.RDS", LatestRawID()))),
-  resYearLineMunicip = readRDS(fhi::DashboardFolder("results",
-  sprintf("\%s/resYearLineMunicip.RDS", LatestRawID()))))
+AnalyseStats1(resYearLine = NULL, resYearLineMunicip = NULL)
 }
 \arguments{
 \item{resYearLine}{a}

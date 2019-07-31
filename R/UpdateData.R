@@ -56,8 +56,8 @@ DeleteOldDatasets <-
 #' @import fhi
 #' @export IdentifyDatasets
 IdentifyDatasets <-
-  function(raw = list.files(fhi::DashboardFolder("data_raw"), "^partially_formatted_"),
-             clean = list.files(fhi::DashboardFolder("data_clean"), "done_")) {
+  function(raw = list.files(fd::path("data_raw"), "^partially_formatted_"),
+             clean = list.files(fd::path("data_clean"), "done_")) {
     res <- IdentifyAllDatasets(raw = raw, clean = clean)
     if (nrow(res) > 0) {
       res <- res[nrow(res)]
@@ -67,11 +67,20 @@ IdentifyDatasets <-
   }
 
 #' test
-#' @export LatestRawID
-LatestRawID <- function() {
+#' @param hyphen Use a hyphen or underscore?
+#' @export
+LatestRawID <- function(hyphen=F) {
   f <- IdentifyDatasets()
+  if(hyphen) f$id <- gsub("_","-",f$id)
   return(max(f$id))
 }
+
+#' latest_date
+#' @export
+latest_date <- function(){
+  LatestRawID(hyphen=T)
+}
+
 
 #' Delete the latest done file
 #' @param file Location of the latest done file (according to latest raw data file)
@@ -131,43 +140,47 @@ UpdateData <- function() {
   # end
 
   files <- IdentifyDatasets()
-  if (!fhi::DashboardIsDev()) {
+  if (!fd::config$is_dev) {
     files <- files[is.na(isClean)]
   }
   if (nrow(files) == 0) {
-    fhi::DashboardMsg("No new data")
+    fd::msg("No new data")
     return(FALSE)
   }
-  if (!RAWmisc::IsFileStable(fhi::DashboardFolder("data_raw", files$raw))) {
-    fhi::DashboardMsg(sprintf("Unstable file %s", files$raw))
+  if (!fhi::file_stable(fd::path("data_raw", files$raw))) {
+    fd::msg(sprintf("Unstable file %s", files$raw))
     return(FALSE)
   }
 
-  fhi::DashboardMsg(sprintf("Cleaning file %s", files$raw))
+  fd::msg(sprintf("Cleaning file %s", files$raw))
   EmailNotificationOfNewData(files$id)
 
-  d <- fread(fhi::DashboardFolder("data_raw", files$raw))
+  d <- fread(fd::path("data_raw", files$raw))
   d[, date := data.table::as.IDate(date)]
   d[, respiratory := NULL]
 
   for (i in 1:nrow(CONFIG$SYNDROMES)) {
     conf <- CONFIG$SYNDROMES[i]
-    fhi::DashboardMsg(sprintf("Processing %s/%s: %s", i, nrow(CONFIG$SYNDROMES), conf$tag))
+    fd::msg(sprintf("Processing %s/%s: %s", i, nrow(CONFIG$SYNDROMES), conf$tag))
 
 
-    res <- CleanData(copy(d[Kontaktype %in% conf$contactType[[1]]]),
+    res <- CleanData(
+      d = copy(d[Kontaktype %in% conf$contactType[[1]]]),
       syndrome = conf$syndrome
     )
-    saveRDS(res, file = fhi::DashboardFolder(
-      "data_clean",
-      sprintf(
-        "%s_%s_cleaned.RDS",
-        files$id,
-        conf$tag
-      )
-    ))
+    for(j in names(CONFIG$AGES)){
+      saveRDS(res[age==j], file = fd::path(
+        "data_clean",
+        sprintf(
+          "%s_%s_%s_cleaned.RDS",
+          files$id,
+          conf$tag,
+          j
+        )
+      ))
+    }
   }
-
-  fhi::DashboardMsg("New data is now formatted and ready")
+  gc()
+  fd::msg("New data is now formatted and ready")
   return(TRUE)
 }

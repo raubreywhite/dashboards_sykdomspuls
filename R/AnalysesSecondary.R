@@ -1,6 +1,7 @@
+
 #' AnalyseLog dfdf
 #' dfd
-#' @export AnalyseLog
+#' @export
 AnalyseLog <- function() {
   log <- LogGet()
   if (length(log) == 0) {
@@ -22,20 +23,16 @@ AnalyseLog <- function() {
   log[, minCleaning := as.numeric(difftime(cleanAfter, cleanBefore, units = "min"))]
   log[, minAnalyse1 := as.numeric(difftime(analyse1After, analyse1Before, units = "min"))]
   log[, minAnalyse2 := as.numeric(difftime(analyse2After, analyse2Before, units = "min"))]
-  log[, minSave1 := as.numeric(difftime(save1After, save1Before, units = "min"))]
-  log[, minSave2 := as.numeric(difftime(save2After, save2Before, units = "min"))]
-  log[, minTotal := as.numeric(difftime(save2After, initialiseBefore, units = "min"))]
+  log[, minTotal := as.numeric(difftime(Done, initialiseBefore, units = "min"))]
 
   log[, minCleaningPerTag := minCleaning / numTags]
   log[, minAnalyse1PerTag := minAnalyse1 / numTags]
   log[, minAnalyse2PerTag := minAnalyse2 / numTags]
-  log[, minSave1PerTag := minSave1 / numTags]
-  log[, minSave2PerTag := minSave2 / numTags]
   log[, minTotalPerTag := minTotal / numTags]
 
   log[, id := 1:.N, by = date]
   log <- log[id == 1]
-
+  cat(file=stderr(), as.character(log))
   long <- melt.data.table(log[, c(
     "date",
     "versionPackage",
@@ -43,8 +40,6 @@ AnalyseLog <- function() {
     "minCleaning",
     "minAnalyse1",
     "minAnalyse2",
-    "minSave1",
-    "minSave2",
     "minTotal",
     "minTotalPerTag"
   )],
@@ -105,25 +100,16 @@ AnalyseLog <- function() {
   # fhi::DashboardFolder("results", file.path(LatestRawID(),"stats"))
 }
 
-#' AnalyseStats1
-#' @param resYearLine a
-#' @param resYearLineMunicip a
-#' @export
-AnalyseStats1 <- function(
-                          resYearLine = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine.RDS", LatestRawID()))),
-                          resYearLineMunicip = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLineMunicip.RDS", LatestRawID())))) {
-  # variables used in data.table functions in this function
 
-  resYearLine[, x_alerts2 := n > threshold2]
-  resYearLine[, x_alerts4 := n > threshold4]
-  resYearLine[, x_alerts2_ge5cases := n > threshold2 & n >= 5]
-  resYearLine[, x_alerts4_ge5cases := n > threshold4 & n >= 5]
+addThresholds <- function (data){
+  data[, x_alerts2 := n > threshold2]
+  data[, x_alerts4 := n > threshold4]
+  data[, x_alerts2_ge5cases := n > threshold2 & n >= 5]
+  data[, x_alerts4_ge5cases := n > threshold4 & n >= 5]
+  return(data)
+}
 
-  resYearLineMunicip[, x_alerts2 := n > threshold2]
-  resYearLineMunicip[, x_alerts4 := n > threshold4]
-  resYearLineMunicip[, x_alerts2_ge5cases := n > threshold2 & n >= 5]
-  resYearLineMunicip[, x_alerts4_ge5cases := n > threshold4 & n >= 5]
-
+AggregateAlertsCases <- function(resYearLine, resYearLineMunicip){
   stack <- expand.grid(
     data = c("resYearLine", "resYearLineMunicip"),
     xtag = unique(resYearLine$tag),
@@ -131,15 +117,14 @@ AnalyseStats1 <- function(
     xage = unique(resYearLine$age),
     stringsAsFactors = F
   )
-
   res <- vector("list", length = nrow(stack))
   for (i in 1:nrow(stack)) {
     s <- stack[i, ]
     x <- melt.data.table(get(s$data)[tag == s$xtag & year == s$xyear & age == s$xage],
-      id.vars = c("tag", "location", "year", "age", "n", "threshold0", "threshold2", "threshold4"),
-      measure.vars = patterns("^x_alerts"),
-      variable.factor = F
-    )
+                         id.vars = c("tag", "location", "year", "age", "n", "threshold0", "threshold2", "threshold4"),
+                         measure.vars = patterns("^x_alerts"),
+                         variable.factor = F
+                         )
     x[, type := location]
     x[stringr::str_detect(location, "county"), type := "Fylke"]
     x[stringr::str_detect(location, "municip"), type := "Kommune"]
@@ -147,7 +132,6 @@ AnalyseStats1 <- function(
     x[, casesOverT0 := n - threshold0]
     x[, casesOverT2 := n - threshold2]
     x[, casesOverT4 := n - threshold4]
-
     x[, casesOverT := casesOverT4]
     x[stringr::str_detect(variable, "alerts2"), casesOverT := casesOverT2]
 
@@ -158,17 +142,18 @@ AnalyseStats1 <- function(
       meanCasesOverT0 = mean(casesOverT0[value == T]),
       meanCasesOverT = mean(casesOverT[value == T])
     ), keyby = .(
-      tag,
-      location,
-      year,
-      age,
-      variable,
-      type
-    )]
+         tag,
+         location,
+         year,
+         age,
+         variable,
+         type
+       )
+    ]
+
     res[[i]] <- x
   }
   res <- rbindlist(res)
-
   pd <- res[, .(
     meanAlertsN = mean(alertsN, na.rm = T),
     meanAlertsProp = mean(alertsProp, na.rm = T),
@@ -176,14 +161,54 @@ AnalyseStats1 <- function(
     meanCasesOverT0 = mean(meanCasesOverT0, na.rm = T),
     meanCasesOverT = mean(meanCasesOverT, na.rm = T)
   ), keyby = .(
-    tag,
-    variable,
-    type,
-    age
-  )]
+       tag,
+       variable,
+       type,
+       age
+     )]
 
   pd[, age := factor(age, levels = names(CONFIG$AGES))]
   pd[, type := factor(type, levels = c("Norge", "Fylke", "Kommune"))]
+  return(pd)
+}
+
+#' AnalyseStats1
+#' @param resYearLine a
+#' @param resYearLineMunicip a
+#' @export
+AnalyseStats1 <- function(
+                          resYearLine = NULL,
+                          resYearLineMunicip = NULL) {
+  # variables used in data.table functions in this function
+
+  conn <- DBI::dbConnect(odbc::odbc(),
+    driver = CONFIG$DB_CONFIG$driver,
+    server = CONFIG$DB_CONFIG$server,
+    port = CONFIG$DB_CONFIG$port,
+    user = CONFIG$DB_CONFIG$user,
+    password = CONFIG$DB_CONFIG$password
+    )
+  fd::use_db(conn, CONFIG$DB_CONFIG$db)
+  db <- dplyr::tbl(conn, "spuls_standard_results")
+  if(is.null(resYearLine)){
+    resYearLine <- db %>% dplyr::filter(granularity_time=="weekly" &
+                                          (granularity_geo == "county" |
+                                             granularity_geo == "national")) %>% dplyr::collect()
+    setDT(resYearLine)
+  }
+  if(is.null(resYearLineMunicip)){
+    resYearLineMunicip <- db %>% dplyr::filter(granularity_time=="weekly" &
+                                                 granularity_geo == "municip") %>% dplyr::collect()
+    setDT(resYearLineMunicip)
+
+
+  }
+
+
+  resYearLine <- addThresholds(resYearLine)
+  resYearLineMunicip <- addThresholds(resYearLineMunicip)
+
+  pd <- AggregateAlertsCases(resYearLine, resYearLineMunicip)
 
   pd[, prettyVar := variable]
   pd[variable == "x_alerts2", prettyVar := "ZScore>2"]
@@ -193,13 +218,17 @@ AnalyseStats1 <- function(
 
   pd <- pd[stringr::str_detect(prettyVar, "Cases>=5")]
 
-  return(pd)
+
+  return(list("alert_summary"=pd, "resYearLine"=resYearLine,
+    "resYearLineMunicip"=resYearLineMunicip))
 }
 
-AnalyseEmerg <- function() {
+
+AnalyseEmergLineList <- function() {
   fhi::RenderExternally(
-    input = system.file("extdata/emerg.Rmd", package = "sykdomspuls"),
-    output_file = "emerg.pdf",
+
+    input = system.file("extdata/emerg_linelist.Rmd", package = "sykdomspuls"),
+    output_file = "emerg_linelist.pdf",
     output_dir = fhi::DashboardFolder("results", file.path(LatestRawID(), "emerg")),
     params = sprintf(
       "dev=%s,package_dir=\"%s\"",
@@ -209,11 +238,25 @@ AnalyseEmerg <- function() {
   )
 }
 
+AnalyseEmerg <- function() {
+  fhi::RenderExternally(
+    input = system.file("extdata/emerg.Rmd", package = "sykdomspuls"),
+    output_file = "emerg.pdf",
+    output_dir = fd::path("results", file.path(latest_date(), "emerg")),
+    params = sprintf(
+      "dev=%s,package_dir=\"%s\"",
+      fhi::DashboardIsDev(),
+      getwd()
+
+    )
+  )
+}
+
 AnalyseStats <- function() {
   fhi::RenderExternally(
     input = system.file("extdata/stats.Rmd", package = "sykdomspuls"),
     output_file = "stats.pdf",
-    output_dir = fhi::DashboardFolder("results", file.path(LatestRawID(), "stats")),
+    output_dir = fd::path("results", file.path(latest_date(), "stats")),
     params = sprintf(
       "dev=%s,package_dir=\"%s\"",
       fhi::DashboardIsDev(),
@@ -226,7 +269,22 @@ AnalyseSkabb <- function() {
   fhi::RenderExternally(
     input = system.file("extdata/skabb.Rmd", package = "sykdomspuls"),
     output_file = "skabb.pdf",
-    output_dir = fhi::DashboardFolder("results", file.path(LatestRawID(), "skabb")),
+    output_dir = fd::path("results", file.path(latest_date(), "skabb")),
+    params = sprintf(
+      "dev=%s,package_dir=\"%s\"",
+      fhi::DashboardIsDev(),
+      getwd()
+    )
+  )
+}
+
+#' AnalysesLogs
+#' @export
+AnalyseLogs <- function() {
+  fhi::RenderExternally(
+    input = system.file("extdata/logs.Rmd", package = "sykdomspuls"),
+    output_file = "logs.pdf",
+    output_dir = fd::path("results", file.path(latest_date(), "stats")),
     params = sprintf(
       "dev=%s,package_dir=\"%s\"",
       fhi::DashboardIsDev(),
@@ -239,6 +297,8 @@ AnalyseSkabb <- function() {
 #' @export
 AnalysesSecondary <- function() {
   AnalyseEmerg()
-  AnalyseStats()
   AnalyseSkabb()
+  AnalyseStats()
+
+  return()
 }

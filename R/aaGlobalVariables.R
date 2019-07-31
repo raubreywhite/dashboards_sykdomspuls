@@ -30,8 +30,24 @@ CONFIG$verbose <- FALSE
 CONFIG$VERSION <- 1
 CONFIG$VERSIONS <- 1:2
 
-CONFIG$SYNDROMES <- rbind(
-  data.table(
+CONFIG$DB_DRIVER <- Sys.getenv("DB_DRIVER", "MySQL")
+CONFIG$DB_SERVER <- Sys.getenv("DB_SERVER", "db")
+CONFIG$DB_DB <- Sys.getenv("DB_DB", "sykdomspuls")
+CONFIG$DB_PORT <- as.integer(Sys.getenv("DB_PORT", 3306))
+CONFIG$DB_USER <- Sys.getenv("DB_USER", "root")
+CONFIG$DB_PASSWORD <- Sys.getenv("DB_PASSWORD", "example")
+
+CONFIG$DB_CONFIG <- list(
+  driver = CONFIG$DB_DRIVER,
+  server = CONFIG$DB_SERVER,
+  port = CONFIG$DB_PORT,
+  user = CONFIG$DB_USER,
+  password = CONFIG$DB_PASSWORD,
+  db = CONFIG$DB_DB
+)
+
+CONFIG$MEM <- rbind(
+ data.table(
     tag = "influensa",
     syndrome = "influensa",
     alertInternal = TRUE,
@@ -39,11 +55,16 @@ CONFIG$SYNDROMES <- rbind(
     websiteInternal = TRUE,
     contactType = list("Legekontakt"),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithInfluensa",
-    weeklyDenominatorFunction = sum,
+    denominator = "consult_with_influenza",
+    weeklyDenominatorFunction = "sum",
     namesLong = "Influensa",
-    namesShort = "Influensa"
-  ),
+    namesShort = "Influensa",
+    excludeSeason = c("2009/2010")
+  )
+)
+
+
+CONFIG$BAYESIAN <- CONFIG$STANDARD<- rbind(
   data.table(
     tag = "gastro",
     syndrome = "gastro",
@@ -52,8 +73,8 @@ CONFIG$SYNDROMES <- rbind(
     websiteInternal = TRUE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    denominator = "consult_without_influenza",
+    weeklyDenominatorFunction = "sum",
     namesLong = "Mage-tarm diagnose",
     namesShort = "Mage-tarm"
   ),
@@ -65,8 +86,8 @@ CONFIG$SYNDROMES <- rbind(
     websiteInternal = TRUE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    denominator = "consult_without_influenza",
+    weeklyDenominatorFunction = "sum",
     namesLong = "\u00D8vre-luftvei diagnose",
     namesShort = "Luftvei"
   ),
@@ -78,10 +99,23 @@ CONFIG$SYNDROMES <- rbind(
     websiteInternal = FALSE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    denominator = "consult_without_influenza",
+    weeklyDenominatorFunction = "sum",
     namesLong = "\u00D8vre-luftvei diagnose",
     namesShort = "Luftvei"
+  ),
+  data.table(
+    tag = "influensa",
+    syndrome = "influensa",
+    alertInternal = TRUE,
+    alertExternal = FALSE,
+    websiteInternal = TRUE,
+    contactType = list("Legekontakt"),
+    syndromeOrConsult = "syndrome",
+    denominator = "consult_with_influenza",
+    weeklyDenominatorFunction = "sum",
+    namesLong = "Influensa",
+    namesShort = "Influensa"
   ),
   data.table(
     tag = "lungebetennelse",
@@ -91,8 +125,8 @@ CONFIG$SYNDROMES <- rbind(
     websiteInternal = TRUE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    denominator = "consult_without_influenza",
+    weeklyDenominatorFunction = "sum",
     namesLong = "Lungebetennelse diagnose",
     namesShort = "Lungebet"
   ),
@@ -104,35 +138,35 @@ CONFIG$SYNDROMES <- rbind(
     websiteInternal = TRUE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    denominator = "consult_without_influenza",
+    weeklyDenominatorFunction = "sum",
     namesLong = "Bronkitt diagnose",
     namesShort = "Bronkitt"
   ),
   data.table(
-    tag = "consultWithInfluensa",
-    syndrome = "consultWithInfluensa",
+    tag = "consult_with_influenza",
+    syndrome = "consult_with_influenza",
     alertInternal = FALSE,
     alertExternal = FALSE,
     websiteInternal = FALSE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "consult",
     denominator = "pop",
-    weeklyDenominatorFunction = mean,
-    namesLong = "consultWithInfluensa",
+    weeklyDenominatorFunction = "mean",
+    namesLong = "consult_with_influenza",
     namesShort = "ConsWithInf"
   ),
   data.table(
-    tag = "consultWithoutInfluensa",
-    syndrome = "consultWithoutInfluensa",
+    tag = "consult_without_influenza",
+    syndrome = "consult_without_influenza",
     alertInternal = FALSE,
     alertExternal = FALSE,
     websiteInternal = FALSE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "consult",
     denominator = "pop",
-    weeklyDenominatorFunction = mean,
-    namesLong = "consultWithoutInfluensa",
+    weeklyDenominatorFunction = "mean",
+    namesLong = "consult_without_influenza",
     namesShort = "ConsWOInf"
   ),
   data.table(
@@ -143,8 +177,8 @@ CONFIG$SYNDROMES <- rbind(
     websiteInternal = TRUE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    denominator = "consult_without_influenza",
+    weeklyDenominatorFunction = "sum",
     namesLong = "Skabb diagnose",
     namesShort = "Skabb"
   ),
@@ -156,8 +190,8 @@ CONFIG$SYNDROMES <- rbind(
     websiteInternal = FALSE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    denominator = "consult_without_influenza",
+    weeklyDenominatorFunction = "sum",
     namesLong = "emerg1 diagnose",
     namesShort = "emerg1"
   ),
@@ -169,8 +203,8 @@ CONFIG$SYNDROMES <- rbind(
     websiteInternal = FALSE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    denominator = "consult_without_influenza",
+    weeklyDenominatorFunction = "sum",
     namesLong = "emerg2 diagnose",
     namesShort = "emerg2"
   ),
@@ -182,8 +216,8 @@ CONFIG$SYNDROMES <- rbind(
     websiteInternal = FALSE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    denominator = "consult_without_influenza",
+    weeklyDenominatorFunction = "sum",
     namesLong = "emerg3 diagnose",
     namesShort = "emerg3"
   ),
@@ -195,8 +229,8 @@ CONFIG$SYNDROMES <- rbind(
     websiteInternal = FALSE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    denominator = "consult_without_influenza",
+    weeklyDenominatorFunction = "sum",
     namesLong = "emerg4 diagnose",
     namesShort = "emerg4"
   ),
@@ -208,12 +242,46 @@ CONFIG$SYNDROMES <- rbind(
     websiteInternal = FALSE,
     contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "consultWithoutInfluensa",
-    weeklyDenominatorFunction = sum,
+    denominator = "consult_without_influenza",
+    weeklyDenominatorFunction = "sum",
     namesLong = "emerg5 diagnose",
     namesShort = "emerg5"
   )
+
 )
+
+
+
+
+CONFIG$MODELS <- list("mem" = CONFIG$MEM, "standard"= CONFIG$STANDARD)
+
+
+CONFIG$SYNDROMES <- data.table(tag = character(),
+                               syndrome = character(),
+                               syndromeOrConsult = character(),
+                               namesLong = character(),
+                               namesShort = character(),
+                               alertInternal = logical(),
+                               websiteInternal = logical(),
+                               alertExternal = logical(),
+                               contactType = list())
+for(model in CONFIG$MODELS){
+  for(i in 1:nrow(model)){
+    config = model[i]
+    sub_config = config[, names(CONFIG$SYNDROMES), with=FALSE]
+    if(config$tag %in% CONFIG$SYNDROMES[, tag]){
+      if(! isTRUE(all.equal(CONFIG$SYNDROMES[tag==config$tag], sub_config))){
+        stop(paste("tag, syndromeOrConsult, namesLong, namesShort, alertInternal, alertExternal, websiteInternal and contactType needs to be the same for the same syndrom across multiple models. It was not the same for", config$tag))
+        }
+
+    } else {
+      CONFIG$SYNDROMES <- rbind(CONFIG$SYNDROMES, sub_config)
+
+    }
+
+  }
+}
+
 
 CONFIG$tagsWithLong <- CONFIG$SYNDROMES$tag
 names(CONFIG$tagsWithLong) <- CONFIG$SYNDROMES$namesLong
@@ -269,15 +337,15 @@ VARS$REQ_DATA_RAW <- c(
 )
 
 VARS$REQ_DATA_CLEAN <- c(
-  "granularityGeo",
-  "county",
-  "location",
+  "granularity_geo",
+  "county_code",
+  "location_code",
   "age",
   "date",
-  "HelligdagIndikator",
+  "holiday",
   "n",
-  "consultWithoutInfluensa",
-  "consultWithInfluensa",
+  "consult_without_influenza",
+  "consult_with_influenza",
   "pop"
 )
 
@@ -286,19 +354,18 @@ VARS$REQ_DATA_ANALYSIS <- c(
   "date",
   "municip",
   "n",
-  "consultWithInfluensa",
-  "consultWithoutInfluensa",
+  "consult_with_influenza",
+  "consult_without_influenza",
   "pop"
 )
 
 VARS$REQ_RESULTS_BASIC <- c(
-  "wkyr",
+  "yrwk",
   "year",
   "week",
   "x",
   "date",
-  "displayDay",
-  "HelligdagIndikator",
+  "holiday",
   "n",
   "denominator",
   "threshold0",
@@ -309,31 +376,22 @@ VARS$REQ_RESULTS_BASIC <- c(
   "cumE1",
   "cumL1",
   "cumU1",
-  "failed"
+  "failed",
+  "uuid"
 )
 
 VARS$REQ_RESULTS_FULL <- c(
+  "v",
+  "granularity_time",
+  "granularity_geo",
   "tag",
   "type",
-  # "county",
-  "location",
-  # "locationName",
+  "county_code",
+  "location_code",
+  "location_name",
   "age",
   "status",
   VARS$REQ_RESULTS_BASIC,
   "file"
 )
 
-
-#' The last date for each isoweek
-#' @export displayDays
-displayDays <- data.table(day = seq.Date(as.IDate("2000-01-01"), as.IDate("2030-01-01"), by = "days"))
-displayDays[, wkyr := format.Date(day, format = "%G-%V")]
-displayDays <- displayDays[, .(displayDay = as.IDate(max(day))), by = .(wkyr)]
-setkey(displayDays, wkyr)
-
-#' Environment for progress bars
-#' @export PB
-PB <- new.env(parent = emptyenv())
-PB$i <- 0
-PB$pb <- RAWmisc::ProgressBarCreate(max = 1)
