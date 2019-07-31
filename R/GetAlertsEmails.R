@@ -12,7 +12,6 @@ AlertsEmailConverter <- function(emails) {
 #' If this function is run on a production machine,
 #' then the production email file will be returned.
 #' Otherwise it will return the test file.
-#' @importFrom readxl read_excel
 #' @export GetAlertsEmails
 GetAlertsEmails <- function() {
   if (fhi::DashboardIsProduction()) {

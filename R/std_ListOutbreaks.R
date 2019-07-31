@@ -4,8 +4,6 @@
 #' @param saveFiles Where are you saving the outbreak lists?
 #' @param useType Use type or tag as variable name
 #' @import data.table
-#' @import fhi
-#' @import stringr
 #' @export GenerateOutbreakListInternal
 GenerateOutbreakListInternal <- function(df = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine.RDS", LatestRawID()))),
                                          dk = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLineMunicip.RDS", LatestRawID()))),
@@ -159,7 +157,6 @@ GenerateOutbreakListInternal <- function(df = readRDS(fhi::DashboardFolder("resu
 #' @param saveFiles Where are you saving the outbreak lists?
 #' @param alerts Excel sheet containing registration information
 #' @import data.table
-#' @import stringr
 #' @export GenerateOutbreakListExternal
 GenerateOutbreakListExternal <- function(df = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLine.RDS", LatestRawID()))),
                                          dk = readRDS(fhi::DashboardFolder("results", sprintf("%s/resYearLineMunicip.RDS", LatestRawID()))),
