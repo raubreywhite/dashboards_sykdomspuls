@@ -1,4 +1,4 @@
-huxtable_theme <- function(ht, position="center"){
+huxtable_theme <- function(ht, position = "center") {
   ht <- huxtable::set_top_padding(ht, 0.2)
   ht <- huxtable::set_bottom_padding(ht, 0.2)
   ht <- huxtable::set_background_color(ht, huxtable::evens, huxtable::everywhere, "#F2F2F2")
@@ -12,14 +12,13 @@ huxtable_theme <- function(ht, position="center"){
 #' @param files The raw data file that is being analysed
 #' @export EmailNotificationOfNewData
 EmailNotificationOfNewData <- function(files) {
-
   tags <- paste0(CONFIG$SYNDROMES$tag, collapse = "</li><li>")
   files <- paste0(files, collapse = "</li><li>")
 
   email <-
     blastula::compose_email(
       body =
-"New Sykdomspulsen data has been received and signal processing has begun.
+        "New Sykdomspulsen data has been received and signal processing has begun.
 
 New results should be available in around two hours.
 
@@ -32,7 +31,8 @@ Files being processed are:
 <li> {files} </li>
 
 ",
-      footer = fd::e_footer())
+      footer = fd::e_footer()
+    )
 
   email %>%
     blastula::smtp_send(
@@ -49,14 +49,14 @@ Files being processed are:
 #' Internal email notifying about new results
 #' @export EmailTechnicalNewResults
 EmailTechnicalNewResults <- function() {
-
   email <-
     blastula::compose_email(
       body =
-"
+        "
 New Sykdomspulsen results available at <a href='http://smhb.fhi.no/'>http://smhb.fhi.no/</a>
 ",
-      footer = fd::e_footer())
+      footer = fd::e_footer()
+    )
 
   email %>%
     blastula::smtp_send(
@@ -66,7 +66,6 @@ New Sykdomspulsen results available at <a href='http://smhb.fhi.no/'>http://smhb
       subject = fd::e_subject("New Sykdomspuls results available"),
       credentials = blastula::creds_file("/etc/gmailr/blastula.txt")
     )
-
 }
 
 #' Generates the outbreak table for the external email
@@ -91,7 +90,7 @@ EmailExternalGenerateTable <- function(results, xtag, xemail) {
   n <- NULL
 
   r <- results[email == xemail & tag == xtag]
-  setorder(r,tag,-zscore)
+  setorder(r, tag, -zscore)
 
   if (nrow(r) == 0) {
     return(sprintf("%s utbrudd:<br><br>Ingen utbrudd registrert", CONFIG$SYNDROMES[tag == xtag]$namesLong))
@@ -99,24 +98,24 @@ EmailExternalGenerateTable <- function(results, xtag, xemail) {
 
   tab <- huxtable::huxtable(
     Syndrom = r$tag_pretty,
-    "Geografisk omr\u00E5de"=r$link,
-    Alder=r$age,
-    `Meldte<br>tilfeller`=r$n,
-    `Flere tilfeller<br>enn forventet`=r$cumE1,
-    `Z-verdi`=r$zscore) %>%
+    "Geografisk omr\u00E5de" = r$link,
+    Alder = r$age,
+    `Meldte<br>tilfeller` = r$n,
+    `Flere tilfeller<br>enn forventet` = r$cumE1,
+    `Z-verdi` = r$zscore
+  ) %>%
     huxtable::add_colnames() %>%
     huxtable_theme()
   huxtable::escape_contents(tab)[, 2] <- FALSE
   huxtable::escape_contents(tab)[1, 4:5] <- FALSE
-  huxtable::number_format(tab)[,5] <- 0
-  huxtable::number_format(tab)[,6] <- 1
-  huxtable::background_color(tab)[-1,6] <- "yellow"
-  huxtable::background_color(tab)[which(r$zscore>=4)+1,6] <- "red"
-  huxtable::align(tab)[1,] <- "center"
-  huxtable::align(tab)[-1,3:6] <- "center"
+  huxtable::number_format(tab)[, 5] <- 0
+  huxtable::number_format(tab)[, 6] <- 1
+  huxtable::background_color(tab)[-1, 6] <- "yellow"
+  huxtable::background_color(tab)[which(r$zscore >= 4) + 1, 6] <- "red"
+  huxtable::align(tab)[1, ] <- "center"
+  huxtable::align(tab)[-1, 3:6] <- "center"
 
   return(huxtable::to_html(tab))
-
 }
 
 #' Sends an external email warning about alters
@@ -232,13 +231,13 @@ Sykdomspulsen kan i noen tilfeller generere et OBS varsel selv om det bare er en
     }
 
     # include registered places
-    tab <- huxtable::huxtable("Geografisk omr\u00E5de"=a$location) %>%
+    tab <- huxtable::huxtable("Geografisk omr\u00E5de" = a$location) %>%
       huxtable::add_colnames() %>%
       huxtable_theme()
     huxtable::escape_contents(tab)[1, 1] <- FALSE
     tab <- huxtable::to_html(tab)
 
-    emailText <- paste0(emailText, "Du er registrert for \u00E5 motta varsel om utbrudd i:<br>",tab,"<br><br>")
+    emailText <- paste0(emailText, "Du er registrert for \u00E5 motta varsel om utbrudd i:<br>", tab, "<br><br>")
 
     # include outbreaks
     for (tag in CONFIG$SYNDROMES[alertExternal == T]$tag) {
@@ -248,8 +247,9 @@ Sykdomspulsen kan i noen tilfeller generere et OBS varsel selv om det bare er en
     email <-
       blastula::compose_email(
         body = emailText,
-        footer = fd::e_footer())
-    #email
+        footer = fd::e_footer()
+      )
+    # email
 
     email %>%
       blastula::smtp_send(

@@ -29,7 +29,7 @@
 #' sykdomspuls::CalculateTrainPredictYearPattern(2000, 2015, 3)
 #' @export CalculateTrainPredictYearPattern
 CalculateTrainPredictYearPattern <- function(yearMin, yearMax, numPerYear1 = 1) {
-  if(numPerYear1 > yearMax-yearMin-5) numPerYear1 <- yearMax-yearMin-5
+  if (numPerYear1 > yearMax - yearMin - 5) numPerYear1 <- yearMax - yearMin - 5
   perYear1 <- seq(yearMax - numPerYear1 + 1, yearMax, by = 1)
   perYear2 <- c((yearMin + 6):(yearMax - numPerYear1))
   perYear2 <- perYear2[!perYear2 %in% perYear1]
@@ -95,8 +95,8 @@ load_stack_schema <- function(conf, data, schema) {
   location <- NULL
   id <- NULL
 
-  counties <- data[granularity_geo == "municip",unique(county_code)]
-  municips <- data[granularity_geo == "municip",unique(location_code)]
+  counties <- data[granularity_geo == "municip", unique(county_code)]
+  municips <- data[granularity_geo == "municip", unique(location_code)]
   locations <- c("Norge", counties, municips)
 
   ages <- unique(data$age)
@@ -104,7 +104,8 @@ load_stack_schema <- function(conf, data, schema) {
   years <- CalculateTrainPredictYearPattern(
     yearMin = lubridate::isoyear(min(data$date)),
     yearMax = lubridate::isoyear(max(data$date)),
-    numPerYear1 = 200)
+    numPerYear1 = 200
+  )
 
   unlist(years)
 
@@ -124,8 +125,8 @@ load_stack_schema <- function(conf, data, schema) {
   analysesCounties[, v := sykdomspuls::CONFIG$VERSION]
   analysesCounties[, file := sprintf("%s_%s.RDS", "resRecentLine", tag)]
   analysesCounties[granularity_time == "weekly", file := sprintf("%s_%s.RDS", "resYearLine", tag)]
-  analysesCounties[,granularity_geo := "county"]
-  analysesCounties[location_code=="Norge", granularity_geo := "national"]
+  analysesCounties[, granularity_geo := "county"]
+  analysesCounties[location_code == "Norge", granularity_geo := "national"]
 
   # setting control stack for municipalities
   analysesMunicips <- data.table(
@@ -145,34 +146,33 @@ load_stack_schema <- function(conf, data, schema) {
   analysesMunicips[, granularity_geo := "municip"]
 
   analyses <- rbind(analysesCounties, analysesMunicips)
-  for(i in seq_along(years)){
-    analyses[year_index==i,year_train_min:=years[[i]]$yearTrainMin]
-    analyses[year_index==i,year_train_max:=years[[i]]$yearTrainMax]
-    analyses[year_index==i,year_predict_min:=years[[i]]$yearPredictMin]
-    analyses[year_index==i,year_predict_max:=years[[i]]$yearPredictMax]
+  for (i in seq_along(years)) {
+    analyses[year_index == i, year_train_min := years[[i]]$yearTrainMin]
+    analyses[year_index == i, year_train_max := years[[i]]$yearTrainMax]
+    analyses[year_index == i, year_predict_min := years[[i]]$yearPredictMin]
+    analyses[year_index == i, year_predict_max := years[[i]]$yearPredictMax]
   }
-  analyses[,uuid:=replicate(.N, uuid::UUIDgenerate(F))]
-  analyses[,year_index:=NULL]
+  analyses[, uuid := replicate(.N, uuid::UUIDgenerate(F))]
+  analyses[, year_index := NULL]
 
   dates <- data[, "date"]
   dates[, year := fhi::isoyear_n(date)]
-  dates[, date_min := min(date), by=year]
-  dates[, date_max := max(date), by=year]
-  dates <- unique(dates[,c("year","date_min","date_max")])
+  dates[, date_min := min(date), by = year]
+  dates[, date_max := max(date), by = year]
+  dates <- unique(dates[, c("year", "date_min", "date_max")])
 
-  analyses[dates, on="year_train_min==year", date_train_min:=date_min]
-  analyses[dates, on="year_train_max==year", date_train_max:=date_max]
+  analyses[dates, on = "year_train_min==year", date_train_min := date_min]
+  analyses[dates, on = "year_train_max==year", date_train_max := date_max]
 
-  analyses[dates, on="year_predict_min==year", date_predict_min:=date_min]
-  analyses[dates, on="year_predict_max==year", date_predict_max:=date_max]
+  analyses[dates, on = "year_predict_min==year", date_predict_min := date_min]
+  analyses[dates, on = "year_predict_max==year", date_predict_max := date_max]
 
-  if(Sys.getenv("ONLY_RUN_LATEST_YEAR","FALSE")=="TRUE") analyses <- analyses[year_predict_max==max(year_predict_max)]
+  if (Sys.getenv("ONLY_RUN_LATEST_YEAR", "FALSE") == "TRUE") analyses <- analyses[year_predict_max == max(year_predict_max)]
 
   # fix schema
 
   schema$dt <- analyses
 
   schema$identify_dt_that_exists_in_db()
-  schema$get_data_dt()[year_predict_max>=max(year_predict_max)-1,exists_in_db:=FALSE]
-
+  schema$get_data_dt()[year_predict_max >= max(year_predict_max) - 1, exists_in_db := FALSE]
 }

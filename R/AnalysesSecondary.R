@@ -32,7 +32,7 @@ AnalyseLog <- function() {
 
   log[, id := 1:.N, by = date]
   log <- log[id == 1]
-  cat(file=stderr(), as.character(log))
+  cat(file = stderr(), as.character(log))
   long <- melt.data.table(log[, c(
     "date",
     "versionPackage",
@@ -101,7 +101,7 @@ AnalyseLog <- function() {
 }
 
 
-addThresholds <- function (data){
+addThresholds <- function(data) {
   data[, x_alerts2 := n > threshold2]
   data[, x_alerts4 := n > threshold4]
   data[, x_alerts2_ge5cases := n > threshold2 & n >= 5]
@@ -109,7 +109,7 @@ addThresholds <- function (data){
   return(data)
 }
 
-AggregateAlertsCases <- function(resYearLine, resYearLineMunicip){
+AggregateAlertsCases <- function(resYearLine, resYearLineMunicip) {
   stack <- expand.grid(
     data = c("resYearLine", "resYearLineMunicip"),
     xtag = unique(resYearLine$tag),
@@ -121,10 +121,10 @@ AggregateAlertsCases <- function(resYearLine, resYearLineMunicip){
   for (i in 1:nrow(stack)) {
     s <- stack[i, ]
     x <- melt.data.table(get(s$data)[tag == s$xtag & year == s$xyear & age == s$xage],
-                         id.vars = c("tag", "location", "year", "age", "n", "threshold0", "threshold2", "threshold4"),
-                         measure.vars = patterns("^x_alerts"),
-                         variable.factor = F
-                         )
+      id.vars = c("tag", "location", "year", "age", "n", "threshold0", "threshold2", "threshold4"),
+      measure.vars = patterns("^x_alerts"),
+      variable.factor = F
+    )
     x[, type := location]
     x[stringr::str_detect(location, "county"), type := "Fylke"]
     x[stringr::str_detect(location, "municip"), type := "Kommune"]
@@ -142,14 +142,13 @@ AggregateAlertsCases <- function(resYearLine, resYearLineMunicip){
       meanCasesOverT0 = mean(casesOverT0[value == T]),
       meanCasesOverT = mean(casesOverT[value == T])
     ), keyby = .(
-         tag,
-         location,
-         year,
-         age,
-         variable,
-         type
-       )
-    ]
+      tag,
+      location,
+      year,
+      age,
+      variable,
+      type
+    )    ]
 
     res[[i]] <- x
   }
@@ -161,11 +160,11 @@ AggregateAlertsCases <- function(resYearLine, resYearLineMunicip){
     meanCasesOverT0 = mean(meanCasesOverT0, na.rm = T),
     meanCasesOverT = mean(meanCasesOverT, na.rm = T)
   ), keyby = .(
-       tag,
-       variable,
-       type,
-       age
-     )]
+    tag,
+    variable,
+    type,
+    age
+  )]
 
   pd[, age := factor(age, levels = names(CONFIG$AGES))]
   pd[, type := factor(type, levels = c("Norge", "Fylke", "Kommune"))]
@@ -187,21 +186,23 @@ AnalyseStats1 <- function(
     port = CONFIG$DB_CONFIG$port,
     user = CONFIG$DB_CONFIG$user,
     password = CONFIG$DB_CONFIG$password
-    )
+  )
   fd::use_db(conn, CONFIG$DB_CONFIG$db)
   db <- dplyr::tbl(conn, "spuls_standard_results")
-  if(is.null(resYearLine)){
-    resYearLine <- db %>% dplyr::filter(granularity_time=="weekly" &
-                                          (granularity_geo == "county" |
-                                             granularity_geo == "national")) %>% dplyr::collect()
+  if (is.null(resYearLine)) {
+    resYearLine <- db %>%
+      dplyr::filter(granularity_time == "weekly" &
+        (granularity_geo == "county" |
+          granularity_geo == "national")) %>%
+      dplyr::collect()
     setDT(resYearLine)
   }
-  if(is.null(resYearLineMunicip)){
-    resYearLineMunicip <- db %>% dplyr::filter(granularity_time=="weekly" &
-                                                 granularity_geo == "municip") %>% dplyr::collect()
+  if (is.null(resYearLineMunicip)) {
+    resYearLineMunicip <- db %>%
+      dplyr::filter(granularity_time == "weekly" &
+        granularity_geo == "municip") %>%
+      dplyr::collect()
     setDT(resYearLineMunicip)
-
-
   }
 
 
@@ -219,14 +220,15 @@ AnalyseStats1 <- function(
   pd <- pd[stringr::str_detect(prettyVar, "Cases>=5")]
 
 
-  return(list("alert_summary"=pd, "resYearLine"=resYearLine,
-    "resYearLineMunicip"=resYearLineMunicip))
+  return(list(
+    "alert_summary" = pd, "resYearLine" = resYearLine,
+    "resYearLineMunicip" = resYearLineMunicip
+  ))
 }
 
 
 AnalyseEmergLineList <- function() {
   fhi::RenderExternally(
-
     input = system.file("extdata/emerg_linelist.Rmd", package = "sykdomspuls"),
     output_file = "emerg_linelist.pdf",
     output_dir = fhi::DashboardFolder("results", file.path(LatestRawID(), "emerg")),
@@ -247,7 +249,6 @@ AnalyseEmerg <- function() {
       "dev=%s,package_dir=\"%s\"",
       fhi::DashboardIsDev(),
       getwd()
-
     )
   )
 }

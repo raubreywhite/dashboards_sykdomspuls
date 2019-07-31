@@ -140,9 +140,9 @@ CleanData <- function(d,
   dim(data)
   data <-
     merge(data,
-          fhidata::norway_municip_merging[, c("municip_code_original", "year", "municip_code_current")],
-          by.x = c("municip", "year"),
-          by.y = c("municip_code_original", "year"),
+      fhidata::norway_municip_merging[, c("municip_code_original", "year", "municip_code_current")],
+      by.x = c("municip", "year"),
+      by.y = c("municip_code_original", "year"),
       all.x = T
     )
   dim(data)
@@ -159,8 +159,9 @@ CleanData <- function(d,
   # merge in population
   n1 <- nrow(data)
   data <- merge(data, population,
-                by.x = c("municip", "age", "year"),
-                by.y = c("location_code", "age", "year"))
+    by.x = c("municip", "age", "year"),
+    by.y = c("location_code", "age", "year")
+  )
   n2 <- nrow(data)
 
   if (n1 != n2) {
@@ -168,7 +169,7 @@ CleanData <- function(d,
   }
 
   # merging in municipalitiy-fylke names
-  data[fhidata::norway_locations_current,on = "municip==municip_code", county:=county_code]
+  data[fhidata::norway_locations_current, on = "municip==municip_code", county := county_code]
 
   for (i in syndromeAndConsult) {
     data[is.na(get(i)), (i) := 0]
@@ -248,7 +249,7 @@ CleanData <- function(d,
   setorderv(data, c("granularityGeo", "county", "location", "age", "date"))
   setkey(data, location, age)
 
-  setnames(data,c(
+  setnames(data, c(
     "granularity_geo",
     "county_code",
     "location_code",
@@ -259,7 +260,7 @@ CleanData <- function(d,
     "consult_without_influenza",
     "consult_with_influenza",
     "pop"
-    ))
+  ))
 
   if (!ValidateDataClean(data)) {
     fd::msg("Clean data not validated", type = "err")

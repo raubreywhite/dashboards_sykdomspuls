@@ -11,7 +11,7 @@ GenFakeDataRaw <- function(xmunicipEnd = "municip5054") {
 
   m <- fhidata::norway_municip_merging
   skeleton <- unique(m[municip_code_current == xmunicipEnd & year <= lubridate::year(lubridate::today()), c("municip_code_original", "year")])
-  setnames(skeleton,"municip_code_original","municip")
+  setnames(skeleton, "municip_code_original", "municip")
 
   data <- vector("list", length = nrow(skeleton))
   for (i in 1:length(data)) {
@@ -136,7 +136,7 @@ GenFakeResultsFull <- function(granularity = "weekly", syndrome = "influensa", x
     weeklyDenominatorFunction = "sum",
     v = 1,
     file = "test.RDS",
-    uuid="34234233"
+    uuid = "34234233"
   )
 
   res <- QuasipoissonTrainPredictData(
@@ -144,11 +144,11 @@ GenFakeResultsFull <- function(granularity = "weekly", syndrome = "influensa", x
     datasetPredict = d,
     isDaily = stack$granularity_time == "daily",
     v = 1,
-    weeklyDenominatorFunction = ifelse(stack$weeklyDenominatorFunction=="sum",sum,mean),
-    uuid=stack$uuid
+    weeklyDenominatorFunction = ifelse(stack$weeklyDenominatorFunction == "sum", sum, mean),
+    uuid = stack$uuid
   )
 
-  res <- clean_post_analysis(res=res, stack = stack)
+  res <- clean_post_analysis(res = res, stack = stack)
 
   return(res)
 }

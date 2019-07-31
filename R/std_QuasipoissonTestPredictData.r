@@ -30,7 +30,7 @@ FormatDatasetDaily <- function(data) {
   denominator <- NULL
   # end
 
-  data[, trend := (as.numeric(date) - 13000)/100]
+  data[, trend := (as.numeric(date) - 13000) / 100]
   data[, dayOfYear := data.table::yday(date)]
   data[, dayOfWeek := data.table::wday(date)]
   data[denominator < 1, denominator := 1]
@@ -39,10 +39,9 @@ FormatDatasetDaily <- function(data) {
 }
 
 FormatDatasetWeekly <- function(
-  data,
-  weeklyDenominatorFunction = sum,
-  by_group = NULL
-  ) {
+                                data,
+                                weeklyDenominatorFunction = sum,
+                                by_group = NULL) {
   # variables used in data.table functions in this function
   . <- NULL
   n <- NULL
@@ -53,12 +52,12 @@ FormatDatasetWeekly <- function(
   # end
 
   data <- data[year >= 2006 & week %in% 1:52]
-  data[, trend := (as.numeric(date) - 13000)/100]
+  data[, trend := (as.numeric(date) - 13000) / 100]
 
-  if(is.null(by_group)){
-    by_var <- parse(text=glue::glue("list(year,week)"))
+  if (is.null(by_group)) {
+    by_var <- parse(text = glue::glue("list(year,week)"))
   } else {
-    by_var <- parse(text=glue::glue("list(year,week,{by_group})"))
+    by_var <- parse(text = glue::glue("list(year,week,{by_group})"))
   }
   data <- data[, .(
     n = sum(n),
@@ -66,7 +65,7 @@ FormatDatasetWeekly <- function(
     holiday = mean(holiday),
     trend = mean(trend)
   ),
-    by = eval(by_var)
+  by = eval(by_var)
   ]
 
   data[denominator < 1, denominator := 1]
@@ -198,7 +197,7 @@ QuasipoissonTrainPredictData <- function(
     datasetPredict[, failed := TRUE]
   } else {
     # REFIT THE REGRESSION USING RESIDUAL WEIGHTS (TO DOWNWEIGHT PREVIOUS OUTBREAKS):
-    datasetTrain[,w_i := 1]
+    datasetTrain[, w_i := 1]
 
     for (i in sort(1:reweights)) {
       dispersion_parameter <- summary(poisreg$fit)$dispersion
@@ -250,9 +249,9 @@ QuasipoissonTrainPredictData <- function(
   datasetPredict[, yrwk := paste0(year, "-", formatC(week, flag = "0", width = 2))]
 
   if (!isDaily) {
-    datasetPredict[fhidata::days,on="yrwk",date:=mon]
+    datasetPredict[fhidata::days, on = "yrwk", date := mon]
   }
-  datasetPredict[,uuid:=uuid]
+  datasetPredict[, uuid := uuid]
 
   return(datasetPredict[, VARS$REQ_RESULTS_BASIC, with = F])
 }

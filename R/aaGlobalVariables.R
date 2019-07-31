@@ -47,7 +47,7 @@ CONFIG$DB_CONFIG <- list(
 )
 
 CONFIG$MEM <- rbind(
- data.table(
+  data.table(
     tag = "influensa",
     syndrome = "influensa",
     alertInternal = TRUE,
@@ -64,7 +64,7 @@ CONFIG$MEM <- rbind(
 )
 
 
-CONFIG$BAYESIAN <- CONFIG$STANDARD<- rbind(
+CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
   data.table(
     tag = "gastro",
     syndrome = "gastro",
@@ -247,38 +247,36 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD<- rbind(
     namesLong = "emerg5 diagnose",
     namesShort = "emerg5"
   )
-
 )
 
 
 
 
-CONFIG$MODELS <- list("mem" = CONFIG$MEM, "standard"= CONFIG$STANDARD)
+CONFIG$MODELS <- list("mem" = CONFIG$MEM, "standard" = CONFIG$STANDARD)
 
 
-CONFIG$SYNDROMES <- data.table(tag = character(),
-                               syndrome = character(),
-                               syndromeOrConsult = character(),
-                               namesLong = character(),
-                               namesShort = character(),
-                               alertInternal = logical(),
-                               websiteInternal = logical(),
-                               alertExternal = logical(),
-                               contactType = list())
-for(model in CONFIG$MODELS){
-  for(i in 1:nrow(model)){
-    config = model[i]
-    sub_config = config[, names(CONFIG$SYNDROMES), with=FALSE]
-    if(config$tag %in% CONFIG$SYNDROMES[, tag]){
-      if(! isTRUE(all.equal(CONFIG$SYNDROMES[tag==config$tag], sub_config))){
+CONFIG$SYNDROMES <- data.table(
+  tag = character(),
+  syndrome = character(),
+  syndromeOrConsult = character(),
+  namesLong = character(),
+  namesShort = character(),
+  alertInternal = logical(),
+  websiteInternal = logical(),
+  alertExternal = logical(),
+  contactType = list()
+)
+for (model in CONFIG$MODELS) {
+  for (i in 1:nrow(model)) {
+    config <- model[i]
+    sub_config <- config[, names(CONFIG$SYNDROMES), with = FALSE]
+    if (config$tag %in% CONFIG$SYNDROMES[, tag]) {
+      if (!isTRUE(all.equal(CONFIG$SYNDROMES[tag == config$tag], sub_config))) {
         stop(paste("tag, syndromeOrConsult, namesLong, namesShort, alertInternal, alertExternal, websiteInternal and contactType needs to be the same for the same syndrom across multiple models. It was not the same for", config$tag))
-        }
-
+      }
     } else {
       CONFIG$SYNDROMES <- rbind(CONFIG$SYNDROMES, sub_config)
-
     }
-
   }
 }
 
@@ -394,4 +392,3 @@ VARS$REQ_RESULTS_FULL <- c(
   VARS$REQ_RESULTS_BASIC,
   "file"
 )
-

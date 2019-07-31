@@ -66,16 +66,16 @@ IdentifyDatasets <-
 #' test
 #' @param hyphen Use a hyphen or underscore?
 #' @export
-LatestRawID <- function(hyphen=F) {
+LatestRawID <- function(hyphen = F) {
   f <- IdentifyDatasets()
-  if(hyphen) f$id <- gsub("_","-",f$id)
+  if (hyphen) f$id <- gsub("_", "-", f$id)
   return(max(f$id))
 }
 
 #' latest_date
 #' @export
-latest_date <- function(){
-  LatestRawID(hyphen=T)
+latest_date <- function() {
+  LatestRawID(hyphen = T)
 }
 
 
@@ -160,8 +160,8 @@ UpdateData <- function() {
       d = copy(d[Kontaktype %in% conf$contactType[[1]]]),
       syndrome = conf$syndrome
     )
-    for(j in names(CONFIG$AGES)){
-      saveRDS(res[age==j], file = fd::path(
+    for (j in names(CONFIG$AGES)) {
+      saveRDS(res[age == j], file = fd::path(
         "data_clean",
         sprintf(
           "%s_%s_%s_cleaned.RDS",
