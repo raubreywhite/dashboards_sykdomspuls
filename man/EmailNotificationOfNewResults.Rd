@@ -5,7 +5,7 @@
 \title{Email notification of new results}
 \usage{
 
-  EmailNotificationOfNewResults(lastEmailedUtbruddFile = fhi::DashboardFolder("results",
+  EmailNotificationOfNewResults(lastEmailedUtbruddFile = fd::path("results",
   "lastEmailedUtbrudd.RDS"))
 }
 \arguments{

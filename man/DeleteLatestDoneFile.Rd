@@ -4,8 +4,8 @@
 \alias{DeleteLatestDoneFile}
 \title{Delete the latest done file}
 \usage{
-DeleteLatestDoneFile(file = fhi::DashboardFolder("data_clean",
-  paste0("done_", LatestRawID(), ".txt")))
+DeleteLatestDoneFile(file = fd::path("data_clean", paste0("done_",
+  LatestRawID(), ".txt")))
 }
 \arguments{
 \item{file}{Location of the latest done file (according to latest raw data file)}

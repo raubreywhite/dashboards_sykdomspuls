@@ -4,12 +4,10 @@
 \alias{GenerateOutbreakListExternal}
 \title{Generates the external outbreak list}
 \usage{
-
-  GenerateOutbreakListExternal(df = readRDS(fhi::DashboardFolder("results",
+GenerateOutbreakListExternal(df = readRDS(fd::path("results",
   sprintf("\%s/resYearLine.RDS", LatestRawID()))),
-  dk = readRDS(fhi::DashboardFolder("results",
-  sprintf("\%s/resYearLineMunicip.RDS", LatestRawID()))),
-  saveFiles = fhi::DashboardFolder("results",
+  dk = readRDS(fd::path("results", sprintf("\%s/resYearLineMunicip.RDS",
+  LatestRawID()))), saveFiles = fd::path("results",
   sprintf("\%s/outbreaks_alert_external.RDS", LatestRawID())),
   alerts = GetAlertsEmails())
 }

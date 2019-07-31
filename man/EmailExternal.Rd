@@ -4,7 +4,7 @@
 \alias{EmailExternal}
 \title{Sends an external email warning about alters}
 \usage{
-EmailExternal(results = readRDS(fhi::DashboardFolder("results",
+EmailExternal(results = readRDS(fd::path("results",
   sprintf("\%s/outbreaks_alert_external.RDS", latest_date()))),
   alerts = GetAlertsEmails(), forceNoOutbreak = FALSE,
   forceYesOutbreak = FALSE)

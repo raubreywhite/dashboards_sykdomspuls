@@ -4,9 +4,9 @@
 \alias{DeleteOldDatasets}
 \title{Delete old datasets}
 \usage{
-DeleteOldDatasets(raw = list.files(fhi::DashboardFolder("data_raw"),
-  "^partially_formatted_"),
-  clean = list.files(fhi::DashboardFolder("data_clean"), "done_"))
+DeleteOldDatasets(raw = list.files(fd::path("data_raw"),
+  "^partially_formatted_"), clean = list.files(fd::path("data_clean"),
+  "done_"))
 }
 \arguments{
 \item{raw}{Folder containing raw data}
