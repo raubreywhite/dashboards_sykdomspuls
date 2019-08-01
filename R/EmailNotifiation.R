@@ -15,33 +15,26 @@ EmailNotificationOfNewData <- function(files) {
   tags <- paste0(CONFIG$SYNDROMES$tag, collapse = "</li><li>")
   files <- paste0(files, collapse = "</li><li>")
 
-  email <-
-    blastula::compose_email(
-      body =
-        "New Sykdomspulsen data has been received and signal processing has begun.
+  html <- glue::glue("
+    New Sykdomspulsen data has been received and signal processing has begun.
 
-New results should be available in around two hours.
+    New results should be available in around two hours.
 
-Tags being processed are:
+    Tags being processed are:
 
-<li> {tags} </li>
+    <li> {tags} </li>
 
-Files being processed are:
+    Files being processed are:
 
-<li> {files} </li>
+    <li> {files} </li>
+    ")
 
-",
-      footer = fd::e_footer()
-    )
-
-  email %>%
-    blastula::smtp_send(
-      from = "dashboardsfhi@gmail.com",
-      to = "dashboardsfhi@gmail.com",
-      bcc = fd::e_emails("sykdomspuls_data"),
-      subject = fd::e_subject("New Sykdomspuls data"),
-      credentials = blastula::creds_file("/etc/gmailr/blastula.txt")
-    )
+  fd::mailgun(
+    subject = "New Sykdomspuls data",
+    html = html,
+    bcc = fd::e_emails("sykdomspuls_data"),
+    attachment = httr::upload_file(reliableData)
+  )
 
   return(0)
 }
@@ -49,23 +42,17 @@ Files being processed are:
 #' Internal email notifying about new results
 #' @export EmailTechnicalNewResults
 EmailTechnicalNewResults <- function() {
-  email <-
-    blastula::compose_email(
-      body =
-        "
-New Sykdomspulsen results available at <a href='http://smhb.fhi.no/'>http://smhb.fhi.no/</a>
-",
-      footer = fd::e_footer()
-    )
 
-  email %>%
-    blastula::smtp_send(
-      from = "dashboardsfhi@gmail.com",
-      to = "dashboardsfhi@gmail.com",
-      bcc = fd::e_emails("sykdomspuls_results"),
-      subject = fd::e_subject("New Sykdomspuls results available"),
-      credentials = blastula::creds_file("/etc/gmailr/blastula.txt")
-    )
+  html <- glue::glue("
+    New Sykdomspulsen results available at <a href='http://smhb.fhi.no/'>http://smhb.fhi.no/</a>
+    ")
+
+  fd::mailgun(
+    subject = "Nye resultater til sykdomspulsen klar",
+    html = html,
+    bcc = fd::e_emails("sykdomspuls_results")
+  )
+
 }
 
 #' Generates the outbreak table for the external email
@@ -125,10 +112,10 @@ EmailExternalGenerateTable <- function(results, xtag, xemail) {
 #' @param forceYesOutbreak For testing. Do you want to force a "Yes outbreak" email?
 #' @export EmailExternal
 EmailExternal <- function(
-                          results = readRDS(fd::path("results", sprintf("%s/outbreaks_alert_external.RDS", latest_date()))),
-                          alerts = GetAlertsEmails(),
-                          forceNoOutbreak = FALSE,
-                          forceYesOutbreak = FALSE) {
+  results = readRDS(fd::path("results", sprintf("%s/outbreaks_alert_external.RDS", latest_date()))),
+  alerts = GetAlertsEmails(),
+  forceNoOutbreak = FALSE,
+  forceYesOutbreak = FALSE) {
   # variables used in data.table functions in this function
   output <- NULL
   tag <- NULL
@@ -244,20 +231,11 @@ Sykdomspulsen kan i noen tilfeller generere et OBS varsel selv om det bare er en
       emailText <- paste0(emailText, EmailExternalGenerateTable(results = r, xtag = tag, xemail = useEmail), "<br>")
     }
 
-    email <-
-      blastula::compose_email(
-        body = emailText,
-        footer = fd::e_footer()
-      )
-    # email
-
-    email %>%
-      blastula::smtp_send(
-        from = "dashboardsfhi@gmail.com",
-        to = em,
-        subject = fd::e_subject(emailSubject),
-        credentials = blastula::creds_file("/etc/gmailr/blastula.txt")
-      )
+    fd::mailgun(
+      subject = emailSubject,
+      html = emailText,
+      to = em
+    )
 
     Sys.sleep(5)
   }
