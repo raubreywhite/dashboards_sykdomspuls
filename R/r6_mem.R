@@ -13,7 +13,6 @@ MeM <- R6::R6Class(
       conf <<- conf
       db_config <<- db_config
       mem_schema <<- get_mem_schema()
-      str
     },
     run_all = function() {
       mem_schema$db_connect(db_config)
@@ -32,15 +31,6 @@ MeM <- R6::R6Class(
     }
   )
 )
-
-
-
-#' run_all
-#' @param conf A mem model configuration object
-#' @export
-run_all <- function(conf) {
-  data <- get_mem_data(conf)
-}
 
 
 #'

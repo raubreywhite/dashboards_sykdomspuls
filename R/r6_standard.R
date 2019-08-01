@@ -57,7 +57,7 @@ standard <- R6::R6Class(
         dplyr::filter(
           granularity_time == "daily"
         ) %>%
-        dplyr::distinct(location, locationName) %>%
+        dplyr::distinct(location_code, location_name) %>%
         dplyr::collect() %>%
         fd::latin1_to_utf8()
 
