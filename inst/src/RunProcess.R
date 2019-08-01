@@ -21,7 +21,7 @@ fhi::Log("numTags", nrow(CONFIG$SYNDROMES))
 fhi::Log("versionAlgorithm", CONFIG$VERSION)
 fhi::Log("versionPackage", packageDescription("sykdomspuls")$Version)
 
-if(fd::config$is_dev) Sys.setenv(ONLY_RUN_LATEST_YEAR=TRUE)
+if(!fd::config$is_production) Sys.setenv(ONLY_RUN_LATEST_YEAR=TRUE)
 
 fhi::Log("cleanBefore")
 if (!UpdateData()) {
