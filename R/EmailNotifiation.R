@@ -41,7 +41,6 @@ EmailNotificationOfNewData <- function(files) {
 #' Internal email notifying about new results
 #' @export EmailTechnicalNewResults
 EmailTechnicalNewResults <- function() {
-
   html <- glue::glue("
     New Sykdomspulsen results available at <a href='http://smhb.fhi.no/'>http://smhb.fhi.no/</a>
     ")
@@ -51,7 +50,6 @@ EmailTechnicalNewResults <- function() {
     html = html,
     bcc = fd::e_emails("sykdomspuls_results")
   )
-
 }
 
 #' Generates the outbreak table for the external email
@@ -111,10 +109,10 @@ EmailExternalGenerateTable <- function(results, xtag, xemail) {
 #' @param forceYesOutbreak For testing. Do you want to force a "Yes outbreak" email?
 #' @export EmailExternal
 EmailExternal <- function(
-  results = readRDS(fd::path("results", sprintf("%s/outbreaks_alert_external.RDS", latest_date()))),
-  alerts = GetAlertsEmails(),
-  forceNoOutbreak = FALSE,
-  forceYesOutbreak = FALSE) {
+                          results = readRDS(fd::path("results", sprintf("%s/outbreaks_alert_external.RDS", latest_date()))),
+                          alerts = GetAlertsEmails(),
+                          forceNoOutbreak = FALSE,
+                          forceYesOutbreak = FALSE) {
   # variables used in data.table functions in this function
   output <- NULL
   tag <- NULL
