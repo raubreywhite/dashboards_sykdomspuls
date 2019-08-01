@@ -32,8 +32,7 @@ EmailNotificationOfNewData <- function(files) {
   fd::mailgun(
     subject = "New Sykdomspuls data",
     html = html,
-    bcc = fd::e_emails("sykdomspuls_data"),
-    attachment = httr::upload_file(reliableData)
+    bcc = fd::e_emails("sykdomspuls_data")
   )
 
   return(0)
