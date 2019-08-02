@@ -36,7 +36,7 @@ quasip <- R6::R6Class(
     run = function(
                        base_folder = fd::path("data_clean"),
                        latest_id = sykdomspuls::LatestRawID()) {
-      message(glue::glue("Running {conf$tag}"))
+
       connect_to_db()
       for (i in names(sykdomspuls::CONFIG$AGES)) {
         quasi_run_age(
@@ -161,8 +161,7 @@ quasi_run_age <- function(
     gc()
   })
 
-  message(glue::glue("Running {age}"))
-  if(fd::config$is_production) fd::slack(glue::glue("Starting {conf$tag}/{age}"))
+  message(glue::glue("Running {conf$tag}/{age}"), slack = TRUE)
 
   data <- readRDS(file = file.path(base_folder, glue::glue("{latest_id}_{conf$tag}_{age}_cleaned.RDS")))
   load_stack_schema(conf = conf, data = data, schema = stack_x)
@@ -247,5 +246,5 @@ quasi_run_age <- function(
     TRUE
   )
 
-  if(fd::config$is_production) fd::slack(glue::glue("Finished {conf$tag}/{age}"))
+  message(glue::glue("Finished {conf$tag}/{age}"), slack = TRUE)
 }
