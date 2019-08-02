@@ -278,7 +278,7 @@ standard <- R6::R6Class(
 
       fd::msg("Sending external emails")
       send_email <- fd::perform_weekly_action(
-        file = fd::path("config", "last_emailed_utbrudd.RDS"),
+        file = fd::path("config", "email_external.txt"),
         dev_always_performs = TRUE
       )
 
