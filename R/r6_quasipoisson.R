@@ -245,4 +245,15 @@ quasi_run_age <- function(
     ),
     TRUE
   )
+
+  if(fd::config$is_production){
+    subject <- html <- glue::glue("PROD: Finished {conf$tag}/{age}")
+
+    fd::mailgun(
+      subject = subject,
+      html = html,
+      to = "riwh@fhi.no"
+    )
+
+  }
 }
