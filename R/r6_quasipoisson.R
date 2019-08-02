@@ -36,7 +36,6 @@ quasip <- R6::R6Class(
     run = function(
                        base_folder = fd::path("data_clean"),
                        latest_id = sykdomspuls::LatestRawID()) {
-
       connect_to_db()
       for (i in names(sykdomspuls::CONFIG$AGES)) {
         quasi_run_age(
