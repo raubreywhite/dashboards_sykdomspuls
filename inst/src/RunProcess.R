@@ -34,6 +34,7 @@ fhi::Log("cleanAfter")
 fhi::Log("analyse1Before")
 for (model_name in names(sykdomspuls::CONFIG$MODELS)){
   fd::msg(paste("starting", model_name))
+  if(fd::config$is_production) fd::slack(paste("starting", model_name))
 
   conf <- sykdomspuls::CONFIG$MODELS[[model_name]]
   db_config <- CONFIG$DB_CONFIG

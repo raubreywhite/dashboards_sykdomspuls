@@ -162,6 +162,7 @@ quasi_run_age <- function(
   })
 
   message(glue::glue("Running {age}"))
+  if(fd::config$is_production) fd::slack(glue::glue("Starting {conf$tag}/{age}"))
 
   data <- readRDS(file = file.path(base_folder, glue::glue("{latest_id}_{conf$tag}_{age}_cleaned.RDS")))
   load_stack_schema(conf = conf, data = data, schema = stack_x)
@@ -246,13 +247,5 @@ quasi_run_age <- function(
     TRUE
   )
 
-  if (fd::config$is_production) {
-    subject <- html <- glue::glue("PROD: Finished {conf$tag}/{age}")
-
-    fd::mailgun(
-      subject = subject,
-      html = html,
-      to = "riwh@fhi.no"
-    )
-  }
+  if(fd::config$is_production) fd::slack(glue::glue("Finished {conf$tag}/{age}"))
 }
