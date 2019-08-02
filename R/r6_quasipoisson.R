@@ -161,13 +161,13 @@ quasi_run_age <- function(
     gc()
   })
 
-  message(glue::glue("Running {conf$tag}/{age}"), slack = TRUE)
-
   data <- readRDS(file = file.path(base_folder, glue::glue("{latest_id}_{conf$tag}_{age}_cleaned.RDS")))
   load_stack_schema(conf = conf, data = data, schema = stack_x)
 
   run_stack <- stack_x$get_data_dt()[exists_in_db == FALSE]
   run_stack <- split(run_stack, seq(nrow(run_stack)))
+
+  message(glue::glue("{conf$tag}/{age}: running {length(run_stack)} analyses"), slack = TRUE)
 
   res <- pbapply::pblapply(run_stack, function(x) {
     run_data <- data[.(x$location)]
@@ -188,6 +188,8 @@ quasi_run_age <- function(
   rm("data")
   gc()
   res <- rbindlist(res)
+
+  message(glue::glue("{conf$tag}/{age}: finished {length(run_stack)} analyses"), slack = TRUE)
 
   res <- clean_post_analysis(res = res, stack = stack_x$get_data_dt())
 
@@ -246,5 +248,5 @@ quasi_run_age <- function(
     TRUE
   )
 
-  message(glue::glue("Finished {conf$tag}/{age}"), slack = TRUE)
+  message(glue::glue("{conf$tag}/{age} finished everything"), slack = TRUE)
 }
