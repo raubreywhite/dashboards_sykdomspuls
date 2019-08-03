@@ -127,7 +127,7 @@ standard <- R6::R6Class(
     save_external_api = function() {
       fd::msg("Saving config for the external api")
 
-      SaveRDS(ConvertConfigForAPI(), fd::path("results", "externalapi", "config.RDS"))
+      saveRDS(ConvertConfigForAPI(), fd::path("results", "externalapi", "config.RDS"), version = 2)
 
       names_req <- c(
         "tag",
@@ -183,7 +183,8 @@ standard <- R6::R6Class(
       }
       saveRDS(
         d,
-        fd::path("results", "externalapi", "resRecentLine.RDS")
+        fd::path("results", "externalapi", "resRecentLine.RDS"),
+        version = 2
       )
 
       rm("d")
@@ -214,7 +215,8 @@ standard <- R6::R6Class(
       }
       saveRDS(
         dk,
-        fd::path("results", "externalapi", "resYearLineMunicip.RDS")
+        fd::path("results", "externalapi", "resYearLineMunicip.RDS"),
+        version = 2
       )
 
       fd::msg("Saving weekly not municip data for the external api")
@@ -241,17 +243,19 @@ standard <- R6::R6Class(
       }
       saveRDS(
         df,
-        fd::path("results", "externalapi", "resYearLine.RDS")
+        fd::path("results", "externalapi", "resYearLine.RDS"),
+        version = 2
       )
 
       fd::msg("Saving outbreaks for the external api")
 
-      GenerateOutbreakListInternal(
+      outbreaks <- GenerateOutbreakListInternal(
         df = df,
         dk = dk,
-        saveFiles = fd::path("results", "externalapi", "outbreaks.RDS"),
+        saveFiles = NULL,
         useType = TRUE
       )
+      saveRDS(outbreaks, fd::path("results", "externalapi", "outbreaks.RDS"), version = 2)
     },
     email_external = function() {
       fd::msg("Generating external outbreak alerts")

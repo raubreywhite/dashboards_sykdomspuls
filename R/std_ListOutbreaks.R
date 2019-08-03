@@ -145,9 +145,9 @@ GenerateOutbreakListInternal <- function(df = readRDS(fd::path("results", sprint
   outbreaks <- list(df = df, dk = dk)
   if (!is.null(saveFiles)) {
     SaveRDS(outbreaks, saveFiles)
-  } else {
-    return(outbreaks)
   }
+
+  return(outbreaks)
 }
 
 
