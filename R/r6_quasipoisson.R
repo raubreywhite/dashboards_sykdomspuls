@@ -160,6 +160,8 @@ quasi_run_age <- function(
     gc()
   })
 
+  message(glue::glue("{conf$tag}/{age}: starting everything"), slack = TRUE)
+
   data <- readRDS(file = file.path(base_folder, glue::glue("{latest_id}_{conf$tag}_{age}_cleaned.RDS")))
   load_stack_schema(conf = conf, data = data, schema = stack_x)
 
