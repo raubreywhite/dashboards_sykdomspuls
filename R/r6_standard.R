@@ -24,7 +24,7 @@ standard <- R6::R6Class(
       latest_id <- LatestRawID()
 
       foreach(i = 1:length(tags), .packages = c("data.table", "sykdomspuls"), .verbose = T, .export = "tags") %dopar% {
-        Sys.sleep((i-1)*10)
+        Sys.sleep((i - 1) * 10)
         data.table::setDTthreads(1)
         tags[[i]]$run(base_folder = base_folder, latest_id = latest_id)
       }
