@@ -28,6 +28,11 @@ fd::initialize("sykdomspuls")
 CONFIG <- readRDS("/data_app/sykdomspuls/config.RDS")
 GLOBAL <- readRDS("/data_app/sykdomspuls/GLOBAL.RDS")
 
+vals <- unique(fhidata::norway_locations_current[,c("county_code","county_name")])
+GLOBAL$weeklyCounties <- c("Norge", vals$county_code)
+names(GLOBAL$weeklyCounties) <- c("Norge", vals$county_name)
+
+
 Getlocation_name <- function(location) {
   location_name <- "Norge"
   locationHTML <- "Norge"
@@ -38,6 +43,7 @@ Getlocation_name <- function(location) {
   
   return(location_name)
 }
+
 
 
 GetCols <- function(){
@@ -289,7 +295,7 @@ selectInput("weeklyBarometerType", "Sykdom/Symptom", as.list(GLOBAL$weeklyTypes)
 
 selectInput("weeklyBarometerAge", "Alder", as.list(GLOBAL$weeklyAges), selected = "Totalt")
 
-selectInput("weeklyBarometerCounty", "Fylke", as.list(GLOBAL$weeklyCounties), selected = GLOBAL$weeklyCounties[length(GLOBAL$weeklyCounties)])
+selectInput("weeklyBarometerCounty", "Fylke", as.list(GLOBAL$weeklyCounties), selected = GLOBAL$weeklyCounties[1])
 ```
 
 Row {data-height=800 .tabset}
@@ -575,7 +581,7 @@ selectInput("weeklyType", "Sykdom/Symptom", as.list(GLOBAL$weeklyTypes), selecte
 
 selectInput("weeklyAge", "Alder", as.list(GLOBAL$weeklyAges), selected = "Totalt")
 
-selectInput("weeklyCounty", "Fylke", as.list(GLOBAL$weeklyCounties), selected = GLOBAL$weeklyCounties[length( GLOBAL$weeklyCounties)])
+selectInput("weeklyCounty", "Fylke", as.list(GLOBAL$weeklyCounties), selected = GLOBAL$weeklyCounties[1])
 
 weeklyMunicipChoices <- reactive({
   if (is.null(input$weeklyCounty))
@@ -731,7 +737,7 @@ selectInput("dailyType", "Sykdom/Symptom", as.list(GLOBAL$dailyTypes), selected 
 
 selectInput("dailyAge", "Alder", as.list(GLOBAL$dailyAges), selected = "Totalt")
 
-selectInput("dailyCounty", "Fylke", as.list(GLOBAL$dailyCounties), selected = GLOBAL$dailyCounties[1])
+selectInput("dailyCounty", "Fylke", as.list(GLOBAL$weeklyCounties), selected = GLOBAL$weeklyCounties[1])
 
 ```
 
@@ -790,7 +796,7 @@ Instillinger {.sidebar}
 
 ```{r, echo = F}
 
-selectInput("influensaCounty", "Fylke", as.list(GLOBAL$dailyCounties), selected = GLOBAL$dailyCounties[length( GLOBAL$dailyCounties)])
+selectInput("influensaCounty", "Fylke", as.list(GLOBAL$weeklyCounties), selected = GLOBAL$weeklyCounties[1])
 
 ```
 
