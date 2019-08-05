@@ -212,11 +212,11 @@ GenerateOutbreakListExternal <- function(df = readRDS(fd::path("results", sprint
 #' @import data.table
 #' @export
 GenerateOutbreakListAPI <- function(df = readRDS(fd::path("results", sprintf("%s/resYearLine.RDS", LatestRawID()))),
-                                         dk = readRDS(fd::path("results", sprintf("%s/resYearLineMunicip.RDS", LatestRawID()))),
-                                         saveFiles = c(
-                                           fd::path("results", sprintf("%s/outbreaks.RDS", LatestRawID()))
-                                         ),
-                                         useType = FALSE) {
+                                    dk = readRDS(fd::path("results", sprintf("%s/resYearLineMunicip.RDS", LatestRawID()))),
+                                    saveFiles = c(
+                                      fd::path("results", sprintf("%s/outbreaks.RDS", LatestRawID()))
+                                    ),
+                                    useType = FALSE) {
   # variables used in data.table functions in this function
   . <- NULL
   status <- NULL
