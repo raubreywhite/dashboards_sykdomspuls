@@ -54,18 +54,12 @@ standard <- R6::R6Class(
       GLOBAL$dateMinRestrictedLine <- GLOBAL$dateMax - 365 * 15
 
       ###########################
-      val <- tags[[1]]$results_x$dplyr_tbl() %>%
-        dplyr::filter(
-          granularity_time == "daily"
-        ) %>%
-        dplyr::distinct(location_code, location_name) %>%
-        dplyr::collect() %>%
-        fd::latin1_to_utf8()
+      val <- fhidata::norway_locations_current
 
-      GLOBAL$dailyCounties <- unique(val$location_code)
-      names(GLOBAL$dailyCounties) <- unique(val$location_name)
-      GLOBAL$weeklyCounties <- unique(val$location_code)
-      names(GLOBAL$weeklyCounties) <- unique(val$location_name)
+      GLOBAL$dailyCounties <- c("Norge",val$county_code)
+      names(GLOBAL$dailyCounties) <- c("Norge",val$county_name)
+      GLOBAL$weeklyCounties <- c("Norge",val$county_code)
+      names(GLOBAL$weeklyCounties) <- c("Norge",val$county_code)
 
       ###########################
       val <- tags[[1]]$results_x$dplyr_tbl() %>%
