@@ -53,7 +53,7 @@ quasip <- R6::R6Class(
       }
 
       a1 <- Sys.time()
-      time_dif <- as.numeric(difftime(a1,a0,units="mins"))
+      time_dif <- as.numeric(difftime(a1, a0, units = "mins"))
       time_dif <- fhiplot::format_nor(time_dif, digits = 1)
       fd::msg(glue::glue("{conf$tag}: finished in {time_dif} minutes."), slack = TRUE)
     },
@@ -252,5 +252,4 @@ quasi_run_age <- function(
     ),
     TRUE
   )
-
 }
