@@ -21,15 +21,6 @@ file <- system.file("shiny",
 )
 source(file, .GlobalEnv)
 
-pd <- pool %>%
-  tbl("resYearLine") %>%
-  filter(type == "respiratoryinternal" & age == "15-19" & location == "Norge") %>%
-  collect()
-setDT(pd)
-suppressWarnings(pd[, top := max(c(n, threshold4), na.rm = T) + 2])
-suppressWarnings(pd[, bottom := 0])
-print(pd)
-
 file <- system.file("shiny",
   "sykdomspuls",
   "flexdashboard.Rmd",
