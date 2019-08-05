@@ -54,10 +54,10 @@ standard <- R6::R6Class(
       GLOBAL$dateMinRestrictedLine <- GLOBAL$dateMax - 365 * 15
 
       ###########################
-      vals <- unique(fhidata::norway_locations_current[,c("county_code","county_name")])
+      vals <- unique(fhidata::norway_locations_current[, c("county_code", "county_name")])
 
-      GLOBAL$weeklyCounties <- c("Norge",val$county_code)
-      names(GLOBAL$weeklyCounties) <- c("Norge",val$county_code)
+      GLOBAL$weeklyCounties <- c("Norge", val$county_code)
+      names(GLOBAL$weeklyCounties) <- c("Norge", val$county_code)
 
       ###########################
       val <- tags[[1]]$results_x$dplyr_tbl() %>%
