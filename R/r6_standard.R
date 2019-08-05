@@ -243,7 +243,7 @@ standard <- R6::R6Class(
 
       fd::msg("Saving outbreaks for the external api")
 
-      outbreaks <- GenerateOutbreakListInternal(
+      outbreaks <- GenerateOutbreakListAPI(
         df = df,
         dk = dk,
         saveFiles = NULL,
