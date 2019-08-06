@@ -6,7 +6,10 @@ services:
 before_install:
 - export RVERSION=3.6.0
 - bash travis/make.sh
+
+install:
 - export package=$(pwd)
+- travis_wait 30 mvn docker pull raw996/dhadley:$RVERSION
 - docker run --rm -v $package:/package raw996/dhadley:$RVERSION R -e "devtools::check('/package/')"
 
 after_success:
