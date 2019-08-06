@@ -9,7 +9,7 @@ before_install:
 
 install:
 - export package=$(pwd)
-- travis_wait 30 docker pull raw996/dhadley:$RVERSION
+- travis_wait 5 docker pull raw996/dhadley:$RVERSION
 - docker run --rm -v $package:/package raw996/dhadley:$RVERSION R -e "devtools::check('/package/')"
 
 after_success:
