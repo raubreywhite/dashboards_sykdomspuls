@@ -101,74 +101,55 @@ AnalyseLog <- function() {
 }
 
 
-addThresholds <- function(data) {
-  data[, x_alerts2 := n > threshold2]
-  data[, x_alerts4 := n > threshold4]
-  data[, x_alerts2_ge5cases := n > threshold2 & n >= 5]
-  data[, x_alerts4_ge5cases := n > threshold4 & n >= 5]
-  return(data)
-}
 
-AggregateAlertsCases <- function(resYearLine, resYearLineMunicip) {
-  stack <- expand.grid(
-    data = c("resYearLine", "resYearLineMunicip"),
-    xtag = unique(resYearLine$tag),
-    xyear = unique(resYearLine$year),
-    xage = unique(resYearLine$age),
-    stringsAsFactors = F
-  )
-  res <- vector("list", length = nrow(stack))
-  for (i in 1:nrow(stack)) {
-    s <- stack[i, ]
-    x <- melt.data.table(get(s$data)[tag == s$xtag & year == s$xyear & age == s$xage],
-      id.vars = c("tag", "location", "year", "age", "n", "threshold0", "threshold2", "threshold4"),
-      measure.vars = patterns("^x_alerts"),
-      variable.factor = F
-    )
-    x[, type := location]
-    x[stringr::str_detect(location, "county"), type := "Fylke"]
-    x[stringr::str_detect(location, "municip"), type := "Kommune"]
+AggregateAlertsCases <- function(data) {
+  
+  pop <- fhidata::norway_population_current
+  pop <- data.table(pop)[year==max(data[, year]), .(pop=sum(pop)), by=.(location_code)]
+  pop[location_code == "norway", location_code:="Norge"]
+  data <- data[pop, on="location_code", nomatch=0]
+  data[, type := location_code]
+  data[granularity_geo == "county", type := "Fylke"]
+  data[granularity_geo == "municip", type := "Kommune"]
+  data[granularity_geo == "national", type := "Norge"]
+  data[, subtype:= type]
+  data[subtype == "Kommune" & pop <= 10000, subtype:="Small (<10,000)"]
+  data[subtype == "Kommune" & pop <= 100000, subtype:="Medium (10,000 - 100,000)"]
+  data[subtype == "Kommune" & pop >100000, subtype:="Large (>100,000)"]
+  data[, cases_over_t0 := n - threshold0]
+  data[, cases_over_t2 := 0]
+  data[status == "Medium", cases_over_t2 := n - threshold2]
+  data[, cases_over_t4 := 0]
+  data[status == "High", cases_over_t4 := n - threshold4]
+  data[, z_2_expected:=1 - pnorm(2, 0, 1)]
+  data[, z_4_expected:=1 - pnorm(4, 0, 1)]
 
-    x[, casesOverT0 := n - threshold0]
-    x[, casesOverT2 := n - threshold2]
-    x[, casesOverT4 := n - threshold4]
-    x[, casesOverT := casesOverT4]
-    x[stringr::str_detect(variable, "alerts2"), casesOverT := casesOverT2]
-
-    x <- x[, .(
-      alertsN = sum(value),
-      alertsProp = mean(value),
-      meanCases = mean(n[value == T]),
-      meanCasesOverT0 = mean(casesOverT0[value == T]),
-      meanCasesOverT = mean(casesOverT[value == T])
-    ), keyby = .(
-      tag,
-      location,
-      year,
-      age,
-      variable,
-      type
-    )    ]
-
-    res[[i]] <- x
-  }
-  res <- rbindlist(res)
-  pd <- res[, .(
-    meanAlertsN = mean(alertsN, na.rm = T),
-    meanAlertsProp = mean(alertsProp, na.rm = T),
-    meanCases = mean(meanCases, na.rm = T),
-    meanCasesOverT0 = mean(meanCasesOverT0, na.rm = T),
-    meanCasesOverT = mean(meanCasesOverT, na.rm = T)
+  
+  
+  x <- data[, .(
+    n_areas = length(unique(location_code)),
+    n_alerts_2 = sum(status == "Medium"),
+    n_alerts_4 = sum(status == "High"),
+    n_expected_2 = sum(z_2_expected),
+    n_expected_4 = sum(z_4_expected),
+    n_cases_over_T2 = sum(cases_over_t2),
+    n_cases_over_T4 = sum(cases_over_t4)
   ), keyby = .(
     tag,
-    variable,
+    year,
     type,
-    age
-  )]
-
-  pd[, age := factor(age, levels = names(CONFIG$AGES))]
-  pd[, type := factor(type, levels = c("Norge", "Fylke", "Kommune"))]
-  return(pd)
+    subtype
+  )
+  ]
+  x[, n_alerts_2_per_area:= n_alerts_2/n_areas]
+  x[, n_alerts_4_per_area:= n_alerts_4/n_areas]
+  x[, n_expected_2_per_area:= n_expected_2/n_areas]
+  x[, n_expected_4_per_area:= n_expected_4/n_areas]
+  x[, n_cases_over_T2_per_area:= n_cases_over_T2/n_areas]
+  x[, n_cases_over_T4_per_area:= n_cases_over_T4/n_areas]
+  x[, type := factor(type, levels = c("Norge", "Fylke", "Kommune"))]
+  x[, subtype := factor(subtype)]
+  return(x)
 }
 
 #' AnalyseStats1
@@ -189,40 +170,19 @@ AnalyseStats1 <- function(
   )
   fd::use_db(conn, CONFIG$DB_CONFIG$db)
   db <- dplyr::tbl(conn, "spuls_standard_results")
-  if (is.null(resYearLine)) {
-    resYearLine <- db %>%
-      dplyr::filter(granularity_time == "weekly" &
-        (granularity_geo == "county" |
-          granularity_geo == "national")) %>%
+  data <- db %>%
+      dplyr::filter(granularity_time == "weekly") %>%
       dplyr::collect()
-    setDT(resYearLine)
-  }
-  if (is.null(resYearLineMunicip)) {
-    resYearLineMunicip <- db %>%
-      dplyr::filter(granularity_time == "weekly" &
-        granularity_geo == "municip") %>%
-      dplyr::collect()
-    setDT(resYearLineMunicip)
-  }
+  setDT(data)
 
 
-  resYearLine <- addThresholds(resYearLine)
-  resYearLineMunicip <- addThresholds(resYearLineMunicip)
-
-  pd <- AggregateAlertsCases(resYearLine, resYearLineMunicip)
-
-  pd[, prettyVar := variable]
-  pd[variable == "x_alerts2", prettyVar := "ZScore>2"]
-  pd[variable == "x_alerts2_ge5cases", prettyVar := "ZScore>2 & Cases>=5"]
-  pd[variable == "x_alerts4", prettyVar := "ZScore>4"]
-  pd[variable == "x_alerts4_ge5cases", prettyVar := "ZScore>4 & Cases>=5"]
-
-  pd <- pd[stringr::str_detect(prettyVar, "Cases>=5")]
+  
+  pd <- AggregateAlertsCases(data)
 
 
   return(list(
-    "alert_summary" = pd, "resYearLine" = resYearLine,
-    "resYearLineMunicip" = resYearLineMunicip
+    "alert_summary" = pd, "resYearLine" = data[granularity_geo != "municip"],
+    "resYearLineMunicip" = data[granularity_geo=="municip"]
   ))
 }
 
@@ -301,5 +261,5 @@ AnalysesSecondary <- function() {
   AnalyseSkabb()
   AnalyseStats()
 
-  return()
+   return()
 }

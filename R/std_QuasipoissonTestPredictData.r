@@ -183,7 +183,8 @@ QuasipoissonTrainPredictData <- function(
     return(list(fit = NaN, failed = TRUE))
   }
   poisreg <- tryCatch(normalFunction(regformula, datasetTrain), error = exceptionalFunction, warning = exceptionalFunction)
-
+  regression_diagnostics <- new_diagnostics_df(n_row=1)
+  regression_diagnostics$failed <- 1
   if (poisreg$failed) {
     datasetPredict[, threshold0 := 0.0]
     datasetPredict[, threshold2 := 5.0]
@@ -212,10 +213,10 @@ QuasipoissonTrainPredictData <- function(
         datasetTrain[, w_i := Gamma * w_i] # Makes sum(w_i) = n
         poisreg$fit <- glm2::glm2(regformula, data = datasetTrain, weights = w_i, family = quasipoisson, na.action = na.omit)
         dispersion_parameter <- summary(poisreg$fit)$dispersion
+        regression_diagnostics <- extract_daignostics(poisreg$fit)
         od <- max(1, sum(poisreg$fit$weights * poisreg$fit$residuals^2) / poisreg$fit$df.r)
       }, TRUE)
     }
-
     # CALCULATE SIGNAL THRESHOLD (prediction interval from Farrington 1996):
     pred <- predict(poisreg$fit, type = "response", se.fit = T, newdata = datasetPredict)
     datasetPredict[, threshold0 := pred$fit]
@@ -243,6 +244,7 @@ QuasipoissonTrainPredictData <- function(
     datasetPredict[, revcumU1 := NULL]
     datasetPredict[, stderr := NULL]
     datasetPredict[, failed := FALSE]
+
   }
 
   datasetPredict <- AddXToWeekly(datasetPredict)
@@ -253,5 +255,6 @@ QuasipoissonTrainPredictData <- function(
   }
   datasetPredict[, uuid := uuid]
 
-  return(datasetPredict[, VARS$REQ_RESULTS_BASIC, with = F])
+  return(list(dataset_predict=datasetPredict[, VARS$REQ_RESULTS_BASIC, with = F],
+              diagnostics=regression_diagnostics))
 }
