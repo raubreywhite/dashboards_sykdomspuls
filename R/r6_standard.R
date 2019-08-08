@@ -215,29 +215,31 @@ standard <- R6::R6Class(
 )
 
 
-std_alerts_pdf <- function(results_x){
+std_alerts_pdf <- function(results_x) {
   fd::msg("Creating alerts pdf", slack = T)
 
   val <- results_x$dplyr_tbl() %>%
-    dplyr::summarize(yrwk=max(yrwk, na.rm=T)) %>%
+    dplyr::summarize(yrwk = max(yrwk, na.rm = T)) %>%
     dplyr::collect() %>%
     fd::latin1_to_utf8()
   max_yrwk <- val$yrwk
 
   d <- results_x$dplyr_tbl() %>%
     dplyr::filter(granularity_time == "weekly") %>%
-    dplyr::filter(granularity_geo=="municip") %>%
+    dplyr::filter(granularity_geo == "municip") %>%
     dplyr::filter(yrwk == !!max_yrwk) %>%
     dplyr::filter(status == "High") %>%
     dplyr::collect() %>%
     fd::latin1_to_utf8()
 
-  if(nrow(d)==0) return()
+  if (nrow(d) == 0) {
+    return()
+  }
 
-  d <- unique(d[,c("tag","location_code","location_name")])
-  d[CONFIG$MODELS$standard,on="tag", name_short := namesShort]
-  d[CONFIG$MODELS$standard,on="tag", name_long := namesLong]
-  d[,output_file:=glue::glue(
+  d <- unique(d[, c("tag", "location_code", "location_name")])
+  d[CONFIG$MODELS$standard, on = "tag", name_short := namesShort]
+  d[CONFIG$MODELS$standard, on = "tag", name_long := namesLong]
+  d[, output_file := glue::glue(
     "{name_short}_{location_name}.pdf",
     name_short = name_short,
     location_name = location_name
@@ -245,10 +247,10 @@ std_alerts_pdf <- function(results_x){
   d[, output_dir := fd::path("results", latest_date(), "standard", "alert_pdfs")]
   d[, attachment := fs::path(output_dir, output_file)]
 
-  for(i in 1:nrow(d)){
+  for (i in 1:nrow(d)) {
     Sys.sleep(1)
 
-    input <- system.file("extdata","alert.Rmd", package="sykdomspuls")
+    input <- system.file("extdata", "alert.Rmd", package = "sykdomspuls")
 
     output_file <- d$output_file[i]
     output_dir <- d$output_dir[i]
@@ -260,11 +262,12 @@ std_alerts_pdf <- function(results_x){
       input = input,
       output_file = output_file,
       output_dir = output_dir,
-      params=as.character(glue::glue(
+      params = as.character(glue::glue(
         "location_code=\"{location_code}\",",
         "tag=\"{tag}\",",
         "name_long=\"{name_long}\""
-      )))
+      ))
+    )
   }
 
   tab <- huxtable::hux(
@@ -284,7 +287,7 @@ std_alerts_pdf <- function(results_x){
   )
 
   attachments <- d$attachment
-  if(length(attachments) > 10) attachments <- attachments[1:10]
+  if (length(attachments) > 10) attachments <- attachments[1:10]
 
   fd::mailgun(
     subject = "Sykdomspuls alert pdfs",
@@ -292,6 +295,4 @@ std_alerts_pdf <- function(results_x){
     bcc = fd::e_emails("sykdomspuls_emerg"),
     attachments = attachments
   )
-
 }
-

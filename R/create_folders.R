@@ -1,6 +1,6 @@
 #' create_folders
 #' @export
-create_folders <- function(){
+create_folders <- function() {
   # standard
   fs::dir_create(fd::path("results", "externalapi"))
   fs::dir_create(fd::path("results", latest_date()))
