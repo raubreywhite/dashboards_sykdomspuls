@@ -44,7 +44,8 @@ Imports:
   glue,
   huxtable,
   reshape2,
-  rstanarm
+  rstanarm,
+  fs
 Suggests: testthat,
     knitr,
     rmarkdown,
