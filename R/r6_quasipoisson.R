@@ -36,6 +36,7 @@ quasip <- R6::R6Class(
     run = function(
                        base_folder = fd::path("data_clean"),
                        latest_id = sykdomspuls::LatestRawID()) {
+
       connect_to_db()
 
       a0 <- Sys.time()
