@@ -207,7 +207,7 @@ standard <- R6::R6Class(
     run_all = function() {
       run_analysis()
       save_external_api()
-      std_alert_pdfs(results_x = tags[[1]]$results_x)
+      std_alerts_pdf(results_x = tags[[1]]$results_x)
       email_external()
       email_internal()
     }
