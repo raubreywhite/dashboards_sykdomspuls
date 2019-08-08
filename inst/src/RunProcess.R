@@ -1,6 +1,6 @@
 fhi::DashboardInitialiseOpinionated("sykdomspuls")
 fd::initialize("sykdomspuls")
-options(error=traceback)
+
 suppressMessages(library(data.table))
 suppressMessages(library(ggplot2))
 suppressMessages(library(pbmcapply))
