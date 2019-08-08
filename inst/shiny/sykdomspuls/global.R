@@ -8,3 +8,4 @@ pool <- dbPool(
   username =Sys.getenv("DB_USER", "root") ,
   password = Sys.getenv("DB_PASSWORD", "example")
 )
+

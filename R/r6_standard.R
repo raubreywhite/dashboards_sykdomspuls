@@ -34,90 +34,6 @@ standard <- R6::R6Class(
 
       fd::msg("Finished standard in parallel")
     },
-    save_internal_dashboard = function() {
-      fd::msg("Saving GLOBAL.RDS for the internal dashboard")
-      GLOBAL <- new.env(parent = emptyenv())
-      CONFIG_OLD <- ConvertConfigForAPI()
-      GLOBAL$weeklyTypes <- GLOBAL$dailyTypes <- CONFIG_OLD$SYNDROMES[CONFIG_OLD$SYNDROMES %in% CONFIG$SYNDROMES[websiteInternal == TRUE]$tag]
-      GLOBAL$weeklyAges <- GLOBAL$dailyAges <- CONFIG_OLD$AGES
-
-      val <- tags[[1]]$results_x$dplyr_tbl() %>%
-        dplyr::filter(
-          granularity_time == "daily"
-        ) %>%
-        dplyr::summarize(date = max(date, na.rm = T)) %>%
-        dplyr::collect() %>%
-        fd::latin1_to_utf8()
-      GLOBAL$dateMax <- val$date
-
-      GLOBAL$dateMinRestrictedRecent <- GLOBAL$dateMax - 365
-      GLOBAL$dateMinRestrictedLine <- GLOBAL$dateMax - 365 * 15
-
-      ###########################
-      val <- fhidata::norway_locations_current
-
-      GLOBAL$dailyCounties <- c("Norge", val$county_code)
-      names(GLOBAL$dailyCounties) <- c("Norge", val$county_name)
-      GLOBAL$weeklyCounties <- c("Norge", val$county_code)
-      names(GLOBAL$weeklyCounties) <- c("Norge", val$county_code)
-
-      ###########################
-      val <- tags[[1]]$results_x$dplyr_tbl() %>%
-        dplyr::filter(
-          granularity_time == "weekly"
-        ) %>%
-        dplyr::distinct(yrwk) %>%
-        dplyr::collect() %>%
-        fd::latin1_to_utf8()
-
-      GLOBAL$weeklyyrwk <- rev(val$yrwk)
-      GLOBAL$outbreaksyrwk <- rev(val$yrwk)
-
-      ###########################
-      val <- tags[[1]]$results_x$dplyr_tbl() %>%
-        dplyr::filter(
-          granularity_time == "weekly"
-        ) %>%
-        dplyr::distinct(location_code, location_name, county_code) %>%
-        dplyr::collect() %>%
-        fd::latin1_to_utf8()
-
-      GLOBAL$municipToCounty <- data.table(val)
-
-      ###########################
-      val <- tags[[1]]$results_x$dplyr_tbl() %>%
-        dplyr::filter(
-          granularity_time == "daily"
-        ) %>%
-        dplyr::distinct(tag, location_code, age) %>%
-        dplyr::collect() %>%
-        fd::latin1_to_utf8()
-
-      setnames(val, "tag", "type")
-
-      GLOBAL$resRecentLineStack <- val
-
-      ###########################
-      val <- tags[[1]]$results_x$dplyr_tbl() %>%
-        dplyr::filter(
-          granularity_time == "weekly"
-        ) %>%
-        dplyr::distinct(tag, location_code, age) %>%
-        dplyr::collect() %>%
-        fd::latin1_to_utf8()
-
-      setnames(val, "tag", "type")
-
-      GLOBAL$resYearLineStack <- val[!stringr::str_detect(location_code, "^municip")]
-      GLOBAL$resYearLineMunicipStack <- val[stringr::str_detect(location_code, "^municip")]
-
-      GLOBAL$weeklyValues <- c(
-        "Konsultasjoner" = "consults",
-        "1 uke eksess" = "excess1"
-      )
-
-      saveRDS(GLOBAL, fd::path("data_app", "GLOBAL.RDS"))
-    },
     save_external_api = function() {
       fd::msg("Saving config for the external api")
 
@@ -243,7 +159,7 @@ standard <- R6::R6Class(
 
       fd::msg("Saving outbreaks for the external api")
 
-      outbreaks <- GenerateOutbreakListInternal(
+      outbreaks <- GenerateOutbreakListAPI(
         df = df,
         dk = dk,
         saveFiles = NULL,
@@ -290,7 +206,6 @@ standard <- R6::R6Class(
     },
     run_all = function() {
       run_analysis()
-      save_internal_dashboard()
       save_external_api()
       email_external()
       email_internal()
