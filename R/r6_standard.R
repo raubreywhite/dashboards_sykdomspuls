@@ -214,7 +214,9 @@ standard <- R6::R6Class(
   )
 )
 
-
+#' std_alerts_pdf
+#' @param results_x a
+#' @export
 std_alerts_pdf <- function(results_x) {
   fd::msg("Creating alerts pdf", slack = T)
 
