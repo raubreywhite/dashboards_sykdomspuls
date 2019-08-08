@@ -6,16 +6,7 @@ suppressMessages(library(ggplot2))
 suppressMessages(library(pbmcapply))
 suppressMessages(library(foreach))
 
-fs::dir_create(fd::path("results", "externalapi"))
-fs::dir_create(fd::path("results", latest_date()))
-fs::dir_create(fd::path("results", latest_date(), "standard"))
-fs::dir_create(fd::path("results", latest_date(), "emerg"))
-fs::dir_create(fd::path("results", latest_date(), "stats"))
-fs::dir_create(fd::path("results", latest_date(), "skabb"))
-fs::dir_create(fd::path("data_raw", "normomo"))
-
-SaveRDS(ConvertConfigForAPI(), fd::path("results", "config.RDS"))
-SaveRDS(ConvertConfigForAPI(), fd::path("data_app", "config.RDS"))
+create_folders()
 
 fhi::Log("numTags", nrow(CONFIG$SYNDROMES))
 fhi::Log("versionAlgorithm", CONFIG$VERSION)
@@ -41,7 +32,7 @@ for (model_name in names(sykdomspuls::CONFIG$MODELS)){
   model <- models()[[model_name]]$new(
     conf=conf,
     db_config=db_config
-    )
+  )
 
   model$run_all()
 
