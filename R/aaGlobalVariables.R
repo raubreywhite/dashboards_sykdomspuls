@@ -47,20 +47,43 @@ CONFIG$DB_CONFIG <- list(
 )
 
 CONFIG$MEM <- rbind(
-  data.table(
-    tag = "influensa",
-    syndrome = "influensa",
-    alertInternal = TRUE,
-    alertExternal = FALSE,
-    websiteInternal = TRUE,
-    contactType = list("Legekontakt"),
-    syndromeOrConsult = "syndrome",
-    denominator = "consult_with_influenza",
-    weeklyDenominatorFunction = "sum",
-    namesLong = "Influensa",
-    namesShort = "Influensa",
-    excludeSeason = c("2009/2010")
-  )
+    data.table(
+        tag = "influensa",
+        syndrome = "influensa",
+        alertInternal = TRUE,
+        alertExternal = FALSE,
+        websiteInternal = TRUE,
+        contactType = list("Legekontakt"),
+        syndromeOrConsult = "syndrome",
+        denominator = "consult_with_influenza",
+        age = jsonlite::toJSON(list("Totalt"=c("Totalt"))),
+        weeklyDenominatorFunction = "sum",
+        multiplicative_factor = 100,
+        namesLong = "Influensa",
+        include_as_sydromes = TRUE,
+        namesShort = "Influensa",
+        excludeSeason = c("2009/2010"),
+        create_plots = TRUE
+    )
+   ,data.table(
+        tag = "influensa-tessy",
+        syndrome = "influensa",
+        alertInternal = TRUE,
+        alertExternal = FALSE,
+        websiteInternal = TRUE,
+        contactType = list("Legekontakt"),
+        syndromeOrConsult = "syndrome",
+        denominator = "pop",
+        age = jsonlite::toJSON(list("0-4"=c("0-4"),"5-14"=c("5-14"),
+                                    "15-64"=c("20-29", "30-64"), "65+" = c("65+"))),
+        weeklyDenominatorFunction = "mean",
+        multiplicative_factor = 100000,
+        include_as_sydromes = FALSE,
+        namesLong = "Influensa",
+        namesShort = "Influensa",
+        excludeSeason = c("2009/2010"),
+        create_plots = FALSE
+    )
 )
 
 
@@ -76,7 +99,8 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
     denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "Mage-tarm diagnose",
-    namesShort = "Mage-tarm"
+    namesShort = "Mage-tarm",
+    include_as_sydromes = TRUE
   ),
   data.table(
     tag = "respiratoryinternal",
@@ -89,7 +113,8 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
     denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "\u00D8vre-luftvei diagnose",
-    namesShort = "Luftvei"
+    namesShort = "Luftvei",
+    include_as_sydromes = TRUE
   ),
   data.table(
     tag = "respiratoryexternal",
@@ -102,7 +127,8 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
     denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "\u00D8vre-luftvei diagnose",
-    namesShort = "Luftvei"
+    namesShort = "Luftvei",
+    include_as_sydromes = TRUE
   ),
   data.table(
     tag = "influensa",
@@ -115,7 +141,8 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
     denominator = "consult_with_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "Influensa",
-    namesShort = "Influensa"
+    namesShort = "Influensa",
+    include_as_sydromes = TRUE
   ),
   data.table(
     tag = "lungebetennelse",
@@ -128,7 +155,8 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
     denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "Lungebetennelse diagnose",
-    namesShort = "Lungebet"
+    namesShort = "Lungebet",
+    include_as_sydromes = TRUE
   ),
   data.table(
     tag = "bronkitt",
@@ -141,7 +169,8 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
     denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "Bronkitt diagnose",
-    namesShort = "Bronkitt"
+    namesShort = "Bronkitt",
+    include_as_sydromes = TRUE
   ),
   data.table(
     tag = "consult_with_influenza",
@@ -154,7 +183,8 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
     denominator = "pop",
     weeklyDenominatorFunction = "mean",
     namesLong = "consult_with_influenza",
-    namesShort = "ConsWithInf"
+    namesShort = "ConsWithInf",
+    include_as_sydromes = TRUE
   ),
   data.table(
     tag = "consult_without_influenza",
@@ -167,7 +197,8 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
     denominator = "pop",
     weeklyDenominatorFunction = "mean",
     namesLong = "consult_without_influenza",
-    namesShort = "ConsWOInf"
+    namesShort = "ConsWOInf",
+    include_as_sydromes = TRUE
   ),
   data.table(
     tag = "skabb",
@@ -180,7 +211,8 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
     denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "Skabb diagnose",
-    namesShort = "Skabb"
+    namesShort = "Skabb",
+    include_as_sydromes = TRUE
   ),
   data.table(
     tag = "emerg1",
@@ -193,7 +225,8 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
     denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "emerg1 diagnose",
-    namesShort = "emerg1"
+    namesShort = "emerg1",
+    include_as_sydromes = TRUE
   ),
   data.table(
     tag = "emerg2",
@@ -206,7 +239,8 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
     denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "emerg2 diagnose",
-    namesShort = "emerg2"
+    namesShort = "emerg2",
+    include_as_sydromes = TRUE
   ),
   data.table(
     tag = "emerg3",
@@ -219,7 +253,8 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
     denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "emerg3 diagnose",
-    namesShort = "emerg3"
+    namesShort = "emerg3",
+    include_as_sydromes = TRUE
   ),
   data.table(
     tag = "emerg4",
@@ -232,7 +267,8 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
     denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "emerg4 diagnose",
-    namesShort = "emerg4"
+    namesShort = "emerg4",
+    include_as_sydromes = TRUE
   ),
   data.table(
     tag = "emerg5",
@@ -245,14 +281,15 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
     denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
     namesLong = "emerg5 diagnose",
-    namesShort = "emerg5"
+    namesShort = "emerg5",
+    include_as_sydromes = TRUE
   )
 )
 
 
 
 
-CONFIG$MODELS <- list("mem" = CONFIG$MEM, "standard" = CONFIG$STANDARD)
+CONFIG$MODELS <- list("mem" = CONFIG$MEM)#, "standard" = CONFIG$STANDARD)
 
 
 CONFIG$SYNDROMES <- data.table(
@@ -269,13 +306,15 @@ CONFIG$SYNDROMES <- data.table(
 for (model in CONFIG$MODELS) {
   for (i in 1:nrow(model)) {
     config <- model[i]
-    sub_config <- config[, names(CONFIG$SYNDROMES), with = FALSE]
-    if (config$tag %in% CONFIG$SYNDROMES[, tag]) {
-      if (!isTRUE(all.equal(CONFIG$SYNDROMES[tag == config$tag], sub_config))) {
-        stop(paste("tag, syndromeOrConsult, namesLong, namesShort, alertInternal, alertExternal, websiteInternal and contactType needs to be the same for the same syndrom across multiple models. It was not the same for", config$tag))
+    if(config$include_as_sydromes){
+      sub_config <- config[, names(CONFIG$SYNDROMES), with = FALSE]
+      if (config$tag %in% CONFIG$SYNDROMES[, tag]) {
+        if (!isTRUE(all.equal(CONFIG$SYNDROMES[tag == config$tag], sub_config))) {
+          stop(paste("tag, syndromeOrConsult, namesLong, namesShort, alertInternal, alertExternal, websiteInternal and contactType needs to be the same for the same syndrom across multiple models. It was not the same for", config$tag))
+        }
+      } else {
+        CONFIG$SYNDROMES <- rbind(CONFIG$SYNDROMES, sub_config)
       }
-    } else {
-      CONFIG$SYNDROMES <- rbind(CONFIG$SYNDROMES, sub_config)
     }
   }
 }

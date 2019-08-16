@@ -206,6 +206,7 @@ standard <- R6::R6Class(
     },
     run_all = function() {
       run_analysis()
+      save_latest_data(years=2)
       save_external_api()
       email_external()
       email_internal()

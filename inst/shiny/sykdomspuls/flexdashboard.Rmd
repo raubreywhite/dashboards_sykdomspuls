@@ -768,7 +768,7 @@ Influensa
 ===================================== 
 
 ```{r, include=FALSE}
-current_season <- fhi::season(GLOBAL$outbreaksyrwk[1])
+current_season <- fhi::season(GLOBAL$outbreaksyrwk[1], start_week=40)
 influensa_data <- reactive({
   x_location <- input$influensaCounty
 
