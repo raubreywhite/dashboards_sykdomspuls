@@ -9,6 +9,7 @@ quasip <- R6::R6Class(
     conf = NULL,
     stack_x = NULL,
     results_x = NULL,
+    diagnostics_x = NULL,
     initialize = function(conf, db_config) {
       conf <<- conf
 
@@ -75,6 +76,7 @@ quasip <- R6::R6Class(
 
       stack_x$conn <- conn
       results_x$conn <- conn
+      diagnostics_x$conn <- conn
     },
     save = function() {
       print("save QP")
@@ -174,7 +176,6 @@ quasi_run_age <- function(
     rm("data", "res")
     gc()
   })
-
   data <- readRDS(file = file.path(base_folder, glue::glue("{latest_id}_{conf$tag}_{age}_cleaned.RDS")))
   load_stack_schema(conf = conf, data = data, schema = stack_x)
 

@@ -45,10 +45,11 @@ conn <- DBI::dbConnect(odbc::odbc(),
     )
 fd::use_db(conn, CONFIG$DB_CONFIG$db)
 db <- dplyr::tbl(conn, "spuls_standard_results")
-d <- db %>% dplyr::filter(tag=="skabb" & granularity_time=="weekly") %>% dplyr::collect()
+d <- db %>% dplyr::filter(location_code =="Norge" & tag=="skabb" & granularity_time=="weekly") %>%
+    dplyr::select(location_code, age, date, n)  %>% dplyr::collect()
 setDT(d)
 
-d[,age:=factor(age,levels=names(CONFIG$AGES))]
+d <- d[,age:=factor(age,levels=names(CONFIG$AGES))]
 
 ```
 
@@ -61,7 +62,7 @@ d[,age:=factor(age,levels=names(CONFIG$AGES))]
                                   '))`
 
 ```{r echo=FALSE, fig.height=11.69*0.6, message=FALSE, warning=FALSE}
-q <- ggplot(d[location=="Norge"], aes(x=date,y=n))
+q <- ggplot(d, aes(x=date,y=n))
 q <- q + geom_line()
 q <- q + facet_wrap(~age,ncol=1)
 q

@@ -4,9 +4,9 @@
 \alias{run_all_mem}
 \title{run_all_mem}
 \usage{
-run_all_mem(conf, mem_schema)
+run_all_mem(conf, mem_schema, mem_limits_schema)
 
-run_all_mem(conf, mem_schema)
+run_all_mem(conf, mem_schema, mem_limits_schema)
 }
 \arguments{
 \item{conf}{A mem model configuration object}
