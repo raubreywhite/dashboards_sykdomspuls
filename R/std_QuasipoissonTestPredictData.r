@@ -51,7 +51,7 @@ FormatDatasetWeekly <- function(
   holiday <- NULL
   # end
 
-  data <- data[year >= 2006 & week %in% 1:52]
+  data <- data[year >= 2006]
   data[, trend := (as.numeric(date) - 13000) / 100]
 
   if (is.null(by_group)) {
