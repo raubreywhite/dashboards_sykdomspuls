@@ -56,7 +56,7 @@ get_schema_qp_diagnostics <- function(){
 
 #'
 #' @export
-extract_daignostics <- function(fit){
+extract_diagnostics <- function(fit){
     df <- new_diagnostics_df(n_row=1)
     sum <- summary(fit)
     dispersion <- sum$dispersion

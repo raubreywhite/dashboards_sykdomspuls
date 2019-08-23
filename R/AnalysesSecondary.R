@@ -161,10 +161,10 @@ AggregateAlertsCases <- function(data) {
   z_4_expected <- (1 - pnorm(4, 0, 1)) * 52 * length(unique(data[, age]))
 
   z_2 <- data[status == "Medium"]
-  z_2 <- dcast.data.table( tag + subtype + order~ year_group, fun.aggregate=sum, value.var="weight", data=z_2)
+  z_2 <- dcast.data.table( tag + subtype + order~ year_group, fun.aggregate=sum, value.var="weight", data=z_2, drop=FALSE)
   z_2[, expected:=(1 - pnorm(2, 0, 1)) * 52 * length(unique(data[, age]))]
   z_4 <- data[status == "High"]
-  z_4 <- dcast.data.table( tag + subtype + order ~ year_group, fun.aggregate=sum, value.var="weight",  data=z_4)
+  z_4 <- dcast.data.table( tag + subtype + order ~ year_group, fun.aggregate=sum, value.var="weight",  data=z_4,drop=FALSE)
   z_4[, expected:=(1 - pnorm(2, 0, 1)) * 52 * length(unique(data[, age]))]
 
   setorder(z_2, order)

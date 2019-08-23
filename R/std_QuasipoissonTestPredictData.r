@@ -255,6 +255,7 @@ QuasipoissonTrainPredictData <- function(
   }
   datasetPredict[, uuid := uuid]
 
-  return(list(dataset_predict=datasetPredict[, VARS$REQ_RESULTS_BASIC, with = F],
-              diagnostics=regression_diagnostics))
+  retval <- datasetPredict[, VARS$REQ_RESULTS_BASIC, with = F]
+  attr(retval, "diagnostics") <- regression_diagnostics
+  return(retval)
 }

@@ -184,7 +184,7 @@ quasi_run_age <- function(
 
   diagnostics <- new_diagnostics_df()
   
-  res <- pbapply::pblapply(run_stack, function(x) {
+  results <- pbapply::pblapply(run_stack, function(x) {
     run_data <- data[.(x$location)]
     setnames(run_data, x$denominator, "denominator")
 
@@ -199,14 +199,14 @@ quasi_run_age <- function(
       weeklyDenominatorFunction = ifelse(x$weeklyDenominatorFunction == "sum", sum, mean),
       uuid = x$uuid
     )
-    diagnostics <<- rbind(diagnostics, update_diagnostics(ret$diagnostics,
-                                                          conf,
-                                                          x))
-    return(ret$dataset_predict)
+    diagnostics <- update_diagnostics(attr(ret, "diagnostics"), conf, x)
+    return(list(results=ret,
+                diagnostics=diagnostics))
   })
   rm("data")
   gc()
-  res <- rbindlist(res)
+  res <- rbindlist(lapply(results, function(x) x$results))
+  diagnostics <- rbindlist(lapply(results, function(x) x$diagnostics))
 
 
   res <- clean_post_analysis(res = res, stack = stack_x$get_data_dt())
@@ -225,7 +225,8 @@ quasi_run_age <- function(
       "ALTER TABLE `{tb}` ADD INDEX `ind1` (`granularity_time`(10),`tag`(10),`location_name`(10),`age`(10))",
       tb = results_x$db_table
     )
-  ), TRUE)
+
+    ), TRUE)
 
   try(
     DBI::dbExecute(

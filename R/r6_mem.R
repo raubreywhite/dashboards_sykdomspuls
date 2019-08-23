@@ -59,7 +59,7 @@ run_all_mem <- function(conf, mem_schema, mem_limits_schema) {
 
     data <- data.table()
     for (part_age in data_age){
-      f = fhi::DashboardFolder(
+      f = fd::path(
         "data_clean",
         sprintf("%s_%s_%s_cleaned.RDS", LatestRawID(), conf$syndrome, part_age)
       )
@@ -168,7 +168,7 @@ create_plots <- function(conf, mem_schema = NULL) {
   x_tag <- conf$tag
   data <- mem_schema$get_data_db(season == current_season & tag==x_tag)
 
-  folder <- fhi::DashboardFolder("results", sprintf(
+  folder <- fd::path("results", sprintf(
     "%s/%s", latest_date(),
     paste("mem", conf$tag, sep = "_")
   ))
@@ -268,7 +268,7 @@ create_plots <- function(conf, mem_schema = NULL) {
 
 prepare_data_frame <- function(data, mult_factor=100) {
   useful_data <- data[week %in% c(1:20, 40:52)]
-  AddXToWeekly(useful_data)
+  useful_data[, x:=fhi::x(useful_data[, week])]
   useful_data[, rate := n / denominator * mult_factor]
   out <- dcast.data.table(useful_data, x ~ season, value.var = "rate")
   out[, x := NULL]
