@@ -47,7 +47,9 @@ MeM <- R6::R6Class(
 #' country and for each county
 #'
 #' @param conf A mem model configuration object
-#' @param mem_schema a
+#' @param mem_schema Mem schema
+#' @param mem_limits_schema Mem limits schema
+#' 
 #' @export
 run_all_mem <- function(conf, mem_schema, mem_limits_schema) {
 
@@ -154,8 +156,9 @@ run_all_mem <- function(conf, mem_schema, mem_limits_schema) {
 #' create MEM season plots
 #'
 #' @param conf A mem model configuration object
-#' @param mem_schema a
-#' @export
+#' @param mem_schema mem schema
+#' 
+#' @export create_plots
 create_plots <- function(conf, mem_schema = NULL) {
   if (is.null(mem_schema)) {
     mem_schema <- get_mem_schema()

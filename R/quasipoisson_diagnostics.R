@@ -55,6 +55,10 @@ get_schema_qp_diagnostics <- function(){
 }
 
 #'
+#' extracts diangostics data from a regression fit
+#'
+#' @param fit QP regression fit
+#' 
 #' @export
 extract_diagnostics <- function(fit){
     df <- new_diagnostics_df(n_row=1)
@@ -73,6 +77,11 @@ extract_diagnostics <- function(fit){
     return(df)
 
 }
+#'
+#' new_diagnostics_df
+#'
+#' returns a data frame with the columns as needed for the diagnostics
+#' @param n_row determines the number of rows in the data frame. 
 #'
 #' @export
 new_diagnostics_df <- function(n_row=0){
@@ -105,7 +114,14 @@ fix_name <- function(name){
 }
 
 
+#' update_diagnostics
 #'
+#' Updates diagnostics results with common data
+#'
+#' @param diagnostics Diagnostics results
+#' @param conf configuration object
+#' @param x analysis run
+#' 
 #' @export
 update_diagnostics <- function(diagnostics, conf, x){
   diagnostics$tag <- conf$tag
