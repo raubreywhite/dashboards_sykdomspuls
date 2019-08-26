@@ -18,7 +18,7 @@ standard <- R6::R6Class(
     run_analysis = function(db_config = self$db_config) {
       fd::msg("Starting standard in parallel")
 
-      cl <- parallel::makeCluster(3L, file = "")
+      cl <- parallel::makeCluster(3L, outfile = "")
       doParallel::registerDoParallel(cl)
       base_folder <- fd::path("data_clean")
       latest_id <- LatestRawID()
@@ -204,8 +204,24 @@ standard <- R6::R6Class(
     email_internal = function() {
       try(EmailTechnicalNewResults(), TRUE)
     },
+
+    save_latest_data = function(years=2){
+      latest_year_query <- tags[[1]]$results_x$dplyr_tbl() %>%
+                                   dplyr::summarise(max(year, na.rm=TRUE)) %>%
+                                   dplyr::collect()
+      latest_year <- latest_year_query[[1]]
+      data <- tags[[1]]$results_x$dplyr_tbl() %>%
+                      dplyr::filter(year > latest_year - years) %>%
+                      dplyr::collect()
+      setDT(data)
+      saveRDS(data, file=fd::path("results", latest_date(), "standard", "latest_data.RDS"))
+                      
+      
+
+    },   
     run_all = function() {
       run_analysis()
+      save_latest_data(years=2)
       save_external_api()
       std_alerts_pdf(results_x = tags[[1]]$results_x)
       email_external()

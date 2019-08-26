@@ -52,13 +52,14 @@ conn <- DBI::dbConnect(odbc::odbc(),
     )
 fd::use_db(conn, CONFIG$DB_CONFIG$db)
 db <- dplyr::tbl(conn, "spuls_standard_results")
-d <- db %>% dplyr::filter(tag=="emerg1" & granularity_time=="weekly") %>% dplyr::collect()
+d <- db %>% dplyr::filter(tag=="emerg1" & granularity_time=="weekly") %>%
+    dplyr::select(date, age, n, location_code, granularity_geo) %>% dplyr::collect()
+
 setDT(d)
 
 county <- d[granularity_geo =="county" | granularity_geo =="national"]
 municip <- d[granularity_geo =="municip"]
-county[,age:=factor(age,levels=names(CONFIG$AGES))]
-
+county <- county[,age:=factor(age,levels=names(CONFIG$AGES))]
 county_year = county[date >=start_date]
 municip_year = municip[date >=start_date]
 
@@ -70,7 +71,7 @@ municip_year = municip[date >=start_date]
 # Epi-curve
 
 ```{r echo=FALSE, fig.height=11.69*0.3, message=FALSE, warning=FALSE}
-q <- ggplot(county_year[location=="Norge" & age == "Totalt"]) +
+q <- ggplot(county_year[location_code=="Norge" & age == "Totalt"]) +
     geom_col(aes(x=date, y=n), fill = fhiplot::base_color, width = 4) +
     theme_fhi_lines() +
     ylab("") 
@@ -83,9 +84,9 @@ q
 
 pd <- fhidata::norway_map_counties
 
-plot_data <- data.table(pd)[county_year[, .(N=sum(n)), by=.(location)], on=.(location_code=location), nomatch=0]
+plot_data <- data.table(pd)[county_year[, .(N=sum(n)), by=.(location_code)], on="location_code", nomatch=0]
 max <- max(plot_data$N)
-plot_data[, binned := cut(N , round(max/5 * 0:5))]
+plot_data <- plot_data[, binned := cut(N , round(max/5 * 0:5))]
 q <- ggplot()
 q <- q + geom_polygon(data = plot_data, aes( x = long, y = lat, group = group, fill=binned), color="black")
 q <- q + theme_void()
@@ -103,9 +104,9 @@ pop <- fhidata::norway_population_current
 
 pop <- data.table(pop)[, .(pop=sum(pop)), by=.(location_code)]
 
-municip_cases <- municip_year[,  .(N=sum(n)), by=.(location)][pop, on=.(location=location_code), nomatch=0]
+municip_cases <- municip_year[,  .(N=sum(n)), by=.(location_code)][pop, on=.(location_code=location_code), nomatch=0]
 
-municip_cases <- municip_cases[, .(location, N,  incidence = round(N / pop * 1000, 1))][data.table(fhidata::norway_locations_current), on=.(location=municip_code), nomatch=0]
+municip_cases <- municip_cases[, .(location_code, N,  incidence = round(N / pop * 1000, 1))][data.table(fhidata::norway_locations_current), on=.(location_code=municip_code), nomatch=0]
 
 
 table <- municip_cases[order(-N), .(municip_name, N, incidence)][1:35]

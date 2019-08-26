@@ -9,7 +9,7 @@ create_plots(conf, mem_schema = NULL)
 \arguments{
 \item{conf}{A mem model configuration object}
 
-\item{mem_schema}{a}
+\item{mem_schema}{mem schema}
 }
 \description{
 create MEM season plots

@@ -9,6 +9,7 @@ quasip <- R6::R6Class(
     conf = NULL,
     stack_x = NULL,
     results_x = NULL,
+    diagnostics_x = NULL,
     initialize = function(conf, db_config) {
       conf <<- conf
 
@@ -30,8 +31,12 @@ quasip <- R6::R6Class(
         check_fields_match = TRUE
       )
 
+      diagnostics_x <<- get_schema_qp_diagnostics()
+      
       stack_x$db_connect()
       results_x$db_connect()
+      diagnostics_x$db_connect(db_config)
+      diagnostics_x$db_config <- db_config
     },
     run = function(
                        base_folder = fd::path("data_clean"),
@@ -48,7 +53,8 @@ quasip <- R6::R6Class(
           base_folder = base_folder,
           latest_id = latest_id,
           stack_x = stack_x,
-          results_x = results_x
+          results_x = results_x,
+          diagnostics_x = diagnostics_x
         )
       }
 
@@ -70,6 +76,7 @@ quasip <- R6::R6Class(
 
       stack_x$conn <- conn
       results_x$conn <- conn
+      diagnostics_x$conn <- conn
     },
     save = function() {
       print("save QP")
@@ -163,26 +170,28 @@ quasi_run_age <- function(
                           base_folder = fd::path("data_clean"),
                           latest_id = sykdomspuls::LatestRawID(),
                           stack_x,
-                          results_x) {
+                          results_x,
+                          diagnostics_x) {
   on.exit(function() {
     rm("data", "res")
     gc()
   })
-
   data <- readRDS(file = file.path(base_folder, glue::glue("{latest_id}_{conf$tag}_{age}_cleaned.RDS")))
   load_stack_schema(conf = conf, data = data, schema = stack_x)
 
-  run_stack <- stack_x$get_data_dt()[exists_in_db == FALSE]
+  run_stack <- stack_x$get_data_dt()[exists_in_db == FALSE][]
   run_stack <- split(run_stack, seq(nrow(run_stack)))
 
-  res <- pbapply::pblapply(run_stack, function(x) {
+  diagnostics <- new_diagnostics_df()
+  
+  results <- pbapply::pblapply(run_stack, function(x) {
     run_data <- data[.(x$location)]
     setnames(run_data, x$denominator, "denominator")
 
     run_data_train <- run_data[date >= x$date_train_min & date <= x$date_train_max]
     run_data_predict <- run_data[date >= x$date_predict_min & date <= x$date_predict_max]
 
-    retval <- QuasipoissonTrainPredictData(
+    ret <- QuasipoissonTrainPredictData(
       datasetTrain = run_data_train,
       datasetPredict = run_data_predict,
       isDaily = x$granularity_time == "daily",
@@ -190,14 +199,19 @@ quasi_run_age <- function(
       weeklyDenominatorFunction = ifelse(x$weeklyDenominatorFunction == "sum", sum, mean),
       uuid = x$uuid
     )
+    diagnostics <- update_diagnostics(attr(ret, "diagnostics"), conf, x)
+    return(list(results=ret,
+                diagnostics=diagnostics))
   })
   rm("data")
   gc()
-  res <- rbindlist(res)
+  res <- rbindlist(lapply(results, function(x) x$results))
+  diagnostics <- rbindlist(lapply(results, function(x) x$diagnostics))
 
 
   res <- clean_post_analysis(res = res, stack = stack_x$get_data_dt())
-
+  setDT(diagnostics)
+  diagnostics_x$db_upsert_load_data_infile(diagnostics)
   results_x$db_upsert_load_data_infile(res[, names(results_x$db_field_types), with = F])
   stack_x$db_upsert_load_data_infile(stack_x$dt[uuid %in% unique(res$uuid), names(stack_x$db_field_types), with = F], drop_indexes = c("ind1", "ind2", "ind3", "ind4", "ind5"))
 
@@ -211,7 +225,8 @@ quasi_run_age <- function(
       "ALTER TABLE `{tb}` ADD INDEX `ind1` (`granularity_time`(10),`tag`(10),`location_name`(10),`age`(10))",
       tb = results_x$db_table
     )
-  ), TRUE)
+
+    ), TRUE)
 
   try(
     DBI::dbExecute(

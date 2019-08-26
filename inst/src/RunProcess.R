@@ -41,42 +41,20 @@ for (model_name in names(sykdomspuls::CONFIG$MODELS)){
 fhi::Log("analyse1After")
 
 
-# Done with analyses
-fd::msg("Done with all analyses")
 
-CreateLatestDoneFile()
-cat("done", file = "/data_app/sykdomspuls/done.txt")
 
-if (!fd::config$is_dev) quit(save = "no", status = 0)
 
 ## GENERATE LIST OF OUTBREAKS
-fhi::DashboardMsg("Generate list of outbreaks")
+fhi::DashboardMsg("Secondary Analysis")
 fhi::Log("analyse2Before")
-GenerateOutbreakListInternal()
-GenerateOutbreakListInternal(
-  saveFiles = fhi::DashboardFolder("results", "externalapi/outbreaks.RDS"),
-  useType = TRUE
-)
-GenerateOutbreakListExternal()
 AnalysesSecondary()
 fhi::Log("analyse2After")
 
 
 # Done with analyses
-fhi::DashboardMsg("Done with all analyses")
-
+fhi::DashboardMsg("Analysing logs")
+AnalyseLogs()
+fhi::DashboardMsg("Finished analyses and exiting")
 CreateLatestDoneFile()
 cat("done", file = "/data_app/sykdomspuls/done.txt")
 
-## SENDING OUT EMAILS
-EmailNotificationOfNewResults()
-fhi::Log("Done")
-## Saving log
-log <- LogGet()
-log[[length(log) + 1]] <- fhi::LogGet()
-saveRDS(log, fhi::DashboardFolder("results", "log.RDS"))
-
-AnalyseLogs()
-
-fhi::DashboardMsg("Finished analyses and exiting")
-if (!fhi::DashboardIsDev()) quit(save = "no", status = 0)
