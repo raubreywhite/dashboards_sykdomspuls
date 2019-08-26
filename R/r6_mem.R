@@ -271,7 +271,7 @@ create_plots <- function(conf, mem_schema = NULL) {
 
 prepare_data_frame <- function(data, mult_factor=100) {
   useful_data <- data[week %in% c(1:20, 40:52)]
-  useful_data[, x:=fhi::x(useful_data[, week])]
+  useful_data[, x:=fhi::x(week)]
   useful_data[, rate := n / denominator * mult_factor]
   out <- dcast.data.table(useful_data, x ~ season, value.var = "rate")
   out[, x := NULL]
