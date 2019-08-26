@@ -205,23 +205,20 @@ standard <- R6::R6Class(
       try(EmailTechnicalNewResults(), TRUE)
     },
 
-    save_latest_data = function(years=2){
+    save_latest_data = function(years = 2) {
       latest_year_query <- tags[[1]]$results_x$dplyr_tbl() %>%
-                                   dplyr::summarise(max(year, na.rm=TRUE)) %>%
-                                   dplyr::collect()
+        dplyr::summarise(max(year, na.rm = TRUE)) %>%
+        dplyr::collect()
       latest_year <- latest_year_query[[1]]
       data <- tags[[1]]$results_x$dplyr_tbl() %>%
-                      dplyr::filter(year > latest_year - years) %>%
-                      dplyr::collect()
+        dplyr::filter(year > latest_year - years) %>%
+        dplyr::collect()
       setDT(data)
-      saveRDS(data, file=fd::path("results", latest_date(), "standard", "latest_data.RDS"))
-                      
-      
-
-    },   
+      saveRDS(data, file = fd::path("results", latest_date(), "standard", "latest_data.RDS"))
+    },
     run_all = function() {
       run_analysis()
-      save_latest_data(years=2)
+      save_latest_data(years = 2)
       save_external_api()
       std_alerts_pdf(results_x = tags[[1]]$results_x)
       email_external()

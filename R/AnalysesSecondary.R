@@ -103,30 +103,31 @@ AnalyseLog <- function() {
 
 
 AggregateAlertsCases <- function(data) {
-  
   pop <- fhidata::norway_population_current
   current_year <- max(data[, year])
 
-  pop_cats = list(c(0, 10000), c(10000, 100000), c(100000,6000000))
-  pop_names <-c("Liten Kommune (<10,000)",
-                "Medium Kommune (10,000 - 100,000)",
-                "Stor Kommune (>100,000)", "Fylke", "Norge")
-  pop <- data.table(pop)[year==current_year, .(pop=sum(pop)), by=.(location_code, level)]
-  pop[location_code == "norway", location_code:="Norge"]
-  data <- data[pop, on="location_code", nomatch=0]
+  pop_cats <- list(c(0, 10000), c(10000, 100000), c(100000, 6000000))
+  pop_names <- c(
+    "Liten Kommune (<10,000)",
+    "Medium Kommune (10,000 - 100,000)",
+    "Stor Kommune (>100,000)", "Fylke", "Norge"
+  )
+  pop <- data.table(pop)[year == current_year, .(pop = sum(pop)), by = .(location_code, level)]
+  pop[location_code == "norway", location_code := "Norge"]
+  data <- data[pop, on = "location_code", nomatch = 0]
   data[, type := location_code]
   data[granularity_geo == "county", type := "Fylke"]
   data[granularity_geo == "municip", type := "Kommune"]
   data[granularity_geo == "national", type := "Norge"]
-  data[, subtype:= type]
-  data[, order:= 1]
-  data[granularity_geo == "county", order:= 2]
-  data[subtype == "Kommune" & pop <= 10000, subtype:=pop_names[1]]
-  data[subtype == pop_names[1], order:= 5]
-  data[subtype == "Kommune" & pop <= 100000, subtype:=pop_names[2]]
-  data[subtype == pop_names[2], order:= 4]
-  data[subtype == "Kommune" & pop >100000, subtype:=pop_names[3]]
-  data[subtype == pop_names[3], order:= 3]
+  data[, subtype := type]
+  data[, order := 1]
+  data[granularity_geo == "county", order := 2]
+  data[subtype == "Kommune" & pop <= 10000, subtype := pop_names[1]]
+  data[subtype == pop_names[1], order := 5]
+  data[subtype == "Kommune" & pop <= 100000, subtype := pop_names[2]]
+  data[subtype == pop_names[2], order := 4]
+  data[subtype == "Kommune" & pop > 100000, subtype := pop_names[3]]
+  data[subtype == pop_names[3], order := 3]
   data[, cases_over_t0 := n - threshold0]
   data[, cases_over_t2 := 0]
   data[status == "Medium", cases_over_t2 := n - threshold2]
@@ -135,43 +136,43 @@ AggregateAlertsCases <- function(data) {
 
 
 
-  breaks <- c(2005, 2010, 2015, current_year -1, current_year)
-  labels <- c("2006-2010", "2011-2015", paste("2016", current_year - 1, sep="-"), current_year)
-  n_weeks <- c(260, 260, (current_year + 1 -2016)*52, max(data[ year==current_year, week]))
+  breaks <- c(2005, 2010, 2015, current_year - 1, current_year)
+  labels <- c("2006-2010", "2011-2015", paste("2016", current_year - 1, sep = "-"), current_year)
+  n_weeks <- c(260, 260, (current_year + 1 - 2016) * 52, max(data[ year == current_year, week]))
 
-  data[, year_group:= cut(year, breaks=breaks, labels=labels)]
-  data[, weight:=0.1]
-  for (pi in 1:length(pop_names)){
-    if(!(pop_names[pi] %in% c("Fylke", "Norge"))){
-      n_areas <- sum(pop[,pop] > pop_cats[[pi]][1] & pop[, pop] <= pop_cats[[pi]][2])
-    } else if(pop_names[pi] == "Fylke"){
-      n_areas <- nrow(pop[level=="county"])      
-    } else{
+  data[, year_group := cut(year, breaks = breaks, labels = labels)]
+  data[, weight := 0.1]
+  for (pi in 1:length(pop_names)) {
+    if (!(pop_names[pi] %in% c("Fylke", "Norge"))) {
+      n_areas <- sum(pop[, pop] > pop_cats[[pi]][1] & pop[, pop] <= pop_cats[[pi]][2])
+    } else if (pop_names[pi] == "Fylke") {
+      n_areas <- nrow(pop[level == "county"])
+    } else {
       n_areas <- 1
     }
-    for(yi in 1:length(labels)){
-      data[year_group==labels[yi] & subtype == pop_names[pi], weight:= 52/(n_areas*n_weeks[yi])]
+    for (yi in 1:length(labels)) {
+      data[year_group == labels[yi] & subtype == pop_names[pi], weight := 52 / (n_areas * n_weeks[yi])]
     }
   }
 
-  
 
-  
+
+
   z_2_expected <- (1 - pnorm(2, 0, 1)) * 52 * length(unique(data[, age]))
   z_4_expected <- (1 - pnorm(4, 0, 1)) * 52 * length(unique(data[, age]))
 
   z_2 <- data[status == "Medium"]
-  z_2 <- dcast.data.table( tag + subtype + order~ year_group, fun.aggregate=sum, value.var="weight", data=z_2, drop=FALSE)
-  z_2[, expected:=(1 - pnorm(2, 0, 1)) * 52 * length(unique(data[, age]))]
+  z_2 <- dcast.data.table(tag + subtype + order ~ year_group, fun.aggregate = sum, value.var = "weight", data = z_2, drop = FALSE)
+  z_2[, expected := (1 - pnorm(2, 0, 1)) * 52 * length(unique(data[, age]))]
   z_4 <- data[status == "High"]
-  z_4 <- dcast.data.table( tag + subtype + order ~ year_group, fun.aggregate=sum, value.var="weight",  data=z_4,drop=FALSE)
-  z_4[, expected:=(1 - pnorm(2, 0, 1)) * 52 * length(unique(data[, age]))]
+  z_4 <- dcast.data.table(tag + subtype + order ~ year_group, fun.aggregate = sum, value.var = "weight", data = z_4, drop = FALSE)
+  z_4[, expected := (1 - pnorm(2, 0, 1)) * 52 * length(unique(data[, age]))]
 
   setorder(z_2, order)
   setorder(z_4, order)
-  
-  #x[, subtype := factor(subtype)]
-  return(list(z_2=z_2, z_4=z_4))
+
+  # x[, subtype := factor(subtype)]
+  return(list(z_2 = z_2, z_4 = z_4))
 }
 
 #' AnalyseStats1
@@ -193,19 +194,20 @@ AnalyseStats1 <- function(
   fd::use_db(conn, CONFIG$DB_CONFIG$db)
   db <- dplyr::tbl(conn, "spuls_standard_results")
   data <- db %>%
-      dplyr::filter(granularity_time == "weekly" & status != "Normal" ) %>%
-      dplyr::collect()
+    dplyr::filter(granularity_time == "weekly" & status != "Normal") %>%
+    dplyr::collect()
   setDT(data)
-  
+
   aggregated_alerts <- AggregateAlertsCases(data)
 
-  data <- db %>% dplyr::filter(granularity_time == "weekly") %>%
+  data <- db %>%
+    dplyr::filter(granularity_time == "weekly") %>%
     dplyr::select(granularity_geo, tag, zscore, failed, location_code, status, date, year) %>%
-      dplyr::collect()
+    dplyr::collect()
   setDT(data)
   return(list(
     "alert_summary" = aggregated_alerts, "resYearLine" = data[granularity_geo != "municip"],
-    "resYearLineMunicip" = data[granularity_geo=="municip"]
+    "resYearLineMunicip" = data[granularity_geo == "municip"]
   ))
 }
 
