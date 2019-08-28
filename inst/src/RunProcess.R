@@ -54,6 +54,7 @@ fhi::Log("analyse2After")
 # Done with analyses
 fhi::DashboardMsg("Analysing logs")
 AnalyseLogs()
+fhi::Log("Done")
 fhi::DashboardMsg("Finished analyses and exiting")
 CreateLatestDoneFile()
 cat("done", file = "/data_app/sykdomspuls/done.txt")
