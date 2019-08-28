@@ -32,7 +32,7 @@ quasip <- R6::R6Class(
       )
 
       diagnostics_x <<- get_schema_qp_diagnostics()
-      
+
       stack_x$db_connect()
       results_x$db_connect()
       diagnostics_x$db_connect(db_config)
@@ -183,7 +183,7 @@ quasi_run_age <- function(
   run_stack <- split(run_stack, seq(nrow(run_stack)))
 
   diagnostics <- new_diagnostics_df()
-  
+
   results <- pbapply::pblapply(run_stack, function(x) {
     run_data <- data[.(x$location)]
     setnames(run_data, x$denominator, "denominator")
@@ -200,8 +200,10 @@ quasi_run_age <- function(
       uuid = x$uuid
     )
     diagnostics <- update_diagnostics(attr(ret, "diagnostics"), conf, x)
-    return(list(results=ret,
-                diagnostics=diagnostics))
+    return(list(
+      results = ret,
+      diagnostics = diagnostics
+    ))
   })
   rm("data")
   gc()
@@ -225,8 +227,7 @@ quasi_run_age <- function(
       "ALTER TABLE `{tb}` ADD INDEX `ind1` (`granularity_time`(10),`tag`(10),`location_name`(10),`age`(10))",
       tb = results_x$db_table
     )
-
-    ), TRUE)
+  ), TRUE)
 
   try(
     DBI::dbExecute(

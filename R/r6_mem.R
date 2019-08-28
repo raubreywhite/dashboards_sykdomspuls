@@ -24,7 +24,7 @@ MeM <- R6::R6Class(
       for (i in 1:nrow(conf)) {
         current_conf <- conf[i]
         run_all_mem(current_conf, mem_schema, mem_limits_schema)
-        if(current_conf$create_plots){
+        if (current_conf$create_plots) {
           create_plots(current_conf)
         }
       }
@@ -49,104 +49,110 @@ MeM <- R6::R6Class(
 #' @param conf A mem model configuration object
 #' @param mem_schema Mem schema
 #' @param mem_limits_schema Mem limits schema
-#' 
+#'
 #' @export
 run_all_mem <- function(conf, mem_schema, mem_limits_schema) {
-
   ages <- jsonlite::fromJSON(conf$age)
-  
-  for(age_group in names(ages)){
 
-    data_age = ages[[age_group]]
+  for (age_group in names(ages)) {
+    data_age <- ages[[age_group]]
 
     data <- data.table()
-    for (part_age in data_age){
-      f = fd::path(
+    for (part_age in data_age) {
+      f <- fd::path(
         "data_clean",
         sprintf("%s_%s_%s_cleaned.RDS", LatestRawID(), conf$syndrome, part_age)
       )
       new_data <- readRDS(file = f)[granularity_geo != "municip"]
 
-      
+
       data <- rbind(data, new_data)
     }
 
-    
-    
-    data <- data[, .(n=sum(n),
-                     consult_without_influenza=sum(consult_without_influenza),
-                     consult_with_influenza=sum(consult_with_influenza),
-                     pop=sum(pop)),
-                 by=c("granularity_geo", "county_code", "location_code", "date", "holiday")]
-                     
-      
 
-    
+
+    data <- data[, .(
+      n = sum(n),
+      consult_without_influenza = sum(consult_without_influenza),
+      consult_with_influenza = sum(consult_with_influenza),
+      pop = sum(pop)
+    ),
+    by = c("granularity_geo", "county_code", "location_code", "date", "holiday")
+    ]
+
+
+
+
     data[, week := fhi::isoweek_n(date)]
     data[, year := fhi::isoyear_n(date)]
     data[, yrwk := fhi::isoyearweek(date)]
     data[, season := fhi::season(yrwk)]
-    
+
     # National
     national <- data[location_code == "Norge",
-                     .(n = sum(n),
-                       denominator = get(conf$weeklyDenominatorFunction)(get(conf$denominator))),
-                     by = .(year, week, yrwk, season)
-                     ]
-    
-    mem_national_df <- prepare_data_frame(national, mult_factor=conf$multiplicative_factor)
+      .(
+        n = sum(n),
+        denominator = get(conf$weeklyDenominatorFunction)(get(conf$denominator))
+      ),
+      by = .(year, week, yrwk, season)
+    ]
+
+    mem_national_df <- prepare_data_frame(national, mult_factor = conf$multiplicative_factor)
     mem_results <- run_mem_model(mem_national_df, conf)
     mem_results_db <- mem_results
-    mem_results_db[, location_code:="norge"]
-    mem_results_db[, age:=age_group]
-    mem_results_db[, tag:=conf$tag]
+    mem_results_db[, location_code := "norge"]
+    mem_results_db[, age := age_group]
+    mem_results_db[, tag := conf$tag]
     mem_limits_schema$db_load_data_infile(mem_results_db)
-       
+
     national[mem_results, on = "season", low := low]
     national[mem_results, on = "season", medium := medium]
     national[mem_results, on = "season", high := high]
     national[mem_results, on = "season", very_high := very_high]
-    
+
     national[, location_code := "norge"]
     # County
-    
+
     counties <- data[granularity_geo == "county",
-                     .(n = sum(n),
-                      denominator = get(conf$weeklyDenominatorFunction)(get(conf$denominator))),
-                     by = .(year, week, yrwk, season, location_code)
-                     ]
-    
-    
+      .(
+        n = sum(n),
+        denominator = get(conf$weeklyDenominatorFunction)(get(conf$denominator))
+      ),
+      by = .(year, week, yrwk, season, location_code)
+    ]
+
+
     nam <- unique(counties[, location_code])
     res <- vector("list", length = length(nam))
     for (i in seq_along(nam)) {
       county <- nam[i]
       mem_df <- prepare_data_frame(counties[location_code == county],
-                                   mult_factor=conf$multiplicative_factor)
+        mult_factor = conf$multiplicative_factor
+      )
       mem_results <- run_mem_model(mem_df, conf)
       mem_results[, location_code := county]
       res[[i]] <- mem_results
       mem_results_db <- mem_results
-      mem_results_db[, location_code:=county]
-      mem_results_db[, age:=age_group]
-      mem_results_db[, tag:=conf$tag]
+      mem_results_db[, location_code := county]
+      mem_results_db[, age := age_group]
+      mem_results_db[, tag := conf$tag]
       mem_limits_schema$db_load_data_infile(mem_results_db)
     }
     res <- rbindlist(res)
-    
+
     counties[res, on = c("season", "location_code"), low := low]
     counties[res, on = c("season", "location_code"), medium := medium]
     counties[res, on = c("season", "location_code"), high := high]
     counties[res, on = c("season", "location_code"), very_high := very_high]
-    
+
     out <- rbind(national, counties)
-    out[, age:=age_group]
+    out[, age := age_group]
     out[, tag := conf$tag]
     out[, rate := n / denominator * conf$multiplicative_factor]
     out[fhidata::days, on = "yrwk", date := mon]
-    
+
     out[, x := fhi::x(week)]
-    
+
     mem_schema$db_load_data_infile(out)
   }
 }
@@ -157,7 +163,7 @@ run_all_mem <- function(conf, mem_schema, mem_limits_schema) {
 #'
 #' @param conf A mem model configuration object
 #' @param mem_schema mem schema
-#' 
+#'
 #' @export create_plots
 create_plots <- function(conf, mem_schema = NULL) {
   if (is.null(mem_schema)) {
@@ -169,7 +175,7 @@ create_plots <- function(conf, mem_schema = NULL) {
     dplyr::collect()
   current_season <- current_season$season
   x_tag <- conf$tag
-  data <- mem_schema$get_data_db(season == current_season & tag==x_tag)
+  data <- mem_schema$get_data_db(season == current_season & tag == x_tag)
 
   folder <- fd::path("results", sprintf(
     "%s/%s", latest_date(),
@@ -269,9 +275,9 @@ create_plots <- function(conf, mem_schema = NULL) {
   }
 }
 
-prepare_data_frame <- function(data, mult_factor=100) {
+prepare_data_frame <- function(data, mult_factor = 100) {
   useful_data <- data[week %in% c(1:20, 40:52)]
-  useful_data[, x:=fhi::x(week)]
+  useful_data[, x := fhi::x(week)]
   useful_data[, rate := n / denominator * mult_factor]
   out <- dcast.data.table(useful_data, x ~ season, value.var = "rate")
   out[, x := NULL]
@@ -284,11 +290,9 @@ prepare_data_frame <- function(data, mult_factor=100) {
   return(out)
 }
 
-next_season <- function(season){
+next_season <- function(season) {
   last_year <- as.integer(stringr::str_split(season, "/")[[1]][2])
-  return(paste(last_year, last_year + 1, sep="/"))
-  
-
+  return(paste(last_year, last_year + 1, sep = "/"))
 }
 
 run_mem_model <- function(data, conf) {
@@ -378,11 +382,10 @@ get_mem_limits_schema <- function()
       "age" = "TEXT",
       "location_code" = "TEXT",
       "low" = "DOUBLE",
-      "medium"= "DOUBLE",
+      "medium" = "DOUBLE",
       "high" = "DOUBLE",
       "very_high" = "DOUBLE"
     ),
     db_load_folder = "/xtmp/",
     keys = c("season", "tag", "age", "location_code")
   ))
-

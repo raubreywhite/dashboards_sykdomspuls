@@ -47,43 +47,45 @@ CONFIG$DB_CONFIG <- list(
 )
 
 CONFIG$MEM <- rbind(
-    data.table(
-        tag = "influensa",
-        syndrome = "influensa",
-        alertInternal = TRUE,
-        alertExternal = FALSE,
-        websiteInternal = TRUE,
-        contactType = list("Legekontakt"),
-        syndromeOrConsult = "syndrome",
-        denominator = "consult_with_influenza",
-        age = jsonlite::toJSON(list("Totalt"=c("Totalt"))),
-        weeklyDenominatorFunction = "sum",
-        multiplicative_factor = 100,
-        namesLong = "Influensa",
-        include_as_syndromes = TRUE,
-        namesShort = "Influensa",
-        excludeSeason = c("2009/2010"),
-        create_plots = TRUE
-    )
-   ,data.table(
-        tag = "influensa-tessy",
-        syndrome = "influensa",
-        alertInternal = TRUE,
-        alertExternal = FALSE,
-        websiteInternal = TRUE,
-        contactType = list("Legekontakt"),
-        syndromeOrConsult = "syndrome",
-        denominator = "pop",
-        age = jsonlite::toJSON(list("0-4"=c("0-4"),"5-14"=c("5-14"),
-                                    "15-64"=c("20-29", "30-64"), "65+" = c("65+"))),
-        weeklyDenominatorFunction = "mean",
-        multiplicative_factor = 100000,
-        include_as_syndromes = FALSE,
-        namesLong = "Influensa",
-        namesShort = "Influensa",
-        excludeSeason = c("2009/2010"),
-        create_plots = FALSE
-    )
+  data.table(
+    tag = "influensa",
+    syndrome = "influensa",
+    alertInternal = TRUE,
+    alertExternal = FALSE,
+    websiteInternal = TRUE,
+    contactType = list("Legekontakt"),
+    syndromeOrConsult = "syndrome",
+    denominator = "consult_with_influenza",
+    age = jsonlite::toJSON(list("Totalt" = c("Totalt"))),
+    weeklyDenominatorFunction = "sum",
+    multiplicative_factor = 100,
+    namesLong = "Influensa",
+    include_as_syndromes = TRUE,
+    namesShort = "Influensa",
+    excludeSeason = c("2009/2010"),
+    create_plots = TRUE
+  ),
+  data.table(
+    tag = "influensa-tessy",
+    syndrome = "influensa",
+    alertInternal = TRUE,
+    alertExternal = FALSE,
+    websiteInternal = TRUE,
+    contactType = list("Legekontakt"),
+    syndromeOrConsult = "syndrome",
+    denominator = "pop",
+    age = jsonlite::toJSON(list(
+      "0-4" = c("0-4"), "5-14" = c("5-14"),
+      "15-64" = c("20-29", "30-64"), "65+" = c("65+")
+    )),
+    weeklyDenominatorFunction = "mean",
+    multiplicative_factor = 100000,
+    include_as_syndromes = FALSE,
+    namesLong = "Influensa",
+    namesShort = "Influensa",
+    excludeSeason = c("2009/2010"),
+    create_plots = FALSE
+  )
 )
 
 
@@ -306,7 +308,7 @@ CONFIG$SYNDROMES <- data.table(
 for (model in CONFIG$MODELS) {
   for (i in 1:nrow(model)) {
     config <- model[i]
-    if(config$include_as_syndromes){
+    if (config$include_as_syndromes) {
       sub_config <- config[, names(CONFIG$SYNDROMES), with = FALSE]
       if (config$tag %in% CONFIG$SYNDROMES[, tag]) {
         if (!isTRUE(all.equal(CONFIG$SYNDROMES[tag == config$tag], sub_config))) {

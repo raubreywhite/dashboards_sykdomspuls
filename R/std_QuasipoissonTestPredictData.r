@@ -183,7 +183,7 @@ QuasipoissonTrainPredictData <- function(
     return(list(fit = NaN, failed = TRUE))
   }
   poisreg <- tryCatch(normalFunction(regformula, datasetTrain), error = exceptionalFunction, warning = exceptionalFunction)
-  regression_diagnostics <- new_diagnostics_df(n_row=1)
+  regression_diagnostics <- new_diagnostics_df(n_row = 1)
   regression_diagnostics$failed <- 1
   if (poisreg$failed) {
     datasetPredict[, threshold0 := 0.0]
@@ -244,7 +244,6 @@ QuasipoissonTrainPredictData <- function(
     datasetPredict[, revcumU1 := NULL]
     datasetPredict[, stderr := NULL]
     datasetPredict[, failed := FALSE]
-
   }
 
   datasetPredict <- AddXToWeekly(datasetPredict)
