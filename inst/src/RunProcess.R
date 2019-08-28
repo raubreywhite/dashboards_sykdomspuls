@@ -41,9 +41,6 @@ for (model_name in names(sykdomspuls::CONFIG$MODELS)){
 fhi::Log("analyse1After")
 
 
-
-
-
 ## GENERATE LIST OF OUTBREAKS
 fhi::DashboardMsg("Secondary Analysis")
 fhi::Log("analyse2Before")
@@ -52,10 +49,11 @@ fhi::Log("analyse2After")
 
 
 # Done with analyses
-fhi::DashboardMsg("Analysing logs")
-AnalyseLogs()
+#fhi::DashboardMsg("Analysing logs")
+#AnalyseLogs()
 fhi::Log("Done")
 fhi::DashboardMsg("Finished analyses and exiting")
-CreateLatestDoneFile()
-cat("done", file = "/data_app/sykdomspuls/done.txt")
 
+CreateLatestDoneFile()
+
+if(!fd::config$is_dev) quit(save="no", status=0)
