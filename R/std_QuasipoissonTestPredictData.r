@@ -213,7 +213,7 @@ QuasipoissonTrainPredictData <- function(
         datasetTrain[, w_i := Gamma * w_i] # Makes sum(w_i) = n
         poisreg$fit <- glm2::glm2(regformula, data = datasetTrain, weights = w_i, family = quasipoisson, na.action = na.omit)
         dispersion_parameter <- summary(poisreg$fit)$dispersion
-        regression_diagnostics <- extract_daignostics(poisreg$fit)
+        regression_diagnostics <- extract_diagnostics(poisreg$fit)
         od <- max(1, sum(poisreg$fit$weights * poisreg$fit$residuals^2) / poisreg$fit$df.r)
       }, TRUE)
     }

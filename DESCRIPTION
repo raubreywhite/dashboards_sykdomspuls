@@ -45,7 +45,9 @@ Imports:
   huxtable,
   reshape2,
   rstanarm,
-  fs
+  fs,
+  asbio,
+  samplingbook
 Suggests: testthat,
     knitr,
     rmarkdown,
