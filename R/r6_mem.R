@@ -194,7 +194,7 @@ create_plots <- function(conf, mem_schema = NULL) {
       fhi::get_location_name(loc)
     )
 
-    chart <- fhiplot::make_influenza_threshold_chart(data_location, title, weeks=c(40,20))
+    chart <- fhiplot::make_influenza_threshold_chart(data_location, title, weeks = c(40, 20))
 
     filename <- paste(folder, "/", loc, ".png", sep = "")
     ggsave(filename, chart, height = 7, width = 9)
