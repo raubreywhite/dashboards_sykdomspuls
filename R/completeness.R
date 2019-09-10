@@ -42,9 +42,15 @@ calculate_confidence_interval <- function(data, last_weeks=NULL){
   setDT(data)
   table <- connect_db("spuls_standard_results")
 
+  N <- 10
+  if(!is.null(last_weeks)){
 
+    N <- last_weeks
+  }
+
+  N <- min(nrow(data), N)
   location <- data[1, location_code]
-  yrwks <- data[, yrwk]
+  yrwks <- tail(data[, yrwk], N)
   x_granularity_time <- data[1, granularity_time]
   x_age <- data[1, age]
   
@@ -60,45 +66,43 @@ calculate_confidence_interval <- function(data, last_weeks=NULL){
 
   
   population = results[, n] / pmax(results[,completeness], 1e-5)
-  population
+  
   cis <- list()
-  for(i in 1:nrow(data)){
-    print(!is.null(last_weeks))
-    if(!is.null(last_weeks) && (i < ( nrow(data) - last_weeks))){
-      cis[[i]] <- list(yrwk=data[i, yrwk], phat=NA, low_p=NA, high_p=NA, low_n=NA, high_n=NA)
-      next
-    }
-    denom <- data[i, denominator]
+  for(i in 1:N){
+    data_i = nrow(data) - N + i
+    denom <- data[data_i, denominator]
     pop <- population[i]
+    #cat(file=stderr(), "pop", pop, "i = ", i, ," yrwks:", yrwks, "\n")
+    
     if(pop > 0){
       if(pop < 100000){
  
         if(pop != denom){
-          CI <- samplingbook::Sprop(m=data[i, n], n=denom, N=population[i])$ci$exact
+          CI <- samplingbook::Sprop(m=data[data_i, n], n=denom, N=population[i])$ci$exact
         }else{
-          CI <- c(data[i, n]/denom, data[i, n]/denom)
+          CI <- c(data[data_i, n]/denom, data[data_i, n]/denom)
         }
-        cis[[i]] <- list(yrwk=data[i, yrwk], phat=data[i, n]/denom,
+        cis[[i]] <- list(yrwk=data[data_i, yrwk], phat=data[data_i, n]/denom,
                          low_p=CI[1], high_p=CI[2],
                          low_n=CI[1]*denom, high_n=CI[2]*denom)
         
       }else{
-        CI <- asbio::ci.p(phat=data[i, n]/denom, n=denom, N=population[i], summarized=T, fpc=T)$ci
-        cis[[i]] <- list(yrwk=data[i, yrwk], phat=CI[1],
+        CI <- asbio::ci.p(phat=data[data_i, n]/denom, n=denom, N=population[i], summarized=T, fpc=T)$ci
+        cis[[i]] <- list(yrwk=data[data_i, yrwk], phat=CI[1],
                          low_p=CI[2], high_p=CI[3],
                          low_n=denom*CI[2], high_n=denom*CI[3])
       }
     }else{
-      cis[[i]] <- list(yrwk=data[i, yrwk], phat=0, low_p=0, high_p=0, low_n=0, high_n=5)
+      cis[[i]] <- list(yrwk=data[data_i, yrwk], phat=0, low_p=0, high_p=0, low_n=0, high_n=5)
       }
 
   }
 
   cis <- rbindlist(cis)
   cis[, completeness:=results[, completeness]]
-  cis[low_n <0, lower_n:=0]
-  ret <- data[cis, on="yrwk"]
-  
+  cis[low_n <0, low_n:=0]
+  ret <- cis[data, on="yrwk"]
+
   return(ret)
 }
 

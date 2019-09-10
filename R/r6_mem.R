@@ -184,6 +184,15 @@ create_plots <- function(conf, mem_schema = NULL) {
   if (!file.exists(folder)) {
     dir.create(folder)
   }
+  
+  overview <- data %>% dplyr::mutate(rate = round(rate, 2),
+                                     loc_name=fhi::get_location_name(location_code)) %>%
+    dplyr::select(week, loc_name, rate) %>% tidyr::spread(loc_name, rate) %>%
+    dplyr::select(-Norge, Norge)
+  
+  xlsx::write.xlsx(overview, paste(folder, "/fylke_uke.xlsx", sep = ""), row.names=FALSE)
+  
+
 
   for (loc in unique(data[, location_code])) {
     data_location <- data[location_code == loc]
@@ -204,7 +213,6 @@ create_plots <- function(conf, mem_schema = NULL) {
   weeks <- unique(data[, c("x", "week", "yrwk")])
   setorder(weeks, x)
 
-  counties <- fhidata::norway_map_counties
 
   data[, status := as.character(NA)]
   data[is.na(status) & rate <= low, status := "Sv\u00E6rt lav"]

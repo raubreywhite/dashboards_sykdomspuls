@@ -268,4 +268,14 @@ quasi_run_age <- function(
     ),
     TRUE
   )
+  try(
+    DBI::dbExecute(
+      results_x$conn,
+      glue::glue(
+        "ALTER TABLE `{tb}` ADD INDEX `ind6` (`yrwk`(7), `granularity_time`(1), `location_code`(10), `tag` (10), `age`(3))",
+        tb = results_x$db_table
+      )
+    ),
+    TRUE
+  )
 }
