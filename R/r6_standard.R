@@ -216,7 +216,7 @@ standard <- R6::R6Class(
       setDT(data)
       saveRDS(data, file = fd::path("results", latest_date(), "standard", "latest_data.RDS"))
     },
-    restart_shiny_server=function(){
+    restart_shiny_server = function() {
       system("touch /srv/shiny-server/sykdomspuls/restart.txt")
     },
     run_all = function() {
