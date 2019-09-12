@@ -1,4 +1,4 @@
-shinyOptions(cache = memoryCache(max_size = 50e6))
+shinyOptions(cache = diskCache(fd::path("data_app","cache"), max_size = 50e6))
 
 ## app.R ##
 library(shinydashboard)
@@ -43,15 +43,15 @@ body = dashboardBody(
           width = 8,
           box(
             title = "2019-09-20 / Ny nettside", width = NULL, solidHeader = TRUE, status = "primary",
-            "Vi har byttet ut den gamle nettsiden med en ny for å gi dere en raskere opplevelse og for å være mer i tråd med kommunikasjonsavdelings anbefalinger om grafer. Håper dere liker det!"
+            "Vi har byttet ut den gamle nettsiden med en ny for å gi dere en raskere opplevelse og for å være mer i tråd med kommunikasjonsavdelingens anbefalinger om grafer. Håper dere liker det!"
           ),
           box(
             title = "2019-09-11 / MeM terskler til influensa tilsatt", width = NULL, solidHeader = TRUE, status = "primary",
-            "Nå kan du se MeM terskler til influensa under fanen 'MeM-Influensa'"
+            "Nå kan du se på MeM terskler til influensa under fanen 'MeM-Influensa'."
           ),
           box(
             title = "2016-08-01 / Økning i aldersgruppen 15-19 år", width = NULL, solidHeader = TRUE, status = "primary",
-            "Fra august 2016 er det en økning i antall konsultasjoner i aldersgruppen 15-19 år grunnet behov for sykemelding ved fravær i den videregående skole"
+            "Fra august 2016 er det en økning i antall konsultasjoner i aldersgruppen 15-19 år grunnet behov for sykemelding ved fravær i den videregående skole."
           ),
           box(
             title = "2015-01-01 / Lansering av Sykdomspulsen", width = NULL, solidHeader = TRUE, status = "primary",
@@ -91,41 +91,6 @@ ui <- dashboardPage(
 )
 
 server <- function(input, output) {
-
-GLOBAL <- new.env(parent = emptyenv())
-val <- pool %>% dplyr::tbl("spuls_standard_results") %>%
-  dplyr::summarize(date=max(date,na.rm=T)) %>%
-  dplyr::collect() %>%
-  fd::latin1_to_utf8()
-
-GLOBAL$dateMax <- val$date
-GLOBAL$dateMinRestrictedRecent <- GLOBAL$dateMax - 365
-GLOBAL$dateMinRestrictedLine <- GLOBAL$dateMax - 365 * 15
-
-GLOBAL$outbreaksyrwk <- GLOBAL$weeklyyrwk <- rev(fhidata::days[yrwk<=fhi::isoyearweek(GLOBAL$dateMax)]$yrwk)[1:20]
-
-vals <- unique(fhidata::norway_locations_current[,c("county_code","county_name")])
-GLOBAL$weeklyCounties <- c("Norge", vals$county_code)
-names(GLOBAL$weeklyCounties) <- c("Norge", vals$county_name)
-
-CONFIG_OLD <- ConvertConfigForAPI()
-GLOBAL$weeklyTypes <- GLOBAL$dailyTypes <- CONFIG_OLD$SYNDROMES[CONFIG_OLD$SYNDROMES %in% CONFIG$STANDARD[websiteInternal == TRUE]$tag]
-GLOBAL$weeklyAges <- GLOBAL$dailyAges <- CONFIG_OLD$AGES
-
-vals <- fhidata::norway_locations_long_current[location_code!="norway"]
-vals[fhidata::norway_locations_current,on="location_code==municip_code",county_code:=county_code]
-vals[is.na(county_code),county_code:=location_code]
-vals[location_code=="norge",location_code:="Norge"]
-vals[location_code=="norge",county_code:="Norge"]
-
-GLOBAL$municipToCounty <- vals
-
-GLOBAL$weeklyValues <- c(
-  "Konsultasjoner" = "consults",
-  "1 uke eksess" = "excess1"
-)
-
-
   callModule(barometerServer, "barometer", GLOBAL=GLOBAL)
   callModule(signalsServer, "signals", GLOBAL=GLOBAL)
   callModule(number_weeklyServer, "number_weekly", GLOBAL=GLOBAL)
