@@ -291,7 +291,7 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
 
 
 
-CONFIG$MODELS <- list("standard" = CONFIG$STANDARD, "mem" = CONFIG$MEM)
+CONFIG$MODELS <- list("mem" = CONFIG$MEM,"standard" = CONFIG$STANDARD)
 
 
 CONFIG$SYNDROMES <- data.table(

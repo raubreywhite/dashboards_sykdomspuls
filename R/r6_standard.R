@@ -216,6 +216,9 @@ standard <- R6::R6Class(
       setDT(data)
       saveRDS(data, file = fd::path("results", latest_date(), "standard", "latest_data.RDS"))
     },
+    restart_shiny_server = function() {
+      system("touch /srv/shiny-server/sykdomspuls/restart.txt")
+    },
     run_all = function() {
       run_analysis()
       save_latest_data(years = 2)
@@ -223,6 +226,7 @@ standard <- R6::R6Class(
       std_alerts_pdf(results_x = tags[[1]]$results_x)
       email_external()
       email_internal()
+      restart_shiny_server()
     }
   )
 )
