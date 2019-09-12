@@ -105,24 +105,6 @@ Nyheter {.storyboard}
 
 ### Fra august 2016 er det en økning i antall konsultasjoner i aldersgruppen 15-19 år grunnet behov for sykemelding ved fravær i den videregående skole
 
-```{r, include=FALSE}
-pd <- pool %>% tbl("spuls_standard_results") %>%
-    filter(tag == "respiratoryinternal" & age=="15-19" & location_code=="Norge" &
-           granularity_time == "weekly") %>% collect()
-setDT(pd)
-suppressWarnings(pd[, top := max(c(n, threshold4), na.rm = T) + 2])
-suppressWarnings(pd[, bottom := 0])
-output$storyboard1 <- renderPlot({
-  q <- fhiplot::make_line_threshold_plot(pd,x="date",dataVal="n",L1="bottom",L2="threshold2",L3="threshold4",L4="top",allPoints = FALSE, title="Øvre-luftvei diagnose i 15-19 åringer i Norge", pointShift = -3.5, weekNumbers=TRUE, step=FALSE, GetCols=GetCols, legend_position = "bottom")
-  q <- q + geom_rect(data=pd[1,],aes(xmin=as.Date("2016-08-01"),xmax=as.Date("2090-08-01"),ymin=-Inf,ymax=Inf),fill="black",alpha=0.2)
-  q
-})
-```
-
-```{r}
-plotOutput("storyboard1")
-```
-
 *** 
 
 Fra august 2016 er det en økning i antall konsultasjoner i aldersgruppen 15-19 år grunnet behov for sykemelding ved fravær i den videregående skole
