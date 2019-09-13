@@ -1,5 +1,3 @@
-shinyOptions(cache = diskCache(fd::path("data_app","cache"), max_size = 50e6))
-
 ## app.R ##
 library(shinydashboard)
 library(flexdashboard)
@@ -11,6 +9,8 @@ library(magrittr)
 library(dplyr)
 
 fd::initialize("sykdomspuls")
+shinyOptions(cache = diskCache(fd::path("data_app","cache"), max_size = 50e6))
+
 source("global.R")
 source("barometer.R")
 source("signals.R")
