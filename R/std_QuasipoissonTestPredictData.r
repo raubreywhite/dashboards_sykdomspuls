@@ -250,7 +250,7 @@ QuasipoissonTrainPredictData <- function(
   datasetPredict[, yrwk := paste0(year, "-", formatC(week, flag = "0", width = 2))]
 
   if (!isDaily) {
-    datasetPredict[fhidata::days, on = "yrwk", date := mon]
+    datasetPredict[fhidata::days, on = "yrwk", date := sun]
   }
   datasetPredict[, uuid := uuid]
 
