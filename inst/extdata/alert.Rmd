@@ -25,17 +25,7 @@ library(data.table)
 library(ggplot2)
 library(kableExtra)
 
-conn <- fd::get_db_connection(
-  driver = fd::config$db_config$driver, 
-  server = fd::config$db_config$server,
-  port = fd::config$db_config$port,
-  user = fd::config$db_config$user,
-  password = fd::config$db_config$password
-)
-fd::use_db(conn, fd::config$db_config$db)
-
-db <- dplyr::tbl(conn, "spuls_standard_results")
-d <- db %>% 
+d <- fd::tbl("spuls_standard_results") %>% 
   dplyr::filter(
     tag== !! x_tag & 
     county_code == !! x_county_code &
