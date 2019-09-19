@@ -45,7 +45,8 @@ Imports:
   huxtable,
   reshape2,
   rstanarm,
-  fs
+  fs,
+  fancycut
 Suggests: testthat,
     knitr,
     rmarkdown,
