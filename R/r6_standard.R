@@ -237,13 +237,13 @@ standard <- R6::R6Class(
 std_alerts_pdf <- function(results_x) {
   fd::msg("Creating alerts pdf", slack = T)
 
-  val <- results_x$dplyr_tbl() %>%
+  val <- fd::tbl("spuls_standard_results") %>%
     dplyr::summarize(yrwk = max(yrwk, na.rm = T)) %>%
     dplyr::collect() %>%
     fd::latin1_to_utf8()
   max_yrwk <- val$yrwk
 
-  d <- results_x$dplyr_tbl() %>%
+  d <- fd::tbl("spuls_standard_results") %>%
     dplyr::filter(granularity_time == "weekly") %>%
     dplyr::filter(granularity_geo == "municip") %>%
     dplyr::filter(yrwk == !!max_yrwk) %>%
