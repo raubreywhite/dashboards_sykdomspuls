@@ -64,15 +64,11 @@ calculate_confidence_interval <- function(data, last_weeks=NULL){
   results[, completeness:=n/threshold0]
   results[ completeness > 1, completeness:=1]
   population = results[, n] / pmax(results[,completeness], 1e-5)
-  cat(file=stderr(), "tag=", data[1, tag], "N=", N, "pop=", population, "\n")
-
-  
   cis <- list()
   for(i in 1:N){
     data_i = nrow(data) - N + i
     denom <- data[data_i, denominator]
     pop <- population[i]
-#    cat(file=stderr(), "pop", pop, "i = ", i, , "\n")
     
     if(!is.na(pop) && pop > 0){
       if(pop < 100000){
