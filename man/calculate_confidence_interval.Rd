@@ -4,7 +4,7 @@
 \alias{calculate_confidence_interval}
 \title{Calculate Confidence Interval}
 \usage{
-calculate_confidence_interval(data)
+calculate_confidence_interval(data, last_weeks = NULL)
 }
 \arguments{
 \item{granularity_time}{}

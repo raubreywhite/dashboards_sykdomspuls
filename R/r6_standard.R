@@ -223,7 +223,7 @@ standard <- R6::R6Class(
       run_analysis()
       save_latest_data(years = 2)
       save_external_api()
-      std_alerts_pdf(results_x = tags[[1]]$results_x)
+      # std_alerts_pdf(results_x = tags[[1]]$results_x)
       email_external()
       email_internal()
       restart_shiny_server()
@@ -237,13 +237,13 @@ standard <- R6::R6Class(
 std_alerts_pdf <- function(results_x) {
   fd::msg("Creating alerts pdf", slack = T)
 
-  val <- results_x$dplyr_tbl() %>%
+  val <- fd::tbl("spuls_standard_results") %>%
     dplyr::summarize(yrwk = max(yrwk, na.rm = T)) %>%
     dplyr::collect() %>%
     fd::latin1_to_utf8()
   max_yrwk <- val$yrwk
 
-  d <- results_x$dplyr_tbl() %>%
+  d <- fd::tbl("spuls_standard_results") %>%
     dplyr::filter(granularity_time == "weekly") %>%
     dplyr::filter(granularity_geo == "municip") %>%
     dplyr::filter(yrwk == !!max_yrwk) %>%
