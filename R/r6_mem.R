@@ -194,9 +194,9 @@ create_plots <- function(conf, mem_schema = NULL) {
   overview <- dcast(out_data, week ~ loc_name, value.var = c("rate", "n", "denominator"))
   col_names <- names(overview)
 
-  col_names <-  gsub("rate_([A-Øa-ø0-9-]*)$", "\\1 % ILI", col_names)
-  col_names <-  gsub("n_([A-Øa-ø0-9-]*)$", "\\1 ILI konsultasjoner", col_names)
-  col_names <-  gsub("denominator_([A-Øa-ø0-9-]*)$", "\\1 Totalt konsultasjoner", col_names)
+  col_names <-  gsub("rate_([A-\u00D8a-\u00F80-9-]*)$", "\\1 % ILI", col_names)
+  col_names <-  gsub("n_([A-\u00D8a-\u00F80-9-]*)$", "\\1 ILI konsultasjoner", col_names)
+  col_names <-  gsub("denominator_([A-\u00D8a-\u00F80-9-]*)$", "\\1 Totalt konsultasjoner", col_names)
   col_names <-  gsub("week$", "Uke", col_names)
   
   names(overview) <- col_names
@@ -215,13 +215,7 @@ create_plots <- function(conf, mem_schema = NULL) {
 
   for (loc in unique(data[, location_code])) {
     data_location <- data[location_code == loc]
-    title <- paste(
-      " Niv\u00E5 p\u00E5 influensaintensitet m\u00E5lt ved andel legebes\u00F8k for ILS ",
-      current_season,
-      "i",
-      fhi::get_location_name(loc)
-    )
-
+    
     chart <- fhiplot::make_influenza_threshold_chart(data_location, "", weeks = c(40, 20),
                                                      color_palette="influensa", legend_control="text")
 

@@ -1,9 +1,10 @@
 
 #' Calculate completeness
 #'
-#' @param location
-#' @param year
-#' @param granularity_time
+#' @param location location to calculate for
+#' @param x_year to calculate for
+#' @param x_granularity_time granularity_time
+#' @param table db table
 #'
 #' @import data.table
 #' 
@@ -12,9 +13,9 @@ calculate_completeness <- function(location, x_year, x_granularity_time="weekly"
 
 
   if(is.null(table)){
-    table <- connect_db("spuls_standard_results")
+    table <- fd::tbl("spuls_standard_results")
   }
-  cat(file=stderr(), location)
+  #cat(file=stderr(), location)
   results <- table %>% dplyr::filter(location_code == location &
                                        year==x_year &
                                        granularity_time == x_granularity_time &
@@ -31,16 +32,15 @@ calculate_completeness <- function(location, x_year, x_granularity_time="weekly"
 
 #' Calculate Confidence Interval
 #'
-#' @param location
-#' @param year
-#' @param granularity_time
+#' @param data the data to include
+#' @param last_weeks if we only inlcude uncertainty for the last weeks
 #'
 #' @import data.table
 #' 
 #' @export
 calculate_confidence_interval <- function(data, last_weeks=NULL){
   setDT(data)
-  table <- connect_db("spuls_standard_results")
+  table <-fd::tbl("spuls_standard_results")
 
   N <- 10
   if(!is.null(last_weeks)){
@@ -63,18 +63,18 @@ calculate_confidence_interval <- function(data, last_weeks=NULL){
   setDT(results)
   results[, completeness:=n/threshold0]
   results[ completeness > 1, completeness:=1]
-
-  
   population = results[, n] / pmax(results[,completeness], 1e-5)
+  cat(file=stderr(), "tag=", data[1, tag], "N=", N, "pop=", population, "\n")
+
   
   cis <- list()
   for(i in 1:N){
     data_i = nrow(data) - N + i
     denom <- data[data_i, denominator]
     pop <- population[i]
-    #cat(file=stderr(), "pop", pop, "i = ", i, ," yrwks:", yrwks, "\n")
+#    cat(file=stderr(), "pop", pop, "i = ", i, , "\n")
     
-    if(pop > 0){
+    if(!is.na(pop) && pop > 0){
       if(pop < 100000){
  
         if(pop != denom){

@@ -8,7 +8,13 @@ calculate_completeness(location, x_year, x_granularity_time = "weekly",
   table = NULL)
 }
 \arguments{
-\item{granularity_time}{}
+\item{location}{location to calculate for}
+
+\item{x_year}{to calculate for}
+
+\item{x_granularity_time}{granularity_time}
+
+\item{table}{db table}
 }
 \description{
 Calculate completeness

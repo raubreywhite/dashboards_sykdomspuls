@@ -7,7 +7,9 @@
 calculate_confidence_interval(data, last_weeks = NULL)
 }
 \arguments{
-\item{granularity_time}{}
+\item{data}{the data to include}
+
+\item{last_weeks}{if we only inlcude uncertainty for the last weeks}
 }
 \description{
 Calculate Confidence Interval

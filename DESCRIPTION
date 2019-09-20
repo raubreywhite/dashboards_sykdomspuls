@@ -47,7 +47,9 @@ Imports:
   rstanarm,
   fs,
   asbio,
-  samplingbook
+  samplingbook,
+  ggpubr,
+  xlsx
 Suggests: testthat,
     knitr,
     rmarkdown,

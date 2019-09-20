@@ -823,8 +823,6 @@ influensa_data <- reactive({
   
 output$influensa_plot <- renderPlot({
   data <- influensa_data()
-  cat(file=stderr(), data$low_p*100)
-  cat(file=stderr(), data$high_p*100)
   t2 <- Getlocation_name(input$influensaCounty)
   title<- paste0("Prosent pasienter med influensa i ", t2)
   q <- fhiplot::make_influenza_threshold_chart(data, title, weeks=c(30,29))
