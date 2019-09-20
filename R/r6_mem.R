@@ -184,40 +184,51 @@ create_plots <- function(conf, mem_schema = NULL) {
   if (!file.exists(folder)) {
     dir.create(folder)
   }
-  
-  out_data <- data %>% dplyr::mutate(rate = round(rate, 2),
-                                     loc_name=fhi::get_location_name(location_code)) %>%
-    dplyr::select(week, loc_name, rate, n, denominator )
+
+  out_data <- data %>%
+    dplyr::mutate(
+      rate = round(rate, 2),
+      loc_name = fhi::get_location_name(location_code)
+    ) %>%
+    dplyr::select(week, loc_name, rate, n, denominator)
   setDT(out_data)
 
 
   overview <- dcast(out_data, week ~ loc_name, value.var = c("rate", "n", "denominator"))
   col_names <- names(overview)
 
-  col_names <-  gsub("rate_([A-\u00D8a-\u00F80-9-]*)$", "\\1 % ILI", col_names)
-  col_names <-  gsub("n_([A-\u00D8a-\u00F80-9-]*)$", "\\1 ILI konsultasjoner", col_names)
-  col_names <-  gsub("denominator_([A-\u00D8a-\u00F80-9-]*)$", "\\1 Totalt konsultasjoner", col_names)
-  col_names <-  gsub("week$", "Uke", col_names)
-  
+  col_names <- gsub("rate_([A-\u00D8a-\u00F80-9-]*)$", "\\1 % ILI", col_names)
+  col_names <- gsub("n_([A-\u00D8a-\u00F80-9-]*)$", "\\1 ILI konsultasjoner", col_names)
+  col_names <- gsub("denominator_([A-\u00D8a-\u00F80-9-]*)$", "\\1 Totalt konsultasjoner", col_names)
+  col_names <- gsub("week$", "Uke", col_names)
+
   names(overview) <- col_names
   setcolorder(overview, col_names[order(col_names)])
-  
-  xlsx::write.xlsx(overview %>% dplyr::select(Uke, dplyr::everything()),
-                  glue::glue("{folder}/fylke.xlsx"), sheetName="ILI", row.names=FALSE)
 
-  info <- data.frame(Syndrom=conf$tag,
-                     ICPC2=paste(conf$icpc2, sep=","),
-                     Konktattype=paste(conf$contactType, sep=","),
-                     Oppdatert=latest_date())
+  xlsx::write.xlsx(overview %>% dplyr::select(Uke, dplyr::everything()),
+    glue::glue("{folder}/fylke.xlsx"),
+    sheetName = "ILI", row.names = FALSE
+  )
+
+  info <- data.frame(
+    Syndrom = conf$tag,
+    ICPC2 = paste(conf$icpc2, sep = ","),
+    Konktattype = paste(conf$contactType, sep = ","),
+    Oppdatert = latest_date()
+  )
   xlsx::write.xlsx(info,
-                   glue::glue("{folder}/fylke.xlsx"), sheetName="Info",
-                   row.names=FALSE, append=TRUE)
+    glue::glue("{folder}/fylke.xlsx"),
+    sheetName = "Info",
+    row.names = FALSE, append = TRUE
+  )
 
   for (loc in unique(data[, location_code])) {
     data_location <- data[location_code == loc]
-    
-    chart <- fhiplot::make_influenza_threshold_chart(data_location, "", weeks = c(40, 20),
-                                                     color_palette="influensa", legend_control="text")
+
+    chart <- fhiplot::make_influenza_threshold_chart(data_location, "",
+      weeks = c(40, 20),
+      color_palette = "influensa", legend_control = "text"
+    )
 
     filename <- glue::glue("{folder}/{loc}.png")
 
@@ -246,21 +257,27 @@ create_plots <- function(conf, mem_schema = NULL) {
     ## plot_data[location_code =="county10", status:="H\u00F8y"]
     ## plot_data[location_code =="county02", status:="Sv\u00E6rt h\u00F8y"]
     label_positions <- data.frame(
-      location_code = c("county01", "county02","county03", "county04",
-                        "county05", "county06", "county07", "county08",
-                        "county09", "county10", "county11", "county12",
-                        "county14", "county15", "county18", "county19",
-                        "county20", "county50"),
-      long = c(11.266137, 11.2, 10.72028, 11.5, 9.248258,  9.3, 10.0, 8.496352,
-               8.45, 7.2, 6.1, 6.5, 6.415354, 7.8,  14.8, 19.244275, 24.7, 11),
-      
-      lat = c(59.33375, 60.03851,59.98, 61.26886, 61.25501, 60.3, 59.32481, 59.47989,
-              58.6, 58.4, 58.7, 60.25533, 61.6, 62.5, 66.5,  68.9, 69.6 ,63)
+      location_code = c(
+        "county01", "county02", "county03", "county04",
+        "county05", "county06", "county07", "county08",
+        "county09", "county10", "county11", "county12",
+        "county14", "county15", "county18", "county19",
+        "county20", "county50"
+      ),
+      long = c(
+        11.266137, 11.2, 10.72028, 11.5, 9.248258, 9.3, 10.0, 8.496352,
+        8.45, 7.2, 6.1, 6.5, 6.415354, 7.8, 14.8, 19.244275, 24.7, 11
+      ),
+
+      lat = c(
+        59.33375, 60.03851, 59.98, 61.26886, 61.25501, 60.3, 59.32481, 59.47989,
+        58.6, 58.4, 58.7, 60.25533, 61.6, 62.5, 66.5, 68.9, 69.6, 63
+      )
     )
-    cnames_whole_country <- plot_data[, .(rate, location_code)][label_positions, on="location_code"]
-    
+    cnames_whole_country <- plot_data[, .(rate, location_code)][label_positions, on = "location_code"]
+
     cnames_whole_country$rate <- round(cnames_whole_country$rate, 1)
-    
+
     cnames_country <- cnames_whole_country[ !(location_code %in% c("county02", "county03"))]
     cnames_osl_ak <- cnames_whole_country[location_code %in% c("county02", "county03")]
     week_string <- gsub("([0-9]*)-([0-9]*)$", "\\2 \\1", xyrwk)
@@ -270,13 +287,14 @@ create_plots <- function(conf, mem_schema = NULL) {
         color = "#808080", size = 0.1
       ) +
       theme_void() +
-      
-      scale_fill_manual("Niv\u00E5", breaks=c(
-        "Sv\u00E6rt lav",
-        "Lav",
-        "Middels",
-        "H\u00F8y",
-        "Sv\u00E6rt h\u00F8y"
+
+      scale_fill_manual("Niv\u00E5",
+        breaks = c(
+          "Sv\u00E6rt lav",
+          "Lav",
+          "Middels",
+          "H\u00F8y",
+          "Sv\u00E6rt h\u00F8y"
         ),
         values = c(
           "Sv\u00E6rt lav" = "#8DCFE4",
@@ -284,21 +302,26 @@ create_plots <- function(conf, mem_schema = NULL) {
           "Middels" = "#5793A7",
           "H\u00F8y" = "#276B81",
           "Sv\u00E6rt h\u00F8y" = "#00586E"
-        )) +
+        )
+      ) +
       geom_text(data = cnames_country, aes(long, lat, label = rate), size = 2.3) +
       geom_text(
         data = data.frame(
-          text=c(glue::glue("Uke {week_string}")),
-          lat=c(70), long=c(6) ),
-        aes(long, lat, label = text), size=6) +
-       geom_text(
+          text = c(glue::glue("Uke {week_string}")),
+          lat = c(70), long = c(6)
+        ),
+        aes(long, lat, label = text), size = 6
+      ) +
+      geom_text(
         data = data.frame(
-          text=c(glue::glue('Opdatert {strftime(as.Date(latest_date()), format="%d.%m.%Y")}')),
-          lat=c(58), long=c(20)),
-        aes(long, lat, label = text), size = 3) +
-      coord_map(projection ="conic", par=55)
+          text = c(glue::glue('Opdatert {strftime(as.Date(latest_date()), format="%d.%m.%Y")}')),
+          lat = c(58), long = c(20)
+        ),
+        aes(long, lat, label = text), size = 3
+      ) +
+      coord_map(projection = "conic", par = 55)
     legend <- cowplot::get_legend(map_plot)
-    
+
     oslo_akershus <- ggplot() +
       geom_polygon(
         data = plot_data[location_code %in% c("county03", "county02")],
@@ -306,30 +329,30 @@ create_plots <- function(conf, mem_schema = NULL) {
         color = "#808080", size = 0.1
       ) +
       theme_void() +
-      scale_fill_manual("Niv\u00E5", values= c(
+      scale_fill_manual("Niv\u00E5", values = c(
         "Sv\u00E6rt lav" = "#8DCFE4",
         "Lav" = "#43B3CE",
         "Middels" = "#5793A7",
         "H\u00F8y" = "#276B81",
-        "Sv\u00E6rt h\u00F8y" = "#00586E")
-        ) +
+        "Sv\u00E6rt h\u00F8y" = "#00586E"
+      )) +
       geom_text(data = cnames_osl_ak, aes(long, lat, label = rate), size = 2.3) +
       theme(legend.position = "none") +
       ggtitle("Oslo og Akershus") +
       theme(plot.title = element_text(size = 8, )) +
-      coord_map(projection ="conic", par=55)
+      coord_map(projection = "conic", par = 55)
 
 
     filename <- paste(folder, "/map_week", xyrwk, ".png", sep = "")
     filename_legend <- paste(folder, "/map_week", xyrwk, "legend.png", sep = "")
-    png(filename, width=7, height=6, units="in", res=800)
+    png(filename, width = 7, height = 6, units = "in", res = 800)
     grid::grid.newpage()
-    vpb_ <- grid::viewport(width = 1, height = 1, x = 0.5, y = 0.5)  # the larger map
-    vpa_ <- grid::viewport(width = 0.3, height = 0.3, x = 0.6, y = 0.3) 
-    print(map_plot + theme(legend.position = "none") , vp = vpb_)
+    vpb_ <- grid::viewport(width = 1, height = 1, x = 0.5, y = 0.5) # the larger map
+    vpa_ <- grid::viewport(width = 0.3, height = 0.3, x = 0.6, y = 0.3)
+    print(map_plot + theme(legend.position = "none"), vp = vpb_)
     print(oslo_akershus, vp = vpa_)
     dev.off()
-    ggsave(filename_legend, ggpubr::as_ggplot(legend), height=3, width=3)
+    ggsave(filename_legend, ggpubr::as_ggplot(legend), height = 3, width = 3)
   }
 }
 

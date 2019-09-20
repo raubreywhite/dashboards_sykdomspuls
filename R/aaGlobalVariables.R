@@ -64,7 +64,7 @@ CONFIG$MEM <- rbind(
     namesShort = "Influensa",
     excludeSeason = c("2009/2010"),
     create_plots = TRUE,
-    icpc2=list("R80")
+    icpc2 = list("R80")
   ),
   data.table(
     tag = "influensa-tessy",
@@ -86,7 +86,7 @@ CONFIG$MEM <- rbind(
     namesShort = "Influensa",
     excludeSeason = c("2009/2010"),
     create_plots = FALSE,
-    icpc2=list("R80")
+    icpc2 = list("R80")
   )
 )
 
