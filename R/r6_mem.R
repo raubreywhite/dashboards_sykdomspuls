@@ -13,14 +13,20 @@ MeM <- R6::R6Class(
       conf <<- conf
       db_config <<- db_config
       mem_schema <<- get_mem_schema()
-      str
+      mem_limits_schema <<- get_mem_limits_schema()
     },
     run_all = function() {
       mem_schema$db_connect(db_config)
+      mem_schema$db_drop_all_rows()
+      mem_limits_schema$db_connect(db_config)
+      mem_limits_schema$db_drop_all_rows()
+
       for (i in 1:nrow(conf)) {
         current_conf <- conf[i]
-        run_all_mem(current_conf, mem_schema)
-        create_plots(current_conf)
+        run_all_mem(current_conf, mem_schema, mem_limits_schema)
+        if (current_conf$create_plots) {
+          create_plots(current_conf)
+        }
       }
       try(DBI::dbExecute(
         mem_schema$results_x$conn,
@@ -34,15 +40,6 @@ MeM <- R6::R6Class(
 )
 
 
-
-#' run_all
-#' @param conf A mem model configuration object
-#' @export
-run_all <- function(conf) {
-  data <- get_mem_data(conf)
-}
-
-
 #'
 #' run_all_mem
 #'
@@ -50,73 +47,124 @@ run_all <- function(conf) {
 #' country and for each county
 #'
 #' @param conf A mem model configuration object
-#' @param mem_schema a
+#' @param mem_schema Mem schema
+#' @param mem_limits_schema Mem limits schema
+#'
 #' @export
-run_all_mem <- function(conf, mem_schema) {
-  data <- readRDS(file = fd::path(
-    "data_clean",
-    sprintf("%s_%s_%s_cleaned.RDS", LatestRawID(), conf$tag, "Totalt")
-  ))[granularity_geo != "municip"]
+run_all_mem <- function(conf, mem_schema, mem_limits_schema) {
+  ages <- jsonlite::fromJSON(conf$age)
+
+  for (age_group in names(ages)) {
+    data_age <- ages[[age_group]]
+
+    data <- data.table()
+    for (part_age in data_age) {
+      f <- fd::path(
+        "data_clean",
+        sprintf("%s_%s_%s_cleaned.RDS", LatestRawID(), conf$syndrome, part_age)
+      )
+      new_data <- readRDS(file = f)[granularity_geo != "municip"]
 
 
-  data[, week := fhi::isoweek_n(date)]
-  data[, year := fhi::isoyear_n(date)]
-  data[, yrwk := fhi::isoyearweek(date)]
-  data[, season := fhi::season(yrwk)]
-
-  # National
-  national <- data[location_code == "Norge",
-    .(n = sum(n), consult_with_influenza = sum(consult_with_influenza)),
-    by = .(year, week, yrwk, season)
-  ]
-
-  mem_national_df <- prepare_data_frame(national)
-  mem_results <- run_mem_model(mem_national_df, conf)
-
-  national[mem_results, on = "season", low := low]
-  national[mem_results, on = "season", medium := medium]
-  national[mem_results, on = "season", high := high]
-  national[mem_results, on = "season", very_high := very_high]
-
-  national[, location_code := "norge"]
-
-  # County
-
-  counties <- data[granularity_geo == "county",
-    .(n = sum(n), consult_with_influenza = sum(consult_with_influenza)),
-    by = .(year, week, yrwk, season, location_code)
-  ]
+      data <- rbind(data, new_data)
+    }
 
 
-  for (county in unique(counties[, location_code])) {
-    mem_df <- prepare_data_frame(counties[location_code == county])
-    mem_results <- run_mem_model(mem_df, conf)
-    mem_results[, location_code := county]
 
-    counties[mem_results, on = c("season", "location_code"), low := low]
-    counties[mem_results, on = c("season", "location_code"), medium := medium]
-    counties[mem_results, on = c("season", "location_code"), high := high]
-    counties[mem_results, on = c("season", "location_code"), very_high := very_high]
+    data <- data[, .(
+      n = sum(n),
+      consult_without_influenza = sum(consult_without_influenza),
+      consult_with_influenza = sum(consult_with_influenza),
+      pop = sum(pop)
+    ),
+    by = c("granularity_geo", "county_code", "location_code", "date", "holiday")
+    ]
+
+
+
+
+    data[, week := fhi::isoweek_n(date)]
+    data[, year := fhi::isoyear_n(date)]
+    data[, yrwk := fhi::isoyearweek(date)]
+    data[, season := fhi::season(yrwk)]
+
+    # National
+    national <- data[location_code == "Norge",
+      .(
+        n = sum(n),
+        denominator = get(conf$weeklyDenominatorFunction)(get(conf$denominator))
+      ),
+      by = .(year, week, yrwk, season)
+    ]
+
+    mem_national_df <- prepare_data_frame(national, mult_factor = conf$multiplicative_factor)
+    mem_results <- run_mem_model(mem_national_df, conf)
+    mem_results_db <- mem_results
+    mem_results_db[, location_code := "norge"]
+    mem_results_db[, age := age_group]
+    mem_results_db[, tag := conf$tag]
+    mem_limits_schema$db_load_data_infile(mem_results_db)
+
+    national[mem_results, on = "season", low := low]
+    national[mem_results, on = "season", medium := medium]
+    national[mem_results, on = "season", high := high]
+    national[mem_results, on = "season", very_high := very_high]
+
+    national[, location_code := "norge"]
+    # County
+
+    counties <- data[granularity_geo == "county",
+      .(
+        n = sum(n),
+        denominator = get(conf$weeklyDenominatorFunction)(get(conf$denominator))
+      ),
+      by = .(year, week, yrwk, season, location_code)
+    ]
+
+
+    nam <- unique(counties[, location_code])
+    res <- vector("list", length = length(nam))
+    for (i in seq_along(nam)) {
+      county <- nam[i]
+      mem_df <- prepare_data_frame(counties[location_code == county],
+        mult_factor = conf$multiplicative_factor
+      )
+      mem_results <- run_mem_model(mem_df, conf)
+      mem_results[, location_code := county]
+      res[[i]] <- mem_results
+      mem_results_db <- mem_results
+      mem_results_db[, location_code := county]
+      mem_results_db[, age := age_group]
+      mem_results_db[, tag := conf$tag]
+      mem_limits_schema$db_load_data_infile(mem_results_db)
+    }
+    res <- rbindlist(res)
+
+    counties[res, on = c("season", "location_code"), low := low]
+    counties[res, on = c("season", "location_code"), medium := medium]
+    counties[res, on = c("season", "location_code"), high := high]
+    counties[res, on = c("season", "location_code"), very_high := very_high]
+
+    out <- rbind(national, counties)
+    out[, age := age_group]
+    out[, tag := conf$tag]
+    out[, rate := n / denominator * conf$multiplicative_factor]
+    out[fhidata::days, on = "yrwk", date := mon]
+
+    out[, x := fhi::x(week)]
+
+    mem_schema$db_load_data_infile(out)
   }
-
-  out <- rbind(national, counties)
-  out[, tag := conf$tag]
-  out[, rate := n / consult_with_influenza * 100]
-  out[, n := NULL]
-  out[, consult_with_influenza := NULL]
-  out[fhidata::days, on = "yrwk", date := mon]
-
-  mem_schema$db_connect(CONFIG$DB_CONFIG)
-  mem_schema$db_drop_all_rows()
-  mem_schema$db_load_data_infile(out)
 }
+
 
 
 #' create MEM season plots
 #'
 #' @param conf A mem model configuration object
-#' @param mem_schema a
-#' @export
+#' @param mem_schema mem schema
+#'
+#' @export create_plots
 create_plots <- function(conf, mem_schema = NULL) {
   if (is.null(mem_schema)) {
     mem_schema <- get_mem_schema()
@@ -126,147 +174,196 @@ create_plots <- function(conf, mem_schema = NULL) {
     dplyr::summarize(season = max(season, na.rm = T)) %>%
     dplyr::collect()
   current_season <- current_season$season
-  data <- mem_schema$get_data_db(season == current_season)
+  x_tag <- conf$tag
+  data <- mem_schema$get_data_db(season == current_season & tag == x_tag)
+  setDT(data)
+  folder <- fd::path("results", sprintf(
+    "%s/%s", latest_date(),
+    paste("mem", conf$tag, sep = "_")
+  ))
+  if (!file.exists(folder)) {
+    dir.create(folder)
+  }
+  
+  out_data <- data %>% dplyr::mutate(rate = round(rate, 2),
+                                     loc_name=fhi::get_location_name(location_code)) %>%
+    dplyr::select(week, loc_name, rate, n, denominator )
+  setDT(out_data)
 
 
-  folder <- fd::path("results", latest_date(), glue::glue("mem_{conf$tag}"))
-  fs::dir_create(folder)
+  overview <- dcast(out_data, week ~ loc_name, value.var = c("rate", "n", "denominator"))
+  col_names <- names(overview)
+
+  col_names <-  gsub("rate_([A-\u00D8a-\u00F80-9-]*)$", "\\1 % ILI", col_names)
+  col_names <-  gsub("n_([A-\u00D8a-\u00F80-9-]*)$", "\\1 ILI konsultasjoner", col_names)
+  col_names <-  gsub("denominator_([A-\u00D8a-\u00F80-9-]*)$", "\\1 Totalt konsultasjoner", col_names)
+  col_names <-  gsub("week$", "Uke", col_names)
+  
+  names(overview) <- col_names
+  setcolorder(overview, col_names[order(col_names)])
+  
+  xlsx::write.xlsx(overview %>% dplyr::select(Uke, dplyr::everything()),
+                  glue::glue("{folder}/fylke.xlsx"), sheetName="ILI", row.names=FALSE)
+
+  info <- data.frame(Syndrom=conf$tag,
+                     ICPC2=paste(conf$icpc2, sep=","),
+                     Konktattype=paste(conf$contactType, sep=","),
+                     Oppdatert=latest_date())
+  xlsx::write.xlsx(info,
+                   glue::glue("{folder}/fylke.xlsx"), sheetName="Info",
+                   row.names=FALSE, append=TRUE)
 
   for (loc in unique(data[, location_code])) {
     data_location <- data[location_code == loc]
-    title <- paste(
-      " Niv\u00E5 p\u00E5 influensaintensitet m\u00E5lt ved andel legebes\u00F8k for ILS ",
-      current_season,
-      "i",
-      fhi::get_location_name(loc)
-    )
+    
+    chart <- fhiplot::make_influenza_threshold_chart(data_location, "", weeks = c(40, 20),
+                                                     color_palette="influensa", legend_control="text")
 
-    chart <- fhiplot::make_influenza_threshold_chart(data_location, title)
+    filename <- glue::glue("{folder}/{loc}.png")
 
-    filename <- paste(folder, "/", loc, ".png", sep = "")
     ggsave(filename, chart, height = 7, width = 9)
   }
 
-  latest_week <- max(data[year == max(data[, year]), week])
-  if (latest_week > 20) {
-    weeks <- 40:latest_week
-  } else {
-    weeks <- c(40:52, 1:latest_week)
-  }
-  counties <- fhidata::norway_map_counties
-  data[!is.na(low), status := fancycut::fancycut(
-    rate,
-    "Sv\u00E6rt lav" = glue::glue("[0, {low}]", low = low),
-    "Lav" = glue::glue("({low}, {medium}]", low = low, medium = medium),
-    "Middels" = glue::glue("({medium}, {high}]", medium = medium, high = high),
-    "H\u00F8y" = glue::glue("({high}, {very_high}]", high = high, very_high = very_high),
-    "Sv\u00E6rt h\u00F8y" = glue::glue("({very_high}, 99999999999]", very_high = very_high),
-    out.as.factor = FALSE
-  )]
-  data[, status := as.numeric(NA)]
+  latest_week <- max(data[, x])
+  weeks <- unique(data[, c("x", "week", "yrwk")])
+  setorder(weeks, x)
+
+
+  data[, status := as.character(NA)]
   data[is.na(status) & rate <= low, status := "Sv\u00E6rt lav"]
   data[is.na(status) & rate <= medium, status := "Lav"]
   data[is.na(status) & rate <= high, status := "Middels"]
   data[is.na(status) & rate <= very_high, status := "H\u00F8y"]
-  data[is.na(status) & rate > very_high, status := "H\u00F8y"]
+  data[is.na(status) & rate > very_high, status := "Sv\u00E6rt h\u00F8y"]
 
-  data[, status := ifelse(rate <= low, "Sv\u00E6rt lav",
-    ifelse(rate <= medium, "Lav",
-      ifelse(rate <= high, "Middels",
-        ifelse(rate <= very_high, "H\u00F8y", "Sv\u00E6rt h\u00F8y")
-      )
-    )
-  )]
-  for (current_week in weeks) {
+  for (i in 1:nrow(weeks)) {
     counties <- fhidata::norway_map_counties
-    plot_data <- counties[data[week == current_week], on = .(location_code = location_code), nomatch = 0]
-    cnames_country <- aggregate(cbind(long, lat) ~ rate,
-      data = plot_data[!(location_code %in% c("county03", "county02"))],
-      FUN = function(x) mean(range(x))
-    )
-    cnames_country$rate <- round(cnames_country$rate, 1)
+    xyrwk <- weeks$yrwk[i]
+    plot_data <- counties[data[yrwk == xyrwk], on = .(location_code = location_code), nomatch = 0]
 
-    cnames_osl_ak <- aggregate(cbind(long, lat) ~ rate,
-      data = plot_data[location_code %in% c("county03", "county02")],
-      FUN = function(x) mean(range(x))
+    ## plot_data[location_code =="county08", status:="Lav"]
+    ## plot_data[location_code =="county50", status:="Middels"]
+    ## plot_data[location_code =="county10", status:="H\u00F8y"]
+    ## plot_data[location_code =="county02", status:="Sv\u00E6rt h\u00F8y"]
+    label_positions <- data.frame(
+      location_code = c("county01", "county02","county03", "county04",
+                        "county05", "county06", "county07", "county08",
+                        "county09", "county10", "county11", "county12",
+                        "county14", "county15", "county18", "county19",
+                        "county20", "county50"),
+      long = c(11.266137, 11.2, 10.72028, 11.5, 9.248258,  9.3, 10.0, 8.496352,
+               8.45, 7.2, 6.1, 6.5, 6.415354, 7.8,  14.8, 19.244275, 24.7, 11),
+      
+      lat = c(59.33375, 60.03851,59.98, 61.26886, 61.25501, 60.3, 59.32481, 59.47989,
+              58.6, 58.4, 58.7, 60.25533, 61.6, 62.5, 66.5,  68.9, 69.6 ,63)
     )
-    cnames_osl_ak$rate <- round(cnames_osl_ak$rate, 1)
-
+    cnames_whole_country <- plot_data[, .(rate, location_code)][label_positions, on="location_code"]
+    
+    cnames_whole_country$rate <- round(cnames_whole_country$rate, 1)
+    
+    cnames_country <- cnames_whole_country[ !(location_code %in% c("county02", "county03"))]
+    cnames_osl_ak <- cnames_whole_country[location_code %in% c("county02", "county03")]
+    week_string <- gsub("([0-9]*)-([0-9]*)$", "\\2 \\1", xyrwk)
     map_plot <- ggplot() +
       geom_polygon(
         data = plot_data, aes(x = long, y = lat, group = group, fill = status),
-        color = "black", size = 0.1
+        color = "#808080", size = 0.1
       ) +
       theme_void() +
-      coord_quickmap() +
-      scale_fill_manual("Niv\u00E5", values = c(
-        "Sv\u00E6rt lav" = fhiplot::vals$cols$map_sequential[["MS5"]],
-        "Lav" = fhiplot::vals$cols$map_sequential[["MS4"]],
-        "Middels" = fhiplot::vals$cols$map_sequential[["MS3"]],
-        "H\u00F8y" = fhiplot::vals$cols$map_sequential[["MS2"]],
-        "Sv\u00E6rt h\u00F8y" = fhiplot::vals$cols$map_sequential[["MS1"]]
-      )) +
-      ggrepel::geom_label_repel(data = cnames_country, aes(long, lat, label = rate), size = 2)
-
+      
+      scale_fill_manual("Niv\u00E5", breaks=c(
+        "Sv\u00E6rt lav",
+        "Lav",
+        "Middels",
+        "H\u00F8y",
+        "Sv\u00E6rt h\u00F8y"
+        ),
+        values = c(
+          "Sv\u00E6rt lav" = "#8DCFE4",
+          "Lav" = "#43B3CE",
+          "Middels" = "#5793A7",
+          "H\u00F8y" = "#276B81",
+          "Sv\u00E6rt h\u00F8y" = "#00586E"
+        )) +
+      geom_text(data = cnames_country, aes(long, lat, label = rate), size = 2.3) +
+      geom_text(
+        data = data.frame(
+          text=c(glue::glue("Uke {week_string}")),
+          lat=c(70), long=c(6) ),
+        aes(long, lat, label = text), size=6) +
+       geom_text(
+        data = data.frame(
+          text=c(glue::glue('Opdatert {strftime(as.Date(latest_date()), format="%d.%m.%Y")}')),
+          lat=c(58), long=c(20)),
+        aes(long, lat, label = text), size = 3) +
+      coord_map(projection ="conic", par=55)
+    legend <- cowplot::get_legend(map_plot)
+    
     oslo_akershus <- ggplot() +
       geom_polygon(
         data = plot_data[location_code %in% c("county03", "county02")],
         aes(x = long, y = lat, group = group, fill = status),
-        color = "black", size = 0.1
+        color = "#808080", size = 0.1
       ) +
       theme_void() +
-      coord_quickmap() +
-      scale_fill_manual("Niv\u00E5", values = c(
-        "Sv\u00E6rt lav" = fhiplot::vals$cols$map_sequential[["MS5"]],
-        "Lav" = fhiplot::vals$cols$map_sequential[["MS4"]],
-        "Middels" = fhiplot::vals$cols$map_sequential[["MS3"]],
-        "H\u00F8y" = fhiplot::vals$cols$map_sequential[["MS2"]],
-        "Sv\u00E6rt h\u00F8y" = fhiplot::vals$cols$map_sequential[["MS1"]]
-      )) +
-      geom_label(data = cnames_osl_ak, aes(long, lat, label = rate), size = 2) +
+      scale_fill_manual("Niv\u00E5", values= c(
+        "Sv\u00E6rt lav" = "#8DCFE4",
+        "Lav" = "#43B3CE",
+        "Middels" = "#5793A7",
+        "H\u00F8y" = "#276B81",
+        "Sv\u00E6rt h\u00F8y" = "#00586E")
+        ) +
+      geom_text(data = cnames_osl_ak, aes(long, lat, label = rate), size = 2.3) +
       theme(legend.position = "none") +
       ggtitle("Oslo og Akershus") +
-      theme(plot.title = element_text(size = 8, ))
+      theme(plot.title = element_text(size = 8, )) +
+      coord_map(projection ="conic", par=55)
 
-    map_plot <- map_plot +
-      annotation_custom(
-        ggplotGrob(oslo_akershus),
-        xmin = 10, xmax = 35, ymin = 60, ymax = 65
-      )
-    filename <- paste(folder, "/map_week", current_week, ".png", sep = "")
-    ggsave(filename, map_plot, height = 7, width = 5)
+
+    filename <- paste(folder, "/map_week", xyrwk, ".png", sep = "")
+    filename_legend <- paste(folder, "/map_week", xyrwk, "legend.png", sep = "")
+    png(filename, width=7, height=6, units="in", res=800)
+    grid::grid.newpage()
+    vpb_ <- grid::viewport(width = 1, height = 1, x = 0.5, y = 0.5)  # the larger map
+    vpa_ <- grid::viewport(width = 0.3, height = 0.3, x = 0.6, y = 0.3) 
+    print(map_plot + theme(legend.position = "none") , vp = vpb_)
+    print(oslo_akershus, vp = vpa_)
+    dev.off()
+    ggsave(filename_legend, ggpubr::as_ggplot(legend), height=3, width=3)
   }
 }
 
-prepare_data_frame <- function(data) {
-  useful_data <- data[week >= 40 | week <= 20]
+prepare_data_frame <- function(data, mult_factor = 100) {
+  useful_data <- data[week %in% c(1:20, 40:52)]
+  useful_data[, x := fhi::x(week)]
+  useful_data[, rate := n / denominator * mult_factor]
+  out <- dcast.data.table(useful_data, x ~ season, value.var = "rate")
+  out[, x := NULL]
+  out <- data.frame(out)
+  names(out) <- stringr::str_replace_all(names(out), "\\.", "/")
+  names(out) <- stringr::str_remove(names(out), "X")
+  if (is.na(out[1, 1])) out <- out[, -1]
 
-  useful_data[, rate := n / consult_with_influenza * 100]
-  useful_data[, label := ifelse(week >= 40,
-    paste(year, year + 1, sep = "/"),
-    paste(year - 1, year, sep = "/")
-  )              ]
-  out <- data.frame(week = c(40:52, 1:20))
-
-  for (lab in unique(useful_data[, label])) {
-    current_season <- useful_data[label == lab, .(label, week, rate)]
-    if (nrow(current_season) == 33) {
-      out[lab] <- current_season[, rate]
-    }
-  }
   rownames(out) <- c(40:52, 1:20)
-  return(out[, !(names(out) == "week")])
+  return(out)
+}
+
+next_season <- function(season) {
+  last_year <- as.integer(stringr::str_split(season, "/")[[1]][2])
+  return(paste(last_year, last_year + 1, sep = "/"))
 }
 
 run_mem_model <- function(data, conf) {
   out <- list()
 
-
-  for (i in 5:ncol(data)) {
-    col <- names(data)[i]
+  # We need 5 season to calculate the thresholds so start at 6
+  for (i in 6:ncol(data)) {
+    col <- next_season(names(data)[i])
     model_data <- data[, names(data)[1:i]]
 
     model_data <- data[, names(model_data)[!(names(model_data) %in% conf$excludeSeason)]]
+    # print(glue::glue("Calculating for season {col}"))
+    # print(names(model_data))
     epi <- mem::memmodel(model_data)
     out[[col]] <- c(
       epi$epidemic.thresholds[1],
@@ -296,6 +393,10 @@ mem_results_field_types <- c(
   "yrwk" = "TEXT",
   "year" = "INTEGER",
   "week" = "INTEGER",
+  "age" = "TEXT",
+  "n" = "INTEGER",
+  "denominator" = "INTEGER",
+  "x" = "INTEGER",
   "date" = "DATE",
   "rate" = "DOUBLE",
   "low" = "DOUBLE",
@@ -308,7 +409,8 @@ mem_results_keys <- c(
   "tag",
   "location_code",
   "year",
-  "week"
+  "week",
+  "age"
 )
 
 #' get_mem_schema
@@ -322,4 +424,26 @@ get_mem_schema <- function()
     db_field_types = mem_results_field_types,
     db_load_folder = "/xtmp/",
     keys = mem_results_keys
+  ))
+
+#' get_mem_schema
+#'
+#' DB schema for mem_results
+#'
+#' @export
+get_mem_limits_schema <- function()
+  return(fd::schema$new(
+    db_table = "spuls_mem_limits",
+    db_field_types = list(
+      "season" = "TEXT",
+      "tag" = "TEXT",
+      "age" = "TEXT",
+      "location_code" = "TEXT",
+      "low" = "DOUBLE",
+      "medium" = "DOUBLE",
+      "high" = "DOUBLE",
+      "very_high" = "DOUBLE"
+    ),
+    db_load_folder = "/xtmp/",
+    keys = c("season", "tag", "age", "location_code")
   ))

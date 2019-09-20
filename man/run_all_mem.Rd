@@ -4,12 +4,14 @@
 \alias{run_all_mem}
 \title{run_all_mem}
 \usage{
-run_all_mem(conf, mem_schema)
+run_all_mem(conf, mem_schema, mem_limits_schema)
 }
 \arguments{
 \item{conf}{A mem model configuration object}
 
-\item{mem_schema}{a}
+\item{mem_schema}{Mem schema}
+
+\item{mem_limits_schema}{Mem limits schema}
 }
 \description{
 Runs mem analysis for all available years for the whole

@@ -14,7 +14,10 @@ library(data.table)
 library(fhi)
 library(magrittr)
 library(dplyr)
-
+fhi::DashboardInitialiseOpinionated("sykdomspuls",
+                                    PACKAGE_DIR="/dashboards/dashboards_sykdomspuls",
+                                    FORCE_DEV_PACKAGE_LOAD =TRUE,
+                                    SILENT=TRUE)
 fd::initialize("sykdomspuls")
 
 # GET GLOBAL INFORMATION
@@ -98,12 +101,38 @@ GetStepGraph <- reactive({
   return(retval)
 })
 
+
+
+
+table <- pool %>% tbl("spuls_standard_results")
+completeness <- sykdomspuls::calculate_completeness("Norge", year(GLOBAL$dateMax), table=table)
+
+q <- ggplot(tail(completeness, 8)) + geom_col(aes(x=week, y=completeness), fill=fhiplot::base_color) +
+ ggtitle("Kompletthet siste 8 uker") +
+  fhiplot::theme_fhi_lines() +
+  xlab("Uke ") +
+  ylab("Kompletthet (%)") +
+  ylim(0, 103) 
+output$kompletthet_plot <- renderPlot(q)
+output$kompletthet_plot2 <- renderPlot(q)
+output$kompletthet_plot3 <- renderPlot(q)
+output$kompletthet_plot4 <- renderPlot(q)
+
+
+
+
+
+
 ```
+
 
 Nyheter {.storyboard}
 =========================================
 
 ### Fra august 2016 er det en økning i antall konsultasjoner i aldersgruppen 15-19 år grunnet behov for sykemelding ved fravær i den videregående skole
+
+
+
 
 ```{r, include=FALSE}
 pd <- pool %>% tbl("spuls_standard_results") %>%
@@ -316,6 +345,8 @@ selectInput("weeklyBarometerType", "Sykdom/Symptom", as.list(GLOBAL$weeklyTypes)
 selectInput("weeklyBarometerAge", "Alder", as.list(GLOBAL$weeklyAges), selected = "Totalt")
 
 selectInput("weeklyBarometerCounty", "Fylke", as.list(GLOBAL$weeklyCounties), selected = GLOBAL$weeklyCounties[1])
+
+plotOutput("kompletthet_plot")
 ```
 
 Row {data-height=800 .tabset}
@@ -463,6 +494,9 @@ selectInput("weeklyOutbreakSort", "Rangere etter", list("Z verdi"="zscore","Ekse
 
 checkboxInput("weeklyOutbreakHideEmpty", "Skjul tomme", TRUE)
 
+
+
+
 ```
 
 Antall (ukentlig)
@@ -495,7 +529,7 @@ weeklyPlotData <- reactive({
                granularity_time=="weekly" &
                age == x_age) %>% collect()
   setDT(retData)
-  
+  retData <- calculate_confidence_interval(retData, last_weeks=8)
   if(!is.null(retData)){
     retData$top <- max(c(retData$n, retData$threshold4), na.rm = T) + 2
     retData$bottom <- 0
@@ -505,7 +539,7 @@ weeklyPlotData <- reactive({
 })
 
 output$weeklyNumberPlotBrush <- renderPlot({
-  pd <- weeklyPlotData() 
+  pd <- weeklyPlotData()
   
   if(is.null(pd)){
     return(
@@ -520,8 +554,8 @@ output$weeklyNumberPlotBrush <- renderPlot({
 })
 
   output$weeklyNumberPlot <- renderPlot({
-    pd <- weeklyPlotData() 
-    if(is.null(pd) | is.null(input$weeklyMunicip)){
+    pd <- weeklyPlotData()
+     if(is.null(pd) | is.null(input$weeklyMunicip)){
       return(
         data.frame(x=1:3,y=1:3) %>%
           ggplot(aes(x=x,y=y)) + 
@@ -622,6 +656,9 @@ renderUI({
 })
 
 selectInput("weeklyValue", "Verdier", as.list(GLOBAL$weeklyValues), selected = GLOBAL$weeklyValues[1])
+
+plotOutput("kompletthet_plot2")
+
 
 ```
 
@@ -759,41 +796,39 @@ selectInput("dailyAge", "Alder", as.list(GLOBAL$dailyAges), selected = "Totalt")
 
 selectInput("dailyCounty", "Fylke", as.list(GLOBAL$weeklyCounties), selected = GLOBAL$weeklyCounties[1])
 
+
+plotOutput("kompletthet_plot3")
 ```
 
 
-
-
-Influensa
+MEM influensa
 ===================================== 
 
 ```{r, include=FALSE}
-current_season <- fhi::season(GLOBAL$outbreaksyrwk[1], start_week=40)
+
 influensa_data <- reactive({
   x_location <- input$influensaCounty
-
+  x_season <- input$influensaSeason
   data <- pool %>%
     tbl("spuls_mem_results") %>%
-    filter(season == current_season &
+    filter(season == x_season &
              location_code == x_location &
              tag == "influensa") %>%
         collect()
   setDT(data)
+  data[, granularity_time:="weekly"]
+  data <- calculate_confidence_interval(data, last_weeks=10)
   return(data)
   })
   
 output$influensa_plot <- renderPlot({
-    data <- influensa_data()
-    t2 <- Getlocation_name(input$influensaCounty)
-    title<- paste0("Prosent pasienter med influensa i ", t2)
-    q <- fhiplot::make_influenza_threshold_chart(data, title)
-   return(q)
-    
-  })
-
-
-
-
+  data <- influensa_data()
+  t2 <- Getlocation_name(input$influensaCounty)
+  title<- paste0("Prosent pasienter med influensa i ", t2)
+  q <- fhiplot::make_influenza_threshold_chart(data, title, weeks=c(30,29))
+  return(q)
+  
+})
 ```
 
 Row {data-height=800 .tabset}
@@ -807,7 +842,7 @@ plotOutput("influensa_plot")
 
 ### Info
 
-Grafen viser antall konsultasjoner per dag med en indikasjon om antallet er som forventet eller ikke. Valg av sykdom/symptom, sted og tidsrom gjøres på høyre side. Den svarte streken med rundingene viser antallet faktiske konsultasjoner. Bakgrunnsfargen er laget ut fra beregninger fra de foregående 5 årene. Når den svarte streken ligger i den grønne bakgrunnsfargen er antallet konsultasjoner som forventet og rundingen vises med svart. Når den svarte streken ligger i det gule feltet er antall konsultasjoner høyere enn forventet og fyllet i rundingen blir gult. Dersom den svarte streken ligger i det røde feltet er antall konsultasjoner betydelig høyere enn forventet og fyllet i rundingen blir rødt.
+Grafen viser antall konsultasjoner per dag med en indikasjon om antallet er som forventet eller ikke. Valg av sykdom/symptom, sted og tidsrom gjøres på høyre side. Den svarte streken med rundingene viser antallet faktiske konsultasjoner. Bakgrunnsfargen er laget ut fra beregninger fra de foregående årene.
 
  Se fanen *Om Sykdomspulsen* øverst for mer utfyllende informasjon om dataene og beregninger.
 
@@ -815,10 +850,76 @@ Instillinger {.sidebar}
 -----------------------------------------------------------------------
 
 ```{r, echo = F}
+current_season <- fhi::season(GLOBAL$outbreaksyrwk[1], start_week=30)
+seasons <- pool %>%
+    tbl("spuls_mem_results") %>%
+    filter(tag == "influensa" & !is.na(low)) %>%
+    distinct(season) %>% arrange(desc(season)) %>%
+    collect()
+
 
 selectInput("influensaCounty", "Fylke", as.list(GLOBAL$weeklyCounties), selected = GLOBAL$weeklyCounties[1])
 
+selectInput("influensaSeason", "Sesong", as.list(seasons)$season, selected = current_season)
+
+plotOutput("kompletthet_plot4")
+
 ```
+
+
+Data kompletthet
+===================================== 
+
+```{r, include=FALSE}
+
+completeness_data <- reactive({
+  x_location <- input$completenessCounty
+
+  table <- pool %>% tbl("spuls_standard_results")
+  return(sykdomspuls::calculate_completeness(x_location, year(GLOBAL$dateMax), table=table))
+  }) 
+  
+output$completeness_plot <- renderPlot({
+  data <- completeness_data()
+  t2 <- Getlocation_name(input$completenessCounty)
+  q <- ggplot(data) + geom_col(aes(x=week, y=completeness), fill=fhiplot::base_color) +
+    ggtitle(glue::glue("Estimert data kompletthet i {t2} for dette året")) +
+    fhiplot::theme_fhi_lines() +
+    xlab("Uke ") +
+    ylab("Kompletthet (%)") +
+    ylim(0, 103)
+  return(q)
+    
+  })
+
+```
+
+Row {data-height=800 .tabset}
+-----------------------------------------------------------------------
+
+### Figur
+
+```{r}
+plotOutput("completeness_plot")
+```  
+
+### Info
+
+Grafen viser estimert data kompletthet per uke. 
+
+Instillinger {.sidebar}
+-----------------------------------------------------------------------
+
+```{r, echo = F}
+
+selectInput("completenessCounty", "Fylke", as.list(GLOBAL$weeklyCounties), selected = GLOBAL$weeklyCounties[1])
+
+#selectInput("influensaSeason", "Sesong", as.list(seasons)$season, selected = current_season)
+
+```
+
+
+
 
 
 Om Sykdomspulsen

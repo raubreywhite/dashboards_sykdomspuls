@@ -46,7 +46,10 @@ Imports:
   reshape2,
   rstanarm,
   fs,
-  fancycut
+  asbio,
+  samplingbook,
+  ggpubr,
+  xlsx
 Suggests: testthat,
     knitr,
     rmarkdown,

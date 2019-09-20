@@ -63,7 +63,8 @@ CONFIG$MEM <- rbind(
     include_as_syndromes = TRUE,
     namesShort = "Influensa",
     excludeSeason = c("2009/2010"),
-    create_plots = TRUE
+    create_plots = TRUE,
+    icpc2=list("R80")
   ),
   data.table(
     tag = "influensa-tessy",
@@ -84,7 +85,8 @@ CONFIG$MEM <- rbind(
     namesLong = "Influensa",
     namesShort = "Influensa",
     excludeSeason = c("2009/2010"),
-    create_plots = FALSE
+    create_plots = FALSE,
+    icpc2=list("R80")
   )
 )
 
@@ -291,7 +293,7 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
 
 
 
-CONFIG$MODELS <- list("standard" = CONFIG$STANDARD, "mem" = CONFIG$MEM)
+CONFIG$MODELS <- list("mem" = CONFIG$MEM, "standard" = CONFIG$STANDARD)
 
 
 CONFIG$SYNDROMES <- data.table(
