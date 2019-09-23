@@ -224,8 +224,8 @@ standard <- R6::R6Class(
       save_latest_data(years = 2)
       save_external_api()
       # std_alerts_pdf(results_x = tags[[1]]$results_x)
-      email_external()
-      email_internal()
+      # email_external()
+      # email_internal()
       restart_shiny_server()
     }
   )

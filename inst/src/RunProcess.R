@@ -42,9 +42,9 @@ fhi::Log("analyse1After")
 
 
 ## GENERATE LIST OF OUTBREAKS
-fhi::DashboardMsg("Secondary Analysis")
+#fhi::DashboardMsg("Secondary Analysis")
 fhi::Log("analyse2Before")
-AnalysesSecondary()
+#AnalysesSecondary()
 fhi::Log("analyse2After")
 
 
@@ -55,5 +55,18 @@ fhi::Log("Done")
 fhi::DashboardMsg("Finished analyses and exiting")
 
 CreateLatestDoneFile()
+
+date_results <- fd::tbl("spuls_standard_results") %>%
+  dplyr::summarise(date=max(date, na.rm=T)) %>%
+  dplyr::collect() %>%
+  fd::latin1_to_utf8()
+date_results <- date_results$date
+
+fd::update_rundate(
+  package="sykdomspuls",
+  date_extraction = latest_date(),
+  date_results = date_results,
+  date_run = lubridate::today()
+)
 
 if(!fd::config$is_dev) quit(save="no", status=0)
