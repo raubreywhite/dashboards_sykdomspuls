@@ -24,7 +24,6 @@ MeM <- R6::R6Class(
       for (i in 1:nrow(conf)) {
         current_conf <- conf[i]
         run_all_mem(current_conf, mem_schema, mem_limits_schema)
-
       }
       try(DBI::dbExecute(
         mem_schema$results_x$conn,
@@ -148,13 +147,13 @@ run_all_mem <- function(conf, mem_schema, mem_limits_schema) {
     out[, tag := conf$tag]
     out[, rate := n / denominator * conf$multiplicative_factor]
     out[fhidata::days, on = "yrwk", date := mon]
-    out[, status:="verylow"]
-    out[rate >= low & rate < medium, status:="low"]
-    out[rate >= medium & rate < high, status:="medium"]
-    out[rate >= high & rate < very_high, status:="high"]
-    out[rate >=  very_high, status:="veryhigh"]
+    out[, status := "verylow"]
+    out[rate >= low & rate < medium, status := "low"]
+    out[rate >= medium & rate < high, status := "medium"]
+    out[rate >= high & rate < very_high, status := "high"]
+    out[rate >= very_high, status := "veryhigh"]
 
-    
+
     out[, x := fhi::x(week)]
 
     mem_schema$db_load_data_infile(out)
