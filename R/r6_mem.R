@@ -147,7 +147,9 @@ run_all_mem <- function(conf, mem_schema, mem_limits_schema) {
     out[, tag := conf$tag]
     out[, rate := n / denominator * conf$multiplicative_factor]
     out[fhidata::days, on = "yrwk", date := mon]
-    out[, status := "verylow"]
+    
+    out[, status := as.character(NA)]
+    out[rate < low, status := "verylow"]
     out[rate >= low & rate < medium, status := "low"]
     out[rate >= medium & rate < high, status := "medium"]
     out[rate >= high & rate < very_high, status := "high"]
