@@ -1,6 +1,6 @@
 .onAttach <- function(libname, pkgname) {
   packageStartupMessage("PACKAGE: sykdomspuls")
-  packageStartupMessage("Version 2019.10.09 at 08:47")
+  packageStartupMessage("Version 2019.10.30 at 14:33")
   packageStartupMessage("Developed by Richard White, Gunnar Ro")
   packageStartupMessage("Department of Infectious Disease Epidemiology and Modelling")
   packageStartupMessage("Norwegian Institute of Public Health")
