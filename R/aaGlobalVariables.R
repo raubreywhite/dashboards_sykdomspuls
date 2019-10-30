@@ -102,7 +102,7 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
     syndromeOrConsult = "syndrome",
     denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
-    namesLong = "Mage-tarm diagnose",
+    namesLong = "Mage-tarminfeksjoner",
     namesShort = "Mage-tarm",
     include_as_syndromes = TRUE
   ),
@@ -116,7 +116,7 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
     syndromeOrConsult = "syndrome",
     denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
-    namesLong = "\u00D8vre-luftvei diagnose",
+    namesLong = "Luftveisinfeksjoner",
     namesShort = "Luftvei",
     include_as_syndromes = TRUE
   ),
@@ -130,7 +130,7 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
     syndromeOrConsult = "syndrome",
     denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
-    namesLong = "\u00D8vre-luftvei diagnose",
+    namesLong = "Luftveisinfeksjoner",
     namesShort = "Luftvei",
     include_as_syndromes = TRUE
   ),

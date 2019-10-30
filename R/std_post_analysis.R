@@ -33,8 +33,8 @@ clean_post_analysis <- function(res, stack) {
   res[stack, on = "uuid", granularity_geo := granularity_geo]
   res[stack, on = "uuid", v := v]
 
-  # make threshold2 minimum of 2 and threshold4 minimum of 3
-  res[threshold2 < 2, threshold2 := 2]
+  # make threshold2 minimum of 2.5 and threshold4 minimum of 3
+  res[threshold2 < 2.5, threshold2 := 2.5]
   res[threshold4 < 3, threshold4 := 3]
 
   # create "normal", "medium", "high" categories
