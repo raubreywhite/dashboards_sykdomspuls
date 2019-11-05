@@ -10,7 +10,7 @@ Maintainer: Richard White <w@rwhite.no>
 Description: https://www.fhi.no/en/hn/statistics/NorSySS/.
 URL: https://folkehelseinstituttet.github.io/dashboards_sykdomspuls/
 BugReports: https://github.com/folkehelseinstituttet/dashboards_sykdomspuls/issues/
-Depends: R (>= 3.4.0)
+Depends: R (>= 3.5.0)
 Imports:
   glm2,
   stringr,
