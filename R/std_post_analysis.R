@@ -42,11 +42,11 @@ clean_post_analysis <- function(res, stack) {
 
   # adding in extra information
   # add location name
-  res[fhidata::norway_locations_long_current, on = "location_code==location_code", location_name := location_name]
+  res[fd::norway_locations_long(), on = "location_code==location_code", location_name := location_name]
   res[is.na(location_name), location_name := "Norge"]
 
   # add county
-  res[fhidata::norway_locations_current, on = "location_code==municip_code", county_code := county_code]
+  res[fd::norway_locations(), on = "location_code==municip_code", county_code := county_code]
   res[is.na(county_code), county_code := location_code]
 
   # cleaning on small municipalities
