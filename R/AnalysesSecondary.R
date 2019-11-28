@@ -103,7 +103,7 @@ AnalyseLog <- function() {
 
 
 AggregateAlertsCases <- function(data) {
-  pop <- fhidata::norway_population_current
+  pop <- fd::norway_population()
   current_year <- max(data[, year])
 
   pop_cats <- list(c(0, 10000), c(10000, 100000), c(100000, 6000000))

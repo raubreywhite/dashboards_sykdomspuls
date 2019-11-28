@@ -9,7 +9,7 @@ GenFakeDataRaw <- function(xmunicipEnd = "municip5054") {
   syndromeOrConsult <- NULL
   age <- NULL
 
-  m <- fhidata::norway_municip_merging
+  m <- fd::norway_municip_merging()
   skeleton <- unique(m[municip_code_current == xmunicipEnd & year <= lubridate::year(lubridate::today()), c("municip_code_original", "year")])
   setnames(skeleton, "municip_code_original", "municip")
 
@@ -49,7 +49,7 @@ ValidateDataRaw <- function(d) {
   n <- VARS$REQ_DATA_RAW[!VARS$REQ_DATA_RAW %in% names(d)]
   if (length(n) > 0) {
     for (i in n) {
-      fhi::DashboardMsg(sprintf("%s not in names(d)", i))
+      fd::msg(sprintf("%s not in names(d)", i))
     }
     return(FALSE)
   }
@@ -58,9 +58,9 @@ ValidateDataRaw <- function(d) {
   n <- names(d)[!names(d) %in% VARS$REQ_DATA_RAW]
   if (sum(!names(d) %in% VARS$REQ_DATA_RAW) > 0) {
     for (i in n) {
-      fhi::DashboardMsg(sprintf("%s not in VARS$REQ_DATA_RAW", i))
+      fd::msg(sprintf("%s not in VARS$REQ_DATA_RAW", i))
     }
-    fhi::DashboardMsg("Variables in names(d) not in VARS$REQ_DATA_RAW", type = "warn")
+    fd::msg("Variables in names(d) not in VARS$REQ_DATA_RAW", type = "warn")
   }
 
   return(TRUE)

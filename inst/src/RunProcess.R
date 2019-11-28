@@ -16,7 +16,7 @@ if(!fd::config$is_production) Sys.setenv(ONLY_RUN_LATEST_YEAR=TRUE)
 
 fhi::Log("cleanBefore")
 if (!UpdateData()) {
-   fhi::DashboardMsg("Have not run analyses and exiting")
+   fd::msg("Have not run analyses and exiting")
    q(save = "no", status = 21)
 }
 DeleteOldDatasets()

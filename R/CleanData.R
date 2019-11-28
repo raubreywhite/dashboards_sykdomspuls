@@ -9,8 +9,8 @@
 #' @export CleanData
 CleanData <- function(d,
                       syndrome,
-                      population = fhidata::norway_population_current,
-                      hellidager = fread(system.file("extdata", "DatoerMedHelligdager.txt", package = "sykdomspuls"))[, c("Dato", "HelligdagIndikator"), with = FALSE],
+                      population = fd::norway_population(),
+                      hellidager = fhidata::norway_dates_holidays,
                       testIfHelligdagIndikatorFileIsOutdated = TRUE,
                       removeMunicipsWithoutConsults = FALSE) {
   # variables used in data.table functions in this function
@@ -57,7 +57,7 @@ CleanData <- function(d,
   # end population fix
 
   if (!ValidateDataRaw(d)) {
-    fhi::DashboardMsg("RAW data not validated", type = "err")
+    fd::msg("RAW data not validated", type = "err", slack = TRUE)
   }
 
   if (!"IDate" %in% class(d$date)) {
@@ -88,7 +88,7 @@ CleanData <- function(d,
     d[, total := NULL]
     skeleton <-
       data.table(expand.grid(
-        municip = unique(fhidata::norway_municip_merging[municip_code_current %in% unique(d$municip) |
+        municip = unique(fd::norway_municip_merging()[municip_code_current %in% unique(d$municip) |
           municip_code_original %in% unique(d$municip)]$municip_code_original),
         unique(d$age),
         seq.Date(dateMin, dateMax, 1)
@@ -96,7 +96,7 @@ CleanData <- function(d,
   } else {
     skeleton <-
       data.table(expand.grid(
-        municip = unique(fhidata::norway_municip_merging$municip_code_original),
+        municip = unique(fd::norway_municip_merging()$municip_code_original),
         unique(d$age),
         seq.Date(dateMin, dateMax, 1)
       ))
@@ -140,19 +140,30 @@ CleanData <- function(d,
   dim(data)
   data <-
     merge(data,
-      fhidata::norway_municip_merging[, c("municip_code_original", "year", "municip_code_current")],
+      fd::norway_municip_merging()[, c("municip_code_original", "year", "municip_code_current", "weighting")],
       by.x = c("municip", "year"),
       by.y = c("municip_code_original", "year"),
-      all.x = T
+      all.x = T,
+      allow.cartesian = T
     )
   dim(data)
   data <- data[!is.na(municip_code_current)]
+
+  # apply the weighting
+  for(i in syndromeAndConsult){
+    data[,(i) := get(i) * weighting]
+  }
 
   data <- data[!is.na(municip_code_current),
     lapply(.SD, sum),
     keyby = .(municip_code_current, year, age, date),
     .SDcols = c(syndromeAndConsult)
   ]
+
+  # apply ceiling to ensure we have whole numbers after weighting
+  for(i in syndromeAndConsult){
+    data[,(i) := ceiling(get(i))]
+  }
   dim(data)
   setnames(data, "municip_code_current", "municip")
 
@@ -165,11 +176,11 @@ CleanData <- function(d,
   n2 <- nrow(data)
 
   if (n1 != n2) {
-    fhi::DashboardMsg("Population file not merging correctly", type = "err")
+    fd::msg("Population file not merging correctly", type = "err", slack=T)
   }
 
   # merging in municipalitiy-fylke names
-  data[fhidata::norway_locations_current, on = "municip==municip_code", county := county_code]
+  data[fd::norway_locations(), on = "municip==municip_code", county := county_code]
 
   for (i in syndromeAndConsult) {
     data[is.na(get(i)), (i) := 0]
@@ -182,11 +193,10 @@ CleanData <- function(d,
   hellidager[, date := data.table::as.IDate(date)]
   if (testIfHelligdagIndikatorFileIsOutdated &
     lubridate::today() > max(hellidager$date)) {
-    fhi::DashboardMsg("HELLIGDAGER NEEDS UPDATING", type = "err")
+    fd::msg("HELLIGDAGER NEEDS UPDATING", type = "err", slack=T)
   }
-  dim(data)
-  data <- merge(data, hellidager, by = "date")
-  dim(data)
+  data[hellidager, on="date", HelligdagIndikator:=HelligdagIndikator]
+  data[is.na(HelligdagIndikator),HelligdagIndikator:=FALSE]
 
   data[, year := NULL]
 
