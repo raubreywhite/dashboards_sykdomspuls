@@ -150,8 +150,8 @@ CleanData <- function(d,
   data <- data[!is.na(municip_code_current)]
 
   # apply the weighting
-  for(i in syndromeAndConsult){
-    data[,(i) := get(i) * weighting]
+  for (i in syndromeAndConsult) {
+    data[, (i) := get(i) * weighting]
   }
 
   data <- data[!is.na(municip_code_current),
@@ -161,8 +161,8 @@ CleanData <- function(d,
   ]
 
   # apply ceiling to ensure we have whole numbers after weighting
-  for(i in syndromeAndConsult){
-    data[,(i) := ceiling(get(i))]
+  for (i in syndromeAndConsult) {
+    data[, (i) := ceiling(get(i))]
   }
   dim(data)
   setnames(data, "municip_code_current", "municip")
@@ -176,7 +176,7 @@ CleanData <- function(d,
   n2 <- nrow(data)
 
   if (n1 != n2) {
-    fd::msg("Population file not merging correctly", type = "err", slack=T)
+    fd::msg("Population file not merging correctly", type = "err", slack = T)
   }
 
   # merging in municipalitiy-fylke names
@@ -193,10 +193,10 @@ CleanData <- function(d,
   hellidager[, date := data.table::as.IDate(date)]
   if (testIfHelligdagIndikatorFileIsOutdated &
     lubridate::today() > max(hellidager$date)) {
-    fd::msg("HELLIGDAGER NEEDS UPDATING", type = "err", slack=T)
+    fd::msg("HELLIGDAGER NEEDS UPDATING", type = "err", slack = T)
   }
-  data[hellidager, on="date", HelligdagIndikator:=HelligdagIndikator]
-  data[is.na(HelligdagIndikator),HelligdagIndikator:=FALSE]
+  data[hellidager, on = "date", HelligdagIndikator := HelligdagIndikator]
+  data[is.na(HelligdagIndikator), HelligdagIndikator := FALSE]
 
   data[, year := NULL]
 
