@@ -30,7 +30,7 @@ GLOBAL$dateMinRestrictedLine <- GLOBAL$dateMax - 365 * 15
 
 GLOBAL$outbreaksyrwk <- GLOBAL$weeklyyrwk <- rev(fhidata::days[yrwk<=fhi::isoyearweek(GLOBAL$dateMax)]$yrwk)[1:20]
 
-vals <- unique(fhidata::norway_locations_current[,c("county_code","county_name")])
+vals <- unique(fd::norway_locations()[,c("county_code","county_name")])
 GLOBAL$weeklyCounties <- c("Norge", vals$county_code)
 names(GLOBAL$weeklyCounties) <- c("Norge", vals$county_name)
 
@@ -38,8 +38,8 @@ CONFIG_OLD <- ConvertConfigForAPI()
 GLOBAL$weeklyTypes <- GLOBAL$dailyTypes <- CONFIG_OLD$SYNDROMES[CONFIG_OLD$SYNDROMES %in% CONFIG$STANDARD[websiteInternal == TRUE]$tag]
 GLOBAL$weeklyAges <- GLOBAL$dailyAges <- CONFIG_OLD$AGES
 
-vals <- fhidata::norway_locations_long_current[location_code!="norway"]
-vals[fhidata::norway_locations_current,on="location_code==municip_code",county_code:=county_code]
+vals <- fd::norway_locations_long()[location_code!="norway"]
+vals[fd::norway_locations(),on="location_code==municip_code",county_code:=county_code]
 vals[is.na(county_code),county_code:=location_code]
 vals[location_code=="norge",location_code:="Norge"]
 vals[location_code=="norge",county_code:="Norge"]
@@ -58,7 +58,7 @@ Getlocation_name <- function(location) {
   locationHTML <- "Norge"
   
   if (location != "Norge") {
-    location_name <- fhidata::norway_locations_long_current[location_code==location]$location_name
+    location_name <- fd::norway_locations_long()[location_code==location]$location_name
   }
   
   return(location_name)
@@ -189,7 +189,7 @@ weeklyBarometerPlotData <- reactive({
 })
 
 MakeBarometerPlot <- function(pd, title, GetCols){
-  location_nameOrder <- fhidata::norway_locations_long_current$location_name[fhidata::norway_locations_long_current$location_name %in% unique(pd$location_name)]
+  location_nameOrder <- fd::norway_locations_long()$location_name[fd::norway_locations_long()$location_name %in% unique(pd$location_name)]
   location_nameOrder <- c("1 uke",rev(unique(location_nameOrder))," 1 uke")
   
   skeleton <- data.table(expand.grid(seq(min(pd$date)-6,max(pd$date),by=1),location_nameOrder,stringsAsFactors = FALSE))
@@ -591,7 +591,7 @@ weeklyMunicipChoices <- reactive({
   if (input$weeklyCounty == "Norge") {
     return("Norge")
   } else {
-    data <- fhidata::norway_locations_current[county_code==input$weeklyCounty]
+    data <- fd::norway_locations()[county_code==input$weeklyCounty]
     x <- data$municip_code
     names(x) <- data$municip_name
     
