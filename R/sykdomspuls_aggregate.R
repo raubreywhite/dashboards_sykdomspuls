@@ -1,18 +1,18 @@
 takstkoder <- list(
-  "11ad"="Legekontakt",
-  "11ak"="Legekontakt",
-  "1ad"="Telefonkontakt",
-  "1ak"="Telefonkontakt",
-  "1bd"="Telefonkontakt",
-  "1bk"="Telefonkontakt",
-  "1g"="Telefonkontakt",
-  "1h"="Telefonkontakt",
-  "2ad"="Legekontakt",
-  "2ae"="Telefonkontakt",
-  "2ak"="Legekontakt",
-  "2fk"="Legekontakt"
+  "11ad" = "Legekontakt",
+  "11ak" = "Legekontakt",
+  "1ad" = "Telefonkontakt",
+  "1ak" = "Telefonkontakt",
+  "1bd" = "Telefonkontakt",
+  "1bk" = "Telefonkontakt",
+  "1g" = "Telefonkontakt",
+  "1h" = "Telefonkontakt",
+  "2ad" = "Legekontakt",
+  "2ae" = "Telefonkontakt",
+  "2ak" = "Legekontakt",
+  "2fk" = "Legekontakt"
 )
-  
+
 
 sykdomspuls_aggregate_format_raw_data <- function(d, configs) {
   d[, influensa := 0]
@@ -58,15 +58,14 @@ sykdomspuls_aggregate_format_raw_data <- function(d, configs) {
 
   ### Praksis
 
-  d[Praksis == "Fastl\u00F8nnet", Praksis:="Fastlege"]
-  d[Praksis == "kommunal legevakt", Praksis:="Legevakt"]
+  d[Praksis == "Fastl\u00F8nnet", Praksis := "Fastlege"]
+  d[Praksis == "kommunal legevakt", Praksis := "Legevakt"]
 
 
-  d[, Kontaktype:="Ukjent"]
+  d[, Kontaktype := "Ukjent"]
   ### Kontaktkode
-  for(takstkode in names(takstkoder)){
-    d[ Takst == takstkode, Kontaktype:=takstkoder[takstkode]]
-
+  for (takstkode in names(takstkoder)) {
+    d[ Takst == takstkode, Kontaktype := takstkoder[takstkode]]
   }
 
   d[, age := "Ukjent"]
@@ -132,7 +131,6 @@ sykdomspuls_aggregate_format_raw_data <- function(d, configs) {
     Konsultasjonsdato,
     Praksis,
     Kontaktype
-    
   )
   ]
 
