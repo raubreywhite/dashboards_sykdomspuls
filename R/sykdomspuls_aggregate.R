@@ -58,7 +58,7 @@ sykdomspuls_aggregate_format_raw_data <- function(d, configs) {
 
   ### Praksis
 
-  d[Praksis == "Fastlønnet", Praksis:="Fastlege"]
+  d[Praksis == "Fastl\u00F8nnet", Praksis:="Fastlege"]
   d[Praksis == "kommunal legevakt", Praksis:="Legevakt"]
 
 
