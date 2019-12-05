@@ -78,7 +78,7 @@ standard <- R6::R6Class(
         ) %>%
         dplyr::collect() %>%
         fd::latin1_to_utf8()
-      d[location_code=="norge", location_code:="Norge"]
+      d[location_code == "norge", location_code := "Norge"]
 
       d[, type := tag]
       d[, HelligdagIndikator := 0]
@@ -111,7 +111,7 @@ standard <- R6::R6Class(
         ) %>%
         dplyr::collect() %>%
         fd::latin1_to_utf8()
-      dk[location_code=="norge", location_code:="Norge"]
+      dk[location_code == "norge", location_code := "Norge"]
 
       dk[, type := tag]
       dk[, HelligdagIndikator := 0]
@@ -141,7 +141,7 @@ standard <- R6::R6Class(
         ) %>%
         dplyr::collect() %>%
         fd::latin1_to_utf8()
-      df[location_code=="norge", location_code:="Norge"]
+      df[location_code == "norge", location_code := "Norge"]
 
       df[, type := tag]
       df[, HelligdagIndikator := 0]
