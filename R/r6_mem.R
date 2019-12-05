@@ -86,7 +86,7 @@ run_all_mem <- function(conf, mem_schema, mem_limits_schema) {
     data[, season := fhi::season(yrwk)]
 
     # National
-    national <- data[location_code == "Norge",
+    national <- data[location_code == "norge",
       .(
         n = sum(n),
         denominator = get(conf$weeklyDenominatorFunction)(get(conf$denominator))
