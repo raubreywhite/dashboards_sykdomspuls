@@ -97,7 +97,7 @@ load_stack_schema <- function(conf, data, schema) {
 
   counties <- data[granularity_geo == "municip", unique(county_code)]
   municips <- data[granularity_geo == "municip", unique(location_code)]
-  locations <- c("Norge", counties, municips)
+  locations <- c("norge", counties, municips)
 
   ages <- unique(data$age)
 
@@ -114,7 +114,7 @@ load_stack_schema <- function(conf, data, schema) {
     expand.grid(
       tag = conf$tag,
       denominator = conf$denominator,
-      location_code = c("Norge", counties),
+      location_code = c("norge", counties),
       age = ages,
       year_index = 1:length(years),
       granularity_time = c("daily", "weekly"),
@@ -126,7 +126,7 @@ load_stack_schema <- function(conf, data, schema) {
   analysesCounties[, file := sprintf("%s_%s.RDS", "resRecentLine", tag)]
   analysesCounties[granularity_time == "weekly", file := sprintf("%s_%s.RDS", "resYearLine", tag)]
   analysesCounties[, granularity_geo := "county"]
-  analysesCounties[location_code == "Norge", granularity_geo := "national"]
+  analysesCounties[location_code == "norge", granularity_geo := "national"]
 
   # setting control stack for municipalities
   analysesMunicips <- data.table(
