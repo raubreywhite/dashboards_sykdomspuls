@@ -250,7 +250,7 @@ CleanData <- function(d,
     pop = sum(pop)
   ), keyby = .(age, date)]
 
-  norge[, location := "Norge"]
+  norge[, location := "norge"]
   norge[, county := location]
   norge[, granularityGeo := "national"]
 
