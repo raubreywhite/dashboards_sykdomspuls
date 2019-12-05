@@ -78,6 +78,7 @@ standard <- R6::R6Class(
         ) %>%
         dplyr::collect() %>%
         fd::latin1_to_utf8()
+      d[location_code=="norge", location_code:="Norge"]
 
       d[, type := tag]
       d[, HelligdagIndikator := 0]
@@ -110,6 +111,7 @@ standard <- R6::R6Class(
         ) %>%
         dplyr::collect() %>%
         fd::latin1_to_utf8()
+      dk[location_code=="norge", location_code:="Norge"]
 
       dk[, type := tag]
       dk[, HelligdagIndikator := 0]
@@ -139,6 +141,8 @@ standard <- R6::R6Class(
         ) %>%
         dplyr::collect() %>%
         fd::latin1_to_utf8()
+      df[location_code=="norge", location_code:="Norge"]
+
       df[, type := tag]
       df[, HelligdagIndikator := 0]
       df[, file := "x"]
@@ -167,40 +171,6 @@ standard <- R6::R6Class(
       )
       saveRDS(outbreaks, fd::path("results", "externalapi", "outbreaks.RDS"), version = 2)
     },
-    email_external = function() {
-      fd::msg("Generating external outbreak alerts")
-
-      val <- tags[[1]]$results_x$dplyr_tbl() %>%
-        dplyr::summarize(yrwk = max(yrwk, na.rm = T)) %>%
-        dplyr::collect() %>%
-        fd::latin1_to_utf8()
-
-      val <- val$yrwk
-
-      d <- tags[[1]]$results_x$dplyr_tbl() %>%
-        dplyr::filter(
-          granularity_time == "weekly" &
-            yrwk == val
-        ) %>%
-        dplyr::collect() %>%
-        fd::latin1_to_utf8()
-
-      GenerateOutbreakListExternal(
-        df = d[granularity_geo != "municip"],
-        dk = d[granularity_geo == "municip"],
-        saveFiles = fd::path("results", latest_date(), "outbreaks_alert_external.RDS")
-      )
-
-      fd::msg("Sending external emails")
-      send_email <- fd::perform_weekly_action(
-        file = fd::path("config", "email_external.txt"),
-        dev_always_performs = TRUE
-      )
-
-      if (send_email) {
-        try(EmailExternal(), TRUE)
-      }
-    },
     email_internal = function() {
       try(EmailTechnicalNewResults(), TRUE)
     },
@@ -223,95 +193,7 @@ standard <- R6::R6Class(
       run_analysis()
       save_latest_data(years = 2)
       save_external_api()
-      # std_alerts_pdf(results_x = tags[[1]]$results_x)
-      # email_external()
-      # email_internal()
       restart_shiny_server()
     }
   )
 )
-
-#' std_alerts_pdf
-#' @param results_x a
-#' @export
-std_alerts_pdf <- function(results_x) {
-  fd::msg("Creating alerts pdf", slack = T)
-
-  val <- fd::tbl("spuls_standard_results") %>%
-    dplyr::summarize(yrwk = max(yrwk, na.rm = T)) %>%
-    dplyr::collect() %>%
-    fd::latin1_to_utf8()
-  max_yrwk <- val$yrwk
-
-  d <- fd::tbl("spuls_standard_results") %>%
-    dplyr::filter(granularity_time == "weekly") %>%
-    dplyr::filter(granularity_geo == "municip") %>%
-    dplyr::filter(yrwk == !!max_yrwk) %>%
-    dplyr::filter(status == "High") %>%
-    dplyr::collect() %>%
-    fd::latin1_to_utf8()
-
-  if (nrow(d) == 0) {
-    return()
-  }
-
-  d <- unique(d[, c("tag", "location_code", "location_name")])
-  d[CONFIG$MODELS$standard, on = "tag", name_short := namesShort]
-  d[CONFIG$MODELS$standard, on = "tag", name_long := namesLong]
-  d[, output_file := glue::glue(
-    "{name_short}_{location_name}.pdf",
-    name_short = name_short,
-    location_name = location_name
-  )]
-  d[, output_dir := fd::path("results", latest_date(), "standard", "alert_pdfs")]
-  d[, attachment := fs::path(output_dir, output_file)]
-
-  for (i in 1:nrow(d)) {
-    Sys.sleep(1)
-
-    input <- system.file("extdata", "alert.Rmd", package = "sykdomspuls")
-
-    output_file <- d$output_file[i]
-    output_dir <- d$output_dir[i]
-    location_code <- d$location_code[i]
-    tag <- d$tag[i]
-    name_long <- d$name_long[i]
-
-    fhi::RenderExternally(
-      input = input,
-      output_file = output_file,
-      output_dir = output_dir,
-      params = as.character(glue::glue(
-        "location_code=\"{location_code}\",",
-        "tag=\"{tag}\",",
-        "name_long=\"{name_long}\""
-      ))
-    )
-  }
-
-  tab <- huxtable::hux(
-    Syndrom = d$name_long,
-    Kommunenavn = d$location_name,
-    Kommunenummer = d$location_code,
-    file = d$output_file
-  ) %>%
-    huxtable::add_colnames() %>%
-    huxtable::theme_basic() %>%
-    huxtable::to_html()
-
-  html <- glue::glue(
-    "Please find attached sykdomspuls alert pdfs.<br>",
-    "These are the municipalities with at least one z-score above 4<br><br>",
-    "{tab}"
-  )
-
-  attachments <- d$attachment
-  if (length(attachments) > 10) attachments <- attachments[1:10]
-
-  fd::mailgun(
-    subject = "Sykdomspuls alert pdfs",
-    html = html,
-    bcc = fd::e_emails("sykdomspuls_emerg"),
-    attachments = attachments
-  )
-}
