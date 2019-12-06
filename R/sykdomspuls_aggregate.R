@@ -148,12 +148,13 @@ sykdomspuls_aggregate_format_raw_data <- function(d, configs) {
 #' @param date_to a
 #' @param folder a
 #' @param ages a
+#' @param overwrite_file a
 #' @param ... a
 #' @import data.table
 #' @export
 sykdomspuls_aggregate <- function(
                                   date_from = "2018-01-01",
-                                  date_to = format(Sys.time(), "%Y-%m-%d"),
+                                  date_to = lubridate::today(),
                                   folder = "/mount/work/projects/",
                                   ages = c(
                                     "0-4" = "0-4",
@@ -169,7 +170,23 @@ sykdomspuls_aggregate <- function(
                                     "70-79" = "65+",
                                     "80+" = "65+"
                                   ),
+                                  overwrite_file = FALSE,
                                   ...) {
+
+  file_name <- paste0("partially_formatted_", format(Sys.time(), "%Y_%m_%d"), ".txt")
+  file_temp <- fs::path(fhi::temp_dir(), file_name)
+  file_permanent <- fs::path(folder, file_name)
+
+  if(overwrite_file==FALSE) if(file.exists(file_permanent)){
+    x <- fread(file_permanent)
+    max_date <- as.Date(max(d$Konsultasjonsdato, na.rm=T))
+    # as long as last date in the file is within 2 days of the requested date
+    if(abs(as.numeric(difftime(date_to,max_date,units="days"))) <= 2){
+      fd::msg("file already exists! exiting...", slack=T)
+      return()
+    }
+  }
+
   db <- RODBC::odbcDriverConnect("driver={ODBC Driver 17 for SQL Server};server=dm-prod;database=SykdomspulsenAnalyse; trusted_connection=yes")
 
   # calculate dates
@@ -178,7 +195,7 @@ sykdomspuls_aggregate <- function(
   datesToExtract <- datesToExtract[from <= date_to]
 
   # predefine storage of results
-  pb <- utils::txtProgressBar(min = 1, max = nrow(datesToExtract), style = 3)
+  pb <- fhi::txt_progress_bar(min = 1, max = nrow(datesToExtract))
   for (i in 1:nrow(datesToExtract)) {
     command <- paste0(
       "select Id,Diagnose,PasientAlder,PasientKommune,BehandlerKommune,Konsultasjonsdato,Takst,Praksis from Konsultasjon join KonsultasjonDiagnose on Id=KonsultasjonId join KonsultasjonTakst on Id=KonsultasjonTakst.KonsultasjonId where Konsultasjonsdato >='",
@@ -191,11 +208,13 @@ sykdomspuls_aggregate <- function(
     d <- data.table(d)
     d <- sykdomspuls_aggregate_format_raw_data(d)
     if (i == 1) {
-      utils::write.table(d, paste0("partially_formatted_", format(Sys.time(), "%Y_%m_%d"), ".txt"), sep = "\t", row.names = FALSE, col.names = TRUE, append = FALSE)
+      utils::write.table(d, file_temp, sep = "\t", row.names = FALSE, col.names = TRUE, append = FALSE)
     } else {
-      utils::write.table(d, paste0("partially_formatted_", format(Sys.time(), "%Y_%m_%d"), ".txt"), sep = "\t", row.names = FALSE, col.names = FALSE, append = TRUE)
+      utils::write.table(d, file_temp, sep = "\t", row.names = FALSE, col.names = FALSE, append = TRUE)
     }
     utils::setTxtProgressBar(pb, i)
   }
   close(pb)
+
+  file.rename(from = file_temp, to = file_permanent)
 }
