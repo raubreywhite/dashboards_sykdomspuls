@@ -31,7 +31,7 @@ GLOBAL$dateMinRestrictedLine <- GLOBAL$dateMax - 365 * 15
 GLOBAL$outbreaksyrwk <- GLOBAL$weeklyyrwk <- rev(fhidata::days[yrwk<=fhi::isoyearweek(GLOBAL$dateMax)]$yrwk)[1:20]
 
 vals <- unique(fd::norway_locations()[,c("county_code","county_name")])
-GLOBAL$weeklyCounties <- c("Norge", vals$county_code)
+GLOBAL$weeklyCounties <- c("norge", vals$county_code)
 names(GLOBAL$weeklyCounties) <- c("Norge", vals$county_name)
 
 CONFIG_OLD <- ConvertConfigForAPI()
@@ -41,8 +41,6 @@ GLOBAL$weeklyAges <- GLOBAL$dailyAges <- CONFIG_OLD$AGES
 vals <- fd::norway_locations_long()[location_code!="norway"]
 vals[fd::norway_locations(),on="location_code==municip_code",county_code:=county_code]
 vals[is.na(county_code),county_code:=location_code]
-vals[location_code=="norge",location_code:="Norge"]
-vals[location_code=="norge",county_code:="Norge"]
 
 GLOBAL$municipToCounty <- vals
 
@@ -458,9 +456,9 @@ weeklyPlotData <- reactive({
   if (is.null(input$weeklyCounty) | is.null(input$weeklyMunicip)) {
     x_tbl <- "spuls_standard_results"
     x_tag <- GLOBAL$weeklyTypes[1]
-    x_location <- "Norge"
+    x_location <- "norge"
     x_age <- "Totalt"
-  } else if (input$weeklyMunicip %in% c("Norge", "Fylke")) {
+  } else if (input$weeklyMunicip %in% c("norge", "Fylke")) {
     x_tbl <- "spuls_standard_results"
     x_tag <- input$weeklyType
     x_location <- input$weeklyCounty
@@ -588,8 +586,8 @@ selectInput("weeklyCounty", "Fylke", as.list(GLOBAL$weeklyCounties), selected = 
 weeklyMunicipChoices <- reactive({
   if (is.null(input$weeklyCounty))
     return(NULL)
-  if (input$weeklyCounty == "Norge") {
-    return("Norge")
+  if (input$weeklyCounty == "norge") {
+    return(list("Norge"="norge"))
   } else {
     data <- fd::norway_locations()[county_code==input$weeklyCounty]
     x <- data$municip_code

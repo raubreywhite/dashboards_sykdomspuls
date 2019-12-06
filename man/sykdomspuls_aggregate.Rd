@@ -5,11 +5,11 @@
 \title{sykdomspuls_aggregate}
 \usage{
 sykdomspuls_aggregate(date_from = "2018-01-01",
-  date_to = format(Sys.time(), "\%Y-\%m-\%d"),
-  folder = "/mount/work/projects/", ages = c(`0-4` = "0-4", `5-14` =
-  "5-9", `5-14` = "10-14", `15-19` = "15-19", `20-29` = "20-29", `30-64` =
-  "30-39", `30-64` = "40-49", `30-64` = "50-59", `30-64` = "60-64", `65-69`
-  = "65+", `70-79` = "65+", `80+` = "65+"), ...)
+  date_to = lubridate::today(), folder = "/mount/work/projects/",
+  ages = c(`0-4` = "0-4", `5-14` = "5-9", `5-14` = "10-14", `15-19` =
+  "15-19", `20-29` = "20-29", `30-64` = "30-39", `30-64` = "40-49", `30-64`
+  = "50-59", `30-64` = "60-64", `65-69` = "65+", `70-79` = "65+", `80+` =
+  "65+"), overwrite_file = FALSE, ...)
 }
 \arguments{
 \item{date_from}{a}
@@ -19,6 +19,8 @@ sykdomspuls_aggregate(date_from = "2018-01-01",
 \item{folder}{a}
 
 \item{ages}{a}
+
+\item{overwrite_file}{a}
 
 \item{...}{a}
 }
