@@ -172,18 +172,19 @@ sykdomspuls_aggregate <- function(
                                   ),
                                   overwrite_file = FALSE,
                                   ...) {
-
   file_name <- paste0("partially_formatted_", format(Sys.time(), "%Y_%m_%d"), ".txt")
   file_temp <- fs::path(fhi::temp_dir(), file_name)
   file_permanent <- fs::path(folder, file_name)
 
-  if(overwrite_file==FALSE) if(file.exists(file_permanent)){
-    x <- fread(file_permanent)
-    max_date <- as.Date(max(d$Konsultasjonsdato, na.rm=T))
-    # as long as last date in the file is within 2 days of the requested date
-    if(abs(as.numeric(difftime(date_to,max_date,units="days"))) <= 2){
-      fd::msg("file already exists! exiting...", slack=T)
-      return()
+  if (overwrite_file == FALSE) {
+    if (file.exists(file_permanent)) {
+      x <- fread(file_permanent)
+      max_date <- as.Date(max(d$Konsultasjonsdato, na.rm = T))
+      # as long as last date in the file is within 2 days of the requested date
+      if (abs(as.numeric(difftime(date_to, max_date, units = "days"))) <= 2) {
+        fd::msg("file already exists! exiting...", slack = T)
+        return()
+      }
     }
   }
 
