@@ -157,9 +157,9 @@ weeklyBarometerPlotData <- reactive({
     retData <- pool %>% tbl(x_table) %>%
         filter(tag == x_tag &
                granularity_time == "weekly" &
-               (granularity_geo == "county" | granularity_geo == "Norge") &
+               (granularity_geo == "county" | granularity_geo == "national") &
                age==x_age) %>% collect()
-  } else if(input$weeklyBarometerCounty=="Norge"){
+  } else if(input$weeklyBarometerCounty=="norge"){
     x_table <- "spuls_standard_results"
     x_tag <- input$weeklyBarometerType
     x_age <- input$weeklyBarometerAge
@@ -167,7 +167,7 @@ weeklyBarometerPlotData <- reactive({
     retData <- pool %>% tbl(x_table) %>%
       filter(tag == x_tag &
                granularity_time == "weekly" &
-               (granularity_geo == "county" | granularity_geo == "Norge") &
+               (granularity_geo == "county" | granularity_geo == "national") &
                age==x_age) %>% collect()
   } else {
     x_table <- "spuls_standard_results"
