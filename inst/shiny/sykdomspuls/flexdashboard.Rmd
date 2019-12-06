@@ -587,7 +587,7 @@ weeklyMunicipChoices <- reactive({
   if (is.null(input$weeklyCounty))
     return(NULL)
   if (input$weeklyCounty == "norge") {
-    return("norge")
+    return(list("Norge"="norge"))
   } else {
     data <- fd::norway_locations()[county_code==input$weeklyCounty]
     x <- data$municip_code
