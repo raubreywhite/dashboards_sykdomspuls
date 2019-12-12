@@ -68,10 +68,15 @@ sykdomspuls_aggregate_format_raw_data <- function(d, configs) {
     d[ Takst == takstkode, Kontaktype := takstkoder[takstkode]]
   }
 
+  dups <- d[, .(n_diff=length(unique(Kontaktype))), by=.(Id)]
+  d <- d[ !(Id %in% dups[n_diff>=2, Id] & Kontaktype=="Telefonkontakt")]
+  
   d[, age := "Ukjent"]
   d[PasientAlder == "0-4", age := "0-4"]
   d[PasientAlder == "5-9", age := "5-14"]
+  d[PasientAlder == "0-9", age := "5-14"]
   d[PasientAlder == "10-14", age := "5-14"]
+  d[PasientAlder == "10-19", age := "15-19"]
   d[PasientAlder == "15-19", age := "15-19"]
   d[PasientAlder == "20-29", age := "20-29"]
   d[PasientAlder == "30-39", age := "30-64"]
@@ -79,6 +84,7 @@ sykdomspuls_aggregate_format_raw_data <- function(d, configs) {
   d[PasientAlder == "50-59", age := "30-64"]
   d[PasientAlder == "60-64", age := "30-64"]
   d[PasientAlder == "65-69", age := "65+"]
+  d[PasientAlder == "60-69", age := "65+"]
   d[PasientAlder == "70-79", age := "65+"]
   d[PasientAlder == "80+", age := "65+"]
 
@@ -216,6 +222,24 @@ sykdomspuls_aggregate <- function(
     utils::setTxtProgressBar(pb, i)
   }
   close(pb)
+  system(glue::glue("mv {file_temp} {file_permanent}"))
+}
 
-  file.rename(from = file_temp, to = file_permanent)
+#' get_n_doctors
+#'
+#' A function to extract the number of doctors per week
+
+#' @param folder a
+#' @import data.table
+#' @export
+get_n_doctors <- function(folder){
+  db <- RODBC::odbcDriverConnect("driver={ODBC Driver 17 for SQL Server};server=dm-prod;database=SykdomspulsenAnalyse; trusted_connection=yes")
+  res <- RODBC::sqlQuery(db, 'select count(distinct(Behandler_Id)) as behandlere, DATEPART("ISO_WEEK", Konsultasjonsdato) as week ,DATEPART("YEAR", Konsultasjonsdato) as year from Konsultasjon group by DATEPART("ISO_WEEK", Konsultasjonsdato) ,DATEPART("YEAR", Konsultasjonsdato)')
+  setDT(res)
+
+  file_permanent <- fs::path(folder, "behandlere.txt")
+  
+  fwrite(res[order(year, week)], file_permanent)
+  close(db)
+
 }
