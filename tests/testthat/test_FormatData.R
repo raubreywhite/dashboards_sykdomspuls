@@ -9,6 +9,7 @@ test_that("Basic Oslo", {
       Kontaktype = c("Legekontakt"),
       Praksis = c("Fastlege"),
       influensa = c(100),
+      influensa_all = c(100),
       gastro = c(100),
       respiratoryinternal = c(100),
       respiratoryexternal = c(100),
