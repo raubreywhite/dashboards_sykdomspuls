@@ -89,7 +89,7 @@ CONFIG$MEM <- rbind(
     excludeSeason = c("2009/2010"),
     mem_outputs = list(c("n_doctors_sheet")),
     icpc2 = list("R80")
-  )## ,
+  ) ## ,
   ## data.table(
   ##   tag = "gastro",
   ##   syndrome = "gastro",
@@ -109,7 +109,7 @@ CONFIG$MEM <- rbind(
   ##   folder_name = "gastro",
   ##   excludeSeason = c(""),
   ##   include_as_syndromes = FALSE
-   
+
   ## ),
   ## data.table(
   ##   tag = "gastro-N",

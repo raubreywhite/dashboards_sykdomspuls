@@ -67,7 +67,7 @@ run_all_mem <- function(conf, mem_schema, mem_limits_schema) {
     }
 
 
-    return_one <- function(x){
+    return_one <- function(x) {
       return(1)
     }
     data <- data[, .(
