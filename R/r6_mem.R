@@ -67,7 +67,9 @@ run_all_mem <- function(conf, mem_schema, mem_limits_schema) {
     }
 
 
-
+    return_one <- function(x){
+      return(1)
+    }
     data <- data[, .(
       n = sum(n),
       consult_without_influenza = sum(consult_without_influenza),
@@ -76,8 +78,6 @@ run_all_mem <- function(conf, mem_schema, mem_limits_schema) {
     ),
     by = c("granularity_geo", "county_code", "location_code", "date", "holiday")
     ]
-
-
 
 
     data[, week := fhi::isoweek_n(date)]
@@ -93,7 +93,6 @@ run_all_mem <- function(conf, mem_schema, mem_limits_schema) {
       ),
       by = .(year, week, yrwk, season)
     ]
-
     mem_national_df <- prepare_data_frame(national, mult_factor = conf$multiplicative_factor)
     mem_results <- run_mem_model(mem_national_df, conf)
     mem_results_db <- mem_results

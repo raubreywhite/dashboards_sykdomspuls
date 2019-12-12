@@ -20,5 +20,8 @@ sykdomspuls_aggregate(
     "70-79" = "65+",
     "80+" = "65+"
   ))
+get_n_doctors(
+  folder = fd::path("data_raw")
+)
 
 fd::msg("sykdomspuls - finished downloading new data", slack = T)

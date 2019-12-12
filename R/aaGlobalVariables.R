@@ -61,33 +61,76 @@ CONFIG$MEM <- rbind(
     multiplicative_factor = 100,
     namesLong = "Influensa",
     include_as_syndromes = TRUE,
+    folder_name = "influensa",
     namesShort = "Influensa",
     excludeSeason = c("2009/2010"),
-    create_plots = TRUE,
+    mem_outputs = list(c("charts", "county_sheet", "region_sheet", "norway_sheet")),
     icpc2 = list("R80")
   ),
   data.table(
-    tag = "influensa-tessy",
-    syndrome = "influensa",
+    tag = "influensa_all",
+    syndrome = "influensa_all",
     alertInternal = TRUE,
     alertExternal = FALSE,
     websiteInternal = TRUE,
-    contactType = list("Legekontakt"),
+    contactType = list(c("Legekontakt", "Telefonkontakt")),
     syndromeOrConsult = "syndrome",
-    denominator = "pop",
+    denominator = "consult_with_influenza",
     age = jsonlite::toJSON(list(
       "0-4" = c("0-4"), "5-14" = c("5-14"),
       "15-64" = c("20-29", "30-64"), "65+" = c("65+")
     )),
-    weeklyDenominatorFunction = "mean",
-    multiplicative_factor = 100000,
-    include_as_syndromes = FALSE,
+    weeklyDenominatorFunction = "sum",
+    multiplicative_factor = 100,
+    include_as_syndromes = TRUE,
+    folder_name = "influensa",
     namesLong = "Influensa",
     namesShort = "Influensa",
     excludeSeason = c("2009/2010"),
-    create_plots = FALSE,
+    mem_outputs = list(c("n_doctors_sheet")),
     icpc2 = list("R80")
-  )
+  )## ,
+  ## data.table(
+  ##   tag = "gastro",
+  ##   syndrome = "gastro",
+  ##   alertInternal = TRUE,
+  ##   alertExternal = TRUE,
+  ##   websiteInternal = TRUE,
+  ##   age = jsonlite::toJSON(list("Totalt" = c("Totalt"), "0-4"=c("0-4"))),
+  ##   icpc2 = list("D13"),
+  ##   multiplicative_factor = 100,
+  ##   mem_outputs=list(c("charts")),
+  ##   contactType = list(c("Legekontakt", "Telefonkontakt")),
+  ##   syndromeOrConsult = "syndrome",
+  ##   denominator = "consult_without_influenza",
+  ##   weeklyDenominatorFunction = "sum",
+  ##   namesLong = "Mage-tarminfeksjoner",
+  ##   namesShort = "Mage-tarm",
+  ##   folder_name = "gastro",
+  ##   excludeSeason = c(""),
+  ##   include_as_syndromes = FALSE
+   
+  ## ),
+  ## data.table(
+  ##   tag = "gastro-N",
+  ##   syndrome = "gastro",
+  ##   alertInternal = TRUE,
+  ##   alertExternal = TRUE,
+  ##   websiteInternal = TRUE,
+  ##   age = jsonlite::toJSON(list("Totalt" = c("Totalt"))),
+  ##   icpc2 = list("D13"),
+  ##   multiplicative_factor = 1,
+  ##   mem_outputs=list(c("charts")),
+  ##   contactType = list(c("Legekontakt", "Telefonkontakt")),
+  ##   syndromeOrConsult = "syndrome",
+  ##   denominator = "consult_without_influenza",
+  ##   weeklyDenominatorFunction = "return_one",
+  ##   namesLong = "Mage-tarminfeksjoner",
+  ##   namesShort = "Mage-tarm",
+  ##   excludeSeason = c(""),
+  ##   folder_name = "gastro-N",
+  ##   include_as_syndromes = FALSE
+  ## )
 )
 
 
@@ -322,7 +365,6 @@ for (model in CONFIG$MODELS) {
     }
   }
 }
-
 
 CONFIG$tagsWithLong <- CONFIG$SYNDROMES$tag
 names(CONFIG$tagsWithLong) <- CONFIG$SYNDROMES$namesLong
