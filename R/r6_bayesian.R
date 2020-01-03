@@ -88,7 +88,7 @@ bayesian <- R6::R6Class(
     },
     run_all = function() {
       stack_x <<- fd::schema$new(
-        db_config = CONFIG$DB_CONFIG,
+        db_config = fd::config$db_config,
         db_table = glue::glue("spuls_bayesian_analyses"),
         db_field_types = bayesian_stack_field_types,
         db_load_folder = "/xtmp/",
@@ -97,7 +97,7 @@ bayesian <- R6::R6Class(
       )
 
       results_x <<- fd::schema$new(
-        db_config = CONFIG$DB_CONFIG,
+        db_config = fd::config$db_config,
         db_table = glue::glue("spuls_bayesian_results"),
         db_field_types = bayesian_results_field_types,
         db_load_folder = "/xtmp/",
