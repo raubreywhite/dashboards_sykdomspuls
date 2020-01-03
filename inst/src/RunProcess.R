@@ -27,7 +27,7 @@ for (model_name in names(sykdomspuls::CONFIG$MODELS)){
   fd::msg(paste("starting", model_name), slack = TRUE)
 
   conf <- sykdomspuls::CONFIG$MODELS[[model_name]]
-  db_config <- CONFIG$DB_CONFIG
+  db_config <- fd::config$db_config
 
   model <- models()[[model_name]]$new(
     conf=conf,
