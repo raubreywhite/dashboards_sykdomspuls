@@ -82,7 +82,7 @@ test_that("Basic Oslo", {
 
 test_that("Sandefjord joining together", {
   library(data.table)
-  d <- GenFakeDataRaw("municip0710")
+  d <- GenFakeDataRaw("municip3804")
 
   res <- CleanData(d,
     syndrome = "influensa",
@@ -91,5 +91,5 @@ test_that("Sandefjord joining together", {
   )
   res <- res[granularity_geo == "municip"]
 
-  testthat::expect_equal(unique(res$location), "municip0710")
+  testthat::expect_equal(unique(res$location), "municip3804")
 })
