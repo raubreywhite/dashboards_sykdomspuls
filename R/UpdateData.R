@@ -151,9 +151,9 @@ UpdateData <- function() {
   d[, date := data.table::as.IDate(date)]
   d[, respiratory := NULL]
 
-  d[,influensa_all := influensa]
+  d[, influensa_all := influensa]
 
-  
+
   for (i in 1:nrow(CONFIG$SYNDROMES)) {
     conf <- CONFIG$SYNDROMES[i]
     fd::msg(sprintf("Processing %s/%s: %s", i, nrow(CONFIG$SYNDROMES), conf$tag))

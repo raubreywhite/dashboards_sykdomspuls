@@ -185,13 +185,13 @@ AnalyseStats1 <- function(
   # variables used in data.table functions in this function
 
   conn <- DBI::dbConnect(odbc::odbc(),
-    driver = CONFIG$DB_CONFIG$driver,
-    server = CONFIG$DB_CONFIG$server,
-    port = CONFIG$DB_CONFIG$port,
-    user = CONFIG$DB_CONFIG$user,
-    password = CONFIG$DB_CONFIG$password
+    driver = fd::config$db_config$driver,
+    server = fd::config$db_config$server,
+    port = fd::config$db_config$port,
+    user = fd::config$db_config$user,
+    password = fd::config$db_config$password
   )
-  fd::use_db(conn, CONFIG$DB_CONFIG$db)
+  fd::use_db(conn, fd::config$db_config$db)
   db <- dplyr::tbl(conn, "spuls_standard_results")
   data <- db %>%
     dplyr::filter(granularity_time == "weekly" & status != "Normal") %>%

@@ -65,11 +65,11 @@ quasip <- R6::R6Class(
     },
     connect_to_db = function() {
       conn <- DBI::dbConnect(odbc::odbc(),
-        driver = "MySQL",
-        server = "db",
-        port = 3306,
-        user = "root",
-        password = "example"
+        driver = fd::config$db_config$driver,
+        server = fd::config$db_config$server,
+        port = fd::config$db_config$port,
+        user = fd::config$db_config$user,
+        password = fd::config$db_config$password
       )
 
       fd:::use_db(conn, "sykdomspuls")

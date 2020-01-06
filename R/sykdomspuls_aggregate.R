@@ -111,9 +111,9 @@ sykdomspuls_aggregate_format_raw_data <- function(d, configs) {
     d[ Takst == takstkode, Kontaktype := takstkoder[takstkode]]
   }
 
-  dups <- d[, .(n_diff=length(unique(Kontaktype))), by=.(Id)]
-  d <- d[ !(Id %in% dups[n_diff>=2, Id] & Kontaktype=="Telefonkontakt")]
-  
+  dups <- d[, .(n_diff = length(unique(Kontaktype))), by = .(Id)]
+  d <- d[ !(Id %in% dups[n_diff >= 2, Id] & Kontaktype == "Telefonkontakt")]
+
   d[, age := "Ukjent"]
   d[PasientAlder == "0-4", age := "0-4"]
   d[PasientAlder == "5-9", age := "5-14"]
@@ -239,7 +239,7 @@ sykdomspuls_aggregate <- function(
   if (overwrite_file == FALSE) {
     if (file.exists(file_permanent)) {
       x <- fread(file_permanent)
-      max_date <- as.Date(max(d$Konsultasjonsdato, na.rm = T))
+      max_date <- as.Date(max(x$date, na.rm = T))
       # as long as last date in the file is within 2 days of the requested date
       if (abs(as.numeric(difftime(date_to, max_date, units = "days"))) <= 2) {
         fd::msg("file already exists! exiting...", slack = T)
@@ -286,14 +286,13 @@ sykdomspuls_aggregate <- function(
 #' @param folder a
 #' @import data.table
 #' @export
-get_n_doctors <- function(folder){
+get_n_doctors <- function(folder) {
   db <- RODBC::odbcDriverConnect("driver={ODBC Driver 17 for SQL Server};server=dm-prod;database=SykdomspulsenAnalyse; trusted_connection=yes")
   res <- RODBC::sqlQuery(db, 'select count(distinct(Behandler_Id)) as behandlere, DATEPART("ISO_WEEK", Konsultasjonsdato) as week ,DATEPART("YEAR", Konsultasjonsdato) as year from Konsultasjon group by DATEPART("ISO_WEEK", Konsultasjonsdato) ,DATEPART("YEAR", Konsultasjonsdato)')
   setDT(res)
 
   file_permanent <- fs::path(folder, "behandlere.txt")
-  
+
   fwrite(res[order(year, week)], file_permanent)
   close(db)
-
 }

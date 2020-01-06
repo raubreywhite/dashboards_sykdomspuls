@@ -30,22 +30,6 @@ CONFIG$verbose <- FALSE
 CONFIG$VERSION <- 1
 CONFIG$VERSIONS <- 1:2
 
-CONFIG$DB_DRIVER <- Sys.getenv("DB_DRIVER", "MySQL")
-CONFIG$DB_SERVER <- Sys.getenv("DB_SERVER", "db")
-CONFIG$DB_DB <- Sys.getenv("DB_DB", "sykdomspuls")
-CONFIG$DB_PORT <- as.integer(Sys.getenv("DB_PORT", 3306))
-CONFIG$DB_USER <- Sys.getenv("DB_USER", "root")
-CONFIG$DB_PASSWORD <- Sys.getenv("DB_PASSWORD", "example")
-
-CONFIG$DB_CONFIG <- list(
-  driver = CONFIG$DB_DRIVER,
-  server = CONFIG$DB_SERVER,
-  port = CONFIG$DB_PORT,
-  user = CONFIG$DB_USER,
-  password = CONFIG$DB_PASSWORD,
-  db = CONFIG$DB_DB
-)
-
 CONFIG$MEM <- rbind(
   data.table(
     tag = "influensa",
@@ -89,7 +73,7 @@ CONFIG$MEM <- rbind(
     excludeSeason = c("2009/2010"),
     mem_outputs = list(c("n_doctors_sheet")),
     icpc2 = list("R80")
-  )## ,
+  ) ## ,
   ## data.table(
   ##   tag = "gastro",
   ##   syndrome = "gastro",
@@ -109,7 +93,7 @@ CONFIG$MEM <- rbind(
   ##   folder_name = "gastro",
   ##   excludeSeason = c(""),
   ##   include_as_syndromes = FALSE
-   
+
   ## ),
   ## data.table(
   ##   tag = "gastro-N",

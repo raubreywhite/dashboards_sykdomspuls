@@ -15,7 +15,7 @@ fs::dir_create(fd::path("results", latest_date(), "skabb"))
 fs::dir_create(fd::path("data_raw", "normomo"))
 
 conf <- sykdomspuls::CONFIG$MODELS[["standard"]]
-db_config <- CONFIG$DB_CONFIG
+db_config <- fd::config$db_config
 
 model <- models()[["standard"]]$new(
   conf=conf,
