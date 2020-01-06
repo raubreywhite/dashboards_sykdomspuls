@@ -19,8 +19,8 @@ takstkoder <- list(
 # numbers from folkeregistret. This table translates between them
 
 # Any other municip numbers not in config for sykdomspulsen will be set to 9999
-#Bydels number also exist for these codes (see docoumentation)
-nav_to_freg = list(
+# Bydels number also exist for these codes (see docoumentation)
+nav_to_freg <- list(
   "312" = 301,
   "313" = 301,
   "314" = 301,
@@ -133,14 +133,12 @@ sykdomspuls_aggregate_format_raw_data <- function(d, configs) {
 
 
 
-  #Fixing behandler kommune nummer
-  for(old in names(nav_to_freg)){
-
-    d[as.character(BehandlerKommune) == old, BehandlerKommune:=nav_to_freg[old]]
-
+  # Fixing behandler kommune nummer
+  for (old in names(nav_to_freg)) {
+    d[as.character(BehandlerKommune) == old, BehandlerKommune := nav_to_freg[old]]
   }
 
-  
+
 
   # Collapsing it down to 1 row per consultation
   d <- d[, .(
