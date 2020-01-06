@@ -14,6 +14,49 @@ takstkoder <- list(
 )
 
 
+# NAV Kommune nummer til FREG
+# Some municip numbers received by KUHR do not match the expected
+# numbers from folkeregistret. This table translates between them
+
+# Any other municip numbers not in config for sykdomspulsen will be set to 9999
+#Bydels number also exist for these codes (see docoumentation)
+nav_to_freg = list(
+  "312" = 301,
+  "313" = 301,
+  "314" = 301,
+  "315" = 301,
+  "316" = 301,
+  "318" = 301,
+  "319" = 301,
+  "321" = 301,
+  "326" = 301,
+  "327" = 301,
+  "328" = 301,
+  "330" = 301,
+  "331" = 301,
+  "334" = 301,
+  "335" = 301,
+  "1161" = 1103,
+  "1162" = 1103,
+  "1164" = 1103,
+  "1165" = 1103,
+  "1202" = 1201,
+  "1203" = 1201,
+  "1204" = 1201,
+  "1205" = 1201,
+  "1206" = 1201,
+  "1208" = 1201,
+  "1209" = 1201,
+  "1210" = 1201,
+  "1603" = 301,
+  "1604" = 1601,
+  "1605" = 1601,
+  "1607" = 1601
+)
+
+
+
+
 sykdomspuls_aggregate_format_raw_data <- function(d, configs) {
   d[, influensa := 0]
   d[Diagnose %in% "R80", influensa := 1]
@@ -87,6 +130,17 @@ sykdomspuls_aggregate_format_raw_data <- function(d, configs) {
   d[PasientAlder == "60-69", age := "65+"]
   d[PasientAlder == "70-79", age := "65+"]
   d[PasientAlder == "80+", age := "65+"]
+
+
+
+  #Fixing behandler kommune nummer
+  for(old in names(nav_to_freg)){
+
+    d[as.character(BehandlerKommune) == old, BehandlerKommune:=nav_to_freg[old]]
+
+  }
+
+  
 
   # Collapsing it down to 1 row per consultation
   d <- d[, .(
