@@ -62,7 +62,7 @@ CONFIG$MEM <- rbind(
     denominator = "consult_with_influenza",
     age = jsonlite::toJSON(list(
       "0-4" = c("0-4"), "5-14" = c("5-14"),
-      "15-64" = c("20-29", "30-64"), "65+" = c("65+")
+      "15-64" = c("15-19", "20-29", "30-64"), "65+" = c("65+")
     )),
     weeklyDenominatorFunction = "sum",
     multiplicative_factor = 100,
