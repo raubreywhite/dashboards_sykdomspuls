@@ -20,6 +20,7 @@ a$out <- file(file.path("/junit", "sykdomspuls.xml"), "w+")
 a$start_context("sykdomspuls")
 
 # Run process
+system("/bin/authenticate.sh")
 folder <- fhi::temp_dir()
 try(sykdomspuls::get_n_doctors(folder),TRUE)
 if(fs::file_exists(fs::path(folder, "behandlere.txt"))){
