@@ -20,16 +20,16 @@ a$out <- file(file.path("/junit", "sykdomspuls.xml"), "w+")
 a$start_context("sykdomspuls")
 
 # Run process
-system("/bin/authenticate.sh")
-folder <- fhi::temp_dir()
-try(sykdomspuls::get_n_doctors(folder),TRUE)
-if(fs::file_exists(fs::path(folder, "behandlere.txt"))){
-  cat("\n**PASS 0**\n")
-  a$add_result("sykdomspuls", "get_n_doctors", testthat::expectation("success", "Pass"))
-} else {
-  cat("\n**FAIL 0**\n")
-  a$add_result("sykdomspuls", "get_n_doctors", testthat::expectation("error", "Fail"))
-}
+# system("/bin/authenticate.sh")
+# folder <- fhi::temp_dir()
+# try(sykdomspuls::get_n_doctors(folder),TRUE)
+# if(fs::file_exists(fs::path(folder, "behandlere.txt"))){
+#   cat("\n**PASS 0**\n")
+#   a$add_result("sykdomspuls", "get_n_doctors", testthat::expectation("success", "Pass"))
+# } else {
+#   cat("\n**FAIL 0**\n")
+#   a$add_result("sykdomspuls", "get_n_doctors", testthat::expectation("error", "Fail"))
+# }
 
 output <- processx::run("Rscript", "/r/sykdomspuls/src/RunProcess.R", error_on_status = F, echo = T)
 cat("\n\nstdout\n\n")
