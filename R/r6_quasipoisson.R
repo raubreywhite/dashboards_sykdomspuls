@@ -79,10 +79,8 @@ quasip <- R6::R6Class(
       diagnostics_x$conn <- conn
     },
     save = function() {
-      print("save QP")
-      fhi::Log("save1Before")
+      fd::msg("save QP")
       ResultsAggregateApply()
-      fhi::Log("save1After")
     }
   )
 )
