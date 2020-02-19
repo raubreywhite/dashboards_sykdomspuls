@@ -1,5 +1,5 @@
 Package: sykdomspuls
-Title: Norwegian Syndromic Surveillance System - NorSySS
+Title: Depreciated - to be removed
 Version: 2020.01.28
 Authors@R: c(
   person("Richard", "White", email = "w@rwhite.no", role = c("aut", "cre")),
