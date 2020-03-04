@@ -98,6 +98,42 @@ sykdomspuls_aggregate_format_raw_data <- function(d, configs) {
   d[, emerg5 := 0]
   d[Diagnose %in% "R80", emerg5 := 1]
 
+  # included because of coronavirus
+  d[, hoste := 0]
+  d[Diagnose %in% "R05", hoste := 0]
+
+  d[, akkut_ovre_luftveisinfeksjon := 0]
+  d[Diagnose %in% "R74", akkut_ovre_luftveisinfeksjon := 0]
+
+  d[, luftveisinfeksjon_ika := 0]
+  d[Diagnose %in% "R83", luftveisinfeksjon_ika := 0]
+
+  d[, luftveissykdom_ika := 0]
+  d[Diagnose %in% "R83", luftveissykdom_ika := 0]
+
+  d[, virusinfeksjon_ika := 0]
+  d[Diagnose %in% "A77", virusinfeksjon_ika := 0]
+
+  d[, rxx_for_corona := 0]
+  d[stringr::str_detect(Diagnose,"^R"), rxx_for_corona:=1]
+  d[Diagnose %in% c(
+    "R26", # Engstelig for kreft luftveier
+    "R71", # Kikhoste
+    "R73", # Nesebyll
+    "R80", # Influensa
+    "R84", # Ondartet svulst bronkie/lunge
+    "R85", # Ondartet svulst luftveier
+
+    "R86", # Godartet svulst luftveier
+    "R87", # Fremmedlegme i nese/larynx/brinkie
+    "R88", # Skade luftveier IKA
+    "R89", # Medfødt feil luftveier
+    "R89", # Medfødt feil luftveier
+    "R90", # Hypertrofi tonsiller/adenoid vev
+    "R92", # Uspesifisert svulst luftveier
+    "R95", # Kronisk obstruktiv lungesykdom
+    "R96", # Astma
+  ), rxx_for_corona := 0]
 
   ### Praksis
 
