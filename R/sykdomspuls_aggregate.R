@@ -190,7 +190,14 @@ sykdomspuls_aggregate_format_raw_data <- function(d, configs) {
     emerg2 = sum(emerg2),
     emerg3 = sum(emerg3),
     emerg4 = sum(emerg4),
-    emerg5 = sum(emerg5)
+    emerg5 = sum(emerg5),
+
+    hoste = sum(hoste),
+    akkut_ovre_luftveisinfeksjon = sum(akkut_ovre_luftveisinfeksjon),
+    luftveisinfeksjon_ika = sum(luftveisinfeksjon_ika),
+    luftveissykdom_ika = sum(luftveissykdom_ika),
+    virusinfeksjon_ika = sum(virusinfeksjon_ika),
+    rxx_for_corona = sum(rxx_for_corona)
   ),
   by = .(
     Id,
@@ -217,6 +224,14 @@ sykdomspuls_aggregate_format_raw_data <- function(d, configs) {
     emerg3 = sum(emerg3),
     emerg4 = sum(emerg4),
     emerg5 = sum(emerg5),
+
+    hoste = sum(hoste),
+    akkut_ovre_luftveisinfeksjon = sum(akkut_ovre_luftveisinfeksjon),
+    luftveisinfeksjon_ika = sum(luftveisinfeksjon_ika),
+    luftveissykdom_ika = sum(luftveissykdom_ika),
+    virusinfeksjon_ika = sum(virusinfeksjon_ika),
+    rxx_for_corona = sum(rxx_for_corona),
+
     consult = .N
   ),
   by = .(
