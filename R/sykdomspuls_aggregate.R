@@ -13,7 +13,6 @@ takstkoder <- list(
   "2fk" = "Legekontakt"
 )
 
-
 # NAV Kommune nummer til FREG
 # Some municip numbers received by KUHR do not match the expected
 # numbers from folkeregistret. This table translates between them
