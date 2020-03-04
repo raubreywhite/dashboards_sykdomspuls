@@ -132,7 +132,7 @@ sykdomspuls_aggregate_format_raw_data <- function(d, configs) {
     "R90", # Hypertrofi tonsiller/adenoid vev
     "R92", # Uspesifisert svulst luftveier
     "R95", # Kronisk obstruktiv lungesykdom
-    "R96", # Astma
+    "R96" # Astma
   ), rxx_for_corona := 0]
 
   ### Praksis
