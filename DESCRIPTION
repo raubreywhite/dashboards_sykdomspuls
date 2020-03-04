@@ -1,6 +1,6 @@
 Package: sykdomspuls
 Title: Depreciated - to be removed
-Version: 2020.02.19
+Version: 2020.03.04
 Authors@R: c(
   person("Richard", "White", email = "w@rwhite.no", role = c("aut", "cre")),
   person("Gunnar", "Ro", email = "gunr@fhi.no", role = c("aut"))

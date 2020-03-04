@@ -115,7 +115,7 @@ sykdomspuls_aggregate_format_raw_data <- function(d, configs) {
   d[Diagnose %in% "A77", virusinfeksjon_ika := 0]
 
   d[, rxx_for_corona := 0]
-  d[stringr::str_detect(Diagnose,"^R"), rxx_for_corona:=1]
+  d[stringr::str_detect(Diagnose, "^R"), rxx_for_corona := 1]
   d[Diagnose %in% c(
     "R26", # Engstelig for kreft luftveier
     "R71", # Kikhoste
