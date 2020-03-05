@@ -314,6 +314,91 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
     namesLong = "emerg5 diagnose",
     namesShort = "emerg5",
     include_as_syndromes = TRUE
+  ),
+
+  data.table(
+    tag = "hoste",
+    syndrome = "hoste",
+    alertInternal = FALSE,
+    alertExternal = FALSE,
+    websiteInternal = TRUE,
+    contactType = list(c("Legekontakt", "Telefonkontakt")),
+    syndromeOrConsult = "syndrome",
+    denominator = "consult_without_influenza",
+    weeklyDenominatorFunction = "sum",
+    namesLong = "Hoste",
+    namesShort = "Hoste",
+    include_as_syndromes = TRUE
+  ),
+  data.table(
+    tag = "akkut_ovre_luftveisinfeksjon",
+    syndrome = "akkut_ovre_luftveisinfeksjon",
+    alertInternal = FALSE,
+    alertExternal = FALSE,
+    websiteInternal = TRUE,
+    contactType = list(c("Legekontakt", "Telefonkontakt")),
+    syndromeOrConsult = "syndrome",
+    denominator = "consult_without_influenza",
+    weeklyDenominatorFunction = "sum",
+    namesLong = "akkut_ovre_luftveisinfeksjon",
+    namesShort = "akkut_ovre_luftveisinfeksjon",
+    include_as_syndromes = TRUE
+  ),
+  data.table(
+    tag = "luftveisinfeksjon_ika",
+    syndrome = "luftveisinfeksjon_ika",
+    alertInternal = FALSE,
+    alertExternal = FALSE,
+    websiteInternal = TRUE,
+    contactType = list(c("Legekontakt", "Telefonkontakt")),
+    syndromeOrConsult = "syndrome",
+    denominator = "consult_without_influenza",
+    weeklyDenominatorFunction = "sum",
+    namesLong = "luftveisinfeksjon_ika",
+    namesShort = "luftveisinfeksjon_ika",
+    include_as_syndromes = TRUE
+  ),
+  data.table(
+    tag = "luftveissykdom_ika",
+    syndrome = "luftveissykdom_ika",
+    alertInternal = FALSE,
+    alertExternal = FALSE,
+    websiteInternal = TRUE,
+    contactType = list(c("Legekontakt", "Telefonkontakt")),
+    syndromeOrConsult = "syndrome",
+    denominator = "consult_without_influenza",
+    weeklyDenominatorFunction = "sum",
+    namesLong = "luftveissykdom_ika",
+    namesShort = "luftveissykdom_ika",
+    include_as_syndromes = TRUE
+  ),
+  data.table(
+    tag = "virusinfeksjon_ika",
+    syndrome = "virusinfeksjon_ika",
+    alertInternal = FALSE,
+    alertExternal = FALSE,
+    websiteInternal = TRUE,
+    contactType = list(c("Legekontakt", "Telefonkontakt")),
+    syndromeOrConsult = "syndrome",
+    denominator = "consult_without_influenza",
+    weeklyDenominatorFunction = "sum",
+    namesLong = "virusinfeksjon_ika",
+    namesShort = "virusinfeksjon_ika",
+    include_as_syndromes = TRUE
+  ),
+  data.table(
+    tag = "rxx_for_corona",
+    syndrome = "rxx_for_corona",
+    alertInternal = FALSE,
+    alertExternal = FALSE,
+    websiteInternal = TRUE,
+    contactType = list(c("Legekontakt", "Telefonkontakt")),
+    syndromeOrConsult = "syndrome",
+    denominator = "consult_without_influenza",
+    weeklyDenominatorFunction = "sum",
+    namesLong = "rxx_for_corona",
+    namesShort = "rxx_for_corona",
+    include_as_syndromes = TRUE
   )
 )
 
