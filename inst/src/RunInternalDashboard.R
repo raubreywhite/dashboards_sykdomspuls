@@ -1,4 +1,4 @@
-fhi::DashboardInitialiseOpinionated("sykdomspuls")
+fd::initialize("sykdomspuls")
 
 suppressMessages(library(data.table))
 suppressMessages(library(ggplot2))

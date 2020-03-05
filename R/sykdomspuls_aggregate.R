@@ -99,19 +99,19 @@ sykdomspuls_aggregate_format_raw_data <- function(d, configs) {
 
   # included because of coronavirus
   d[, hoste := 0]
-  d[Diagnose %in% "R05", hoste := 0]
+  d[Diagnose %in% "R05", hoste := 1]
 
   d[, akkut_ovre_luftveisinfeksjon := 0]
-  d[Diagnose %in% "R74", akkut_ovre_luftveisinfeksjon := 0]
+  d[Diagnose %in% "R74", akkut_ovre_luftveisinfeksjon := 1]
 
   d[, luftveisinfeksjon_ika := 0]
-  d[Diagnose %in% "R83", luftveisinfeksjon_ika := 0]
+  d[Diagnose %in% "R83", luftveisinfeksjon_ika := 1]
 
   d[, luftveissykdom_ika := 0]
-  d[Diagnose %in% "R83", luftveissykdom_ika := 0]
+  d[Diagnose %in% "R99", luftveissykdom_ika := 1]
 
   d[, virusinfeksjon_ika := 0]
-  d[Diagnose %in% "A77", virusinfeksjon_ika := 0]
+  d[Diagnose %in% "A77", virusinfeksjon_ika := 1]
 
   d[, rxx_for_corona := 0]
   d[stringr::str_detect(Diagnose, "^R"), rxx_for_corona := 1]
