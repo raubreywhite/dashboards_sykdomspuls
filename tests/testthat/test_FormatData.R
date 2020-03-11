@@ -29,7 +29,7 @@ test_that("Basic Oslo", {
       virusinfeksjon_ika = c(100),
       rxx_for_corona = c(100),
 
-      #corona = c(100),
+      # corona = c(100),
       consult = c(500),
       municip = c("municip0301")
     )
