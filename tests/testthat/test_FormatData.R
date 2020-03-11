@@ -21,13 +21,15 @@ test_that("Basic Oslo", {
       emerg3 = c(100),
       emerg4 = c(100),
       emerg5 = c(100),
+
       hoste = c(100),
       akkut_ovre_luftveisinfeksjon = c(100),
       luftveisinfeksjon_ika = c(100),
       luftveissykdom_ika = c(100),
       virusinfeksjon_ika = c(100),
       rxx_for_corona = c(100),
-      corona = c(100),
+
+      #corona = c(100),
       consult = c(500),
       municip = c("municip0301")
     )
