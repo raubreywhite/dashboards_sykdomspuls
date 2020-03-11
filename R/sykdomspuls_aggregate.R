@@ -134,6 +134,9 @@ sykdomspuls_aggregate_format_raw_data <- function(d, configs) {
     "R96" # Astma
   ), rxx_for_corona := 0]
 
+  d[, corona := 0]
+  d[Diagnose %in% "R991", corona := 1]
+
   ### Praksis
 
   d[Praksis == "Fastl\u00F8nnet", Praksis := "Fastlege"]
@@ -196,7 +199,9 @@ sykdomspuls_aggregate_format_raw_data <- function(d, configs) {
     luftveisinfeksjon_ika = sum(luftveisinfeksjon_ika),
     luftveissykdom_ika = sum(luftveissykdom_ika),
     virusinfeksjon_ika = sum(virusinfeksjon_ika),
-    rxx_for_corona = sum(rxx_for_corona)
+    rxx_for_corona = sum(rxx_for_corona),
+
+    corona = sum(corona)
   ),
   by = .(
     Id,
@@ -230,6 +235,8 @@ sykdomspuls_aggregate_format_raw_data <- function(d, configs) {
     luftveissykdom_ika = sum(luftveissykdom_ika),
     virusinfeksjon_ika = sum(virusinfeksjon_ika),
     rxx_for_corona = sum(rxx_for_corona),
+
+    corona = sum(corona),
 
     consult = .N
   ),
