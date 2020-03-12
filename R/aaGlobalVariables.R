@@ -399,6 +399,20 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
     namesLong = "rxx_for_corona",
     namesShort = "rxx_for_corona",
     include_as_syndromes = TRUE
+  ),
+  data.table(
+    tag = "corona",
+    syndrome = "corona",
+    alertInternal = FALSE,
+    alertExternal = FALSE,
+    websiteInternal = TRUE,
+    contactType = list(c("Legekontakt", "Telefonkontakt")),
+    syndromeOrConsult = "syndrome",
+    denominator = "consult_without_influenza",
+    weeklyDenominatorFunction = "sum",
+    namesLong = "Corona",
+    namesShort = "Corona",
+    include_as_syndromes = TRUE
   )
 )
 
