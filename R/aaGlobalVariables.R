@@ -406,7 +406,7 @@ CONFIG$BAYESIAN <- CONFIG$STANDARD <- rbind(
     alertInternal = FALSE,
     alertExternal = FALSE,
     websiteInternal = TRUE,
-    contactType = list(c("Legekontakt", "Telefonkontakt")),
+    contactType = list(c("Legekontakt", "Telefonkontakt", "Ekonsultasjon")),
     syndromeOrConsult = "syndrome",
     denominator = "consult_without_influenza",
     weeklyDenominatorFunction = "sum",
