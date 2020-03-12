@@ -3,6 +3,7 @@ takstkoder <- list(
   "11ak" = "Legekontakt",
   "1ad" = "Telefonkontakt",
   "1ak" = "Telefonkontakt",
+  "1be" = "Ekonsultasjon",
   "1bd" = "Telefonkontakt",
   "1bk" = "Telefonkontakt",
   "1g" = "Telefonkontakt",
