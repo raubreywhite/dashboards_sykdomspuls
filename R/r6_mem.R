@@ -68,7 +68,7 @@ run_all_mem <- function(conf, mem_schema, mem_limits_schema) {
     # delete last days of data if it is not a sunday
     if (format.Date(max(data$date), "%u") != 7) {
       yrwk_to_delete <- fhi::isoyearweek(max(data$date))
-      days_to_delete <- fhidata::days[yrwk==yrwk_to_delete,c(
+      days_to_delete <- fhidata::days[yrwk == yrwk_to_delete, c(
         "mon",
         "tue",
         "wed",
@@ -76,8 +76,8 @@ run_all_mem <- function(conf, mem_schema, mem_limits_schema) {
         "fri",
         "sat",
         "sun"
-        )]
-      days_to_delete <- as.Date(unlist(days_to_delete),origin="1970-01-01")
+      )]
+      days_to_delete <- as.Date(unlist(days_to_delete), origin = "1970-01-01")
 
       data <- data[!date %in% days_to_delete]
     }
