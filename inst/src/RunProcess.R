@@ -33,7 +33,19 @@ for (model_name in names(sykdomspuls::CONFIG$MODELS)){
 
 CreateLatestDoneFile()
 
+# date_results <- fd::tbl("spuls_standard_results") %>%
+#   dplyr::filter(granularity_time=="daily") %>%
+#   dplyr::summarise(date=max(date, na.rm=T)) %>%
+#   dplyr::collect() %>%
+#   fd::latin1_to_utf8()
+# date_results <- date_results$date
+date_results <- fd::tbl("spuls_mem_results") %>%
+  dplyr::summarise(date=max(date, na.rm=T)) %>%
+  dplyr::collect() %>%
+  fd::latin1_to_utf8()
+
 date_results <- fd::tbl("spuls_standard_results") %>%
+  dplyr::filter(granularity_time=="daily") %>%
   dplyr::summarise(date=max(date, na.rm=T)) %>%
   dplyr::collect() %>%
   fd::latin1_to_utf8()
