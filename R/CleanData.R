@@ -130,7 +130,7 @@ CleanData <- function(d,
 
   # delete last day of data if it is not a sunday
   if (format.Date(max(dates$datex), "%u") != 7) {
-  #  dates <- dates[yrwk != max(yrwk)]
+    #  dates <- dates[yrwk != max(yrwk)]
   }
   dates[, datex := NULL]
   dates[, yrwk := NULL]
