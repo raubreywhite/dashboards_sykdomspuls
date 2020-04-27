@@ -70,7 +70,7 @@ calculate_confidence_interval <- function(data, last_weeks = NULL) {
     pop <- population[i]
 
     if (!is.na(pop) && pop > 0) {
-      if (pop < 100000) {
+      #if (pop < 100000) {
         if (pop != denom) {
           CI <- samplingbook::Sprop(m = data[data_i, n], n = denom, N = population[i])$ci$exact
         } else {
@@ -81,14 +81,14 @@ calculate_confidence_interval <- function(data, last_weeks = NULL) {
           low_p = CI[1], high_p = CI[2],
           low_n = CI[1] * denom, high_n = CI[2] * denom
         )
-      } else {
-        CI <- asbio::ci.p(phat = data[data_i, n] / denom, n = denom, N = population[i], summarized = T, fpc = T)$ci
-        cis[[i]] <- list(
-          yrwk = data[data_i, yrwk], phat = CI[1],
-          low_p = CI[2], high_p = CI[3],
-          low_n = denom * CI[2], high_n = denom * CI[3]
-        )
-      }
+      # } else {
+      #   CI <- asbio::ci.p(phat = data[data_i, n] / denom, n = denom, N = population[i], summarized = T, fpc = T)$ci
+      #   cis[[i]] <- list(
+      #     yrwk = data[data_i, yrwk], phat = CI[1],
+      #     low_p = CI[2], high_p = CI[3],
+      #     low_n = denom * CI[2], high_n = denom * CI[3]
+      #   )
+      # }
     } else {
       cis[[i]] <- list(yrwk = data[data_i, yrwk], phat = 0, low_p = 0, high_p = 0, low_n = 0, high_n = 5)
     }

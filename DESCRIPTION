@@ -46,7 +46,6 @@ Imports:
   reshape2,
   rstanarm,
   fs,
-  asbio,
   samplingbook,
   ggpubr,
   xlsx,
